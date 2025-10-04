@@ -6,7 +6,7 @@ from openai import OpenAI
 class DatabricksClient:
     def __init__(self, model_configs):
         self.access_token = os.environ.get('DATABRICKS_ACCESS_TOKEN')
-        self.base_url = "https://adb-6392715431242983.3.azuredatabricks.net/serving-endpoints"
+        self.base_url = "base_url" 
         self.model_configs = model_configs
         
         # Initialize OpenAI client with Databricks configuration
