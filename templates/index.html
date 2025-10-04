@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CI/CD Code Generation Tool</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3a86ff;
+            --secondary-color: #8338ec;
+            --accent-color: #ff006e;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #38b000;
+            --warning-color: #ff9e00;
+            --danger-color: #d00000;
+            --gray-color: #6c757d;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f8fafc;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.2rem 0;
+            box-shadow: var(--box-shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+
+        .logo i {
+            font-size: 2rem;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            padding: 8px 16px;
+            border-radius: var(--border-radius);
+        }
+
+        nav a:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 3rem 0;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-bottom: 2rem;
+            border-radius: 0 0 30px 30px;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+        }
+
+        /* Main Content - Updated Layout */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 1.8rem;
+            transition: var(--transition);
+            border: 1px solid #e2e8f0;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Response Section - Now takes more space */
+        .response-section {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            min-height: 500px;
+        }
+
+        .response-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .response-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.85rem;
+            color: var(--gray-color);
+        }
+
+        .response-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .response-container {
+            flex: 1;
+            min-height: 400px;
+            max-height: 600px;
+            overflow-y: auto;
+            padding: 1.5rem;
+            border: 2px solid #e2e8f0;
+            border-radius: var(--border-radius);
+            background: #f8fafc;
+            margin-bottom: 1rem;
+            transition: var(--transition);
+        }
+
+        .response-container:focus {
+            border-color: var(--primary-color);
+        }
+
+        .response-content {
+            white-space: pre-wrap;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.7;
+            color: #2d3748;
+        }
+
+        .response-placeholder {
+            text-align: center;
+            color: var(--gray-color);
+            padding: 2rem;
+        }
+
+        .response-placeholder i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Input Section - Positioned below the response */
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .input-controls {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 1rem;
+            align-items: start;
+        }
+
+        .question-input {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .question-input textarea {
+            width: 100%;
+            min-height: 140px;
+            padding: 1.2rem;
+            border: 2px solid #e2e8f0;
+            border-radius: var(--border-radius);
+            resize: vertical;
+            font-size: 1rem;
+            transition: var(--transition);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.5;
+            background: #f8fafc;
+        }
+
+        .question-input textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.1);
+            background: white;
+        }
+
+        .parameters-panel {
+            background: #f8fafc;
+            border-radius: var(--border-radius);
+            padding: 1.2rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .parameter-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .parameter-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .parameter-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            font-size: 0.9rem;
+        }
+
+        .model-selector select, .action-selector select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e2e8f0;
+            border-radius: var(--border-radius);
+            font-size: 0.9rem;
+            background-color: white;
+            transition: var(--transition);
+        }
+
+        .model-selector select:focus, .action-selector select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(58, 134, 255, 0.1);
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+            margin-top: 1rem;
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        /* Enhanced Code Blocks */
+        .code-block {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            overflow-x: auto;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #2d3748;
+        }
+
+        .code-language {
+            font-size: 0.8rem;
+            color: #a0aec0;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .code-content {
+            font-family: 'Fira Code', 'Courier New', monospace;
+            line-height: 1.5;
+            white-space: pre;
+        }
+
+        /* Documentation Section */
+        .documentation-section {
+            margin-bottom: 3rem;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--dark-color);
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .doc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.8rem;
+        }
+
+        .doc-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 1.8rem;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            border: 1px solid #e2e8f0;
+        }
+
+        .doc-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .doc-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1.2rem;
+        }
+
+        .doc-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            color: var(--dark-color);
+        }
+
+        .doc-description {
+            color: var(--gray-color);
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+            line-height: 1.6;
+        }
+
+        .doc-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.8rem;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 3rem 0 1.5rem;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-column h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 40px;
+            height: 3px;
+            background-color: var(--primary-color);
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-column a {
+            color: #adb5bd;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-column a:hover {
+            color: white;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .social-links a:hover {
+            background-color: var(--primary-color);
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #adb5bd;
+            font-size: 0.9rem;
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 3rem;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(58, 134, 255, 0.2);
+            border-left-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-dots {
+            display: inline-block;
+            position: relative;
+            width: 80px;
+            height: 20px;
+        }
+
+        .loading-dots div {
+            position: absolute;
+            top: 8px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            animation-timing-function: cubic-bezier(0, 1, 1, 0);
+        }
+
+        .loading-dots div:nth-child(1) {
+            left: 8px;
+            animation: loading-dots1 0.6s infinite;
+        }
+
+        .loading-dots div:nth-child(2) {
+            left: 8px;
+            animation: loading-dots2 0.6s infinite;
+        }
+
+        .loading-dots div:nth-child(3) {
+            left: 32px;
+            animation: loading-dots2 0.6s infinite;
+        }
+
+        .loading-dots div:nth-child(4) {
+            left: 56px;
+            animation: loading-dots3 0.6s infinite;
+        }
+
+        @keyframes loading-dots1 {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes loading-dots3 {
+            0% { transform: scale(1); }
+            100% { transform: scale(0); }
+        }
+
+        @keyframes loading-dots2 {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(24px, 0); }
+        }
+
+        /* Status indicators */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8rem;
+            padding: 6px 12px;
+            border-radius: 20px;
+            margin-left: 10px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .status-online {
+            background-color: rgba(40, 167, 69, 0.2);
+            color: #155724;
+        }
+        
+        .status-offline {
+            background-color: rgba(220, 53, 69, 0.2);
+            color: #721c24;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        
+        .status-online .status-dot {
+            background-color: #28a745;
+        }
+        
+        .status-offline .status-dot {
+            background-color: #dc3545;
+        }
+
+        /* Notification Styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            min-width: 300px;
+            max-width: 500px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            border-left: 4px solid #3a86ff;
+            animation: slideIn 0.3s ease;
+        }
+        .notification-success { border-left-color: var(--success-color); }
+        .notification-error { border-left-color: var(--danger-color); }
+        .notification-warning { border-left-color: var(--warning-color); }
+        .notification-info { border-left-color: var(--primary-color); }
+        .notification-content {
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .notification-message {
+            flex: 1;
+            margin-right: 10px;
+        }
+        .notification-close {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #666;
+            padding: 4px;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+        .notification-close:hover {
+            background: #f8f9fa;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            nav ul {
+                gap: 1rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .input-controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .response-meta {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+        }
+
+        /* Utility Classes */
+        .text-sm { font-size: 0.875rem; }
+        .text-xs { font-size: 0.75rem; }
+        .font-semibold { font-weight: 600; }
+        .text-center { text-align: center; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mt-2 { margin-top: 0.5rem; }
+        .mt-4 { margin-top: 1rem; }
+        .p-3 { padding: 0.75rem; }
+        .bg-light { background-color: #f8f9fa; }
+        .rounded { border-radius: 6px; }
+        .shadow-sm { box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-rocket"></i>
+                    <span>CI/CD Helper</span>
+                    <span id="backend-status" class="status-indicator status-offline">
+                        <span class="status-dot"></span>
+                        <span>Backend Offline</span>
+                    </span>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
+                        <li><a href="/documentation"><i class="fas fa-book"></i> Documentation</a></li>
+                        <li><a href="#"><i class="fas fa-cogs"></i> Tools</a></li>
+                        <li><a href="/support"><i class="fas fa-question-circle"></i> Help</a></li>
+                    </ul>
+                </nav>
+                <div class="auth-buttons">
+                    <button class="btn btn-outline"><i class="fas fa-sign-in-alt"></i> Login</button>
+                    <button class="btn btn-primary"><i class="fas fa-user-plus"></i> Sign Up</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>CI/CD Code Generation Tool</h1>
+            <p>Streamline your deployment processes with AI-powered code generation, documentation, and best practices for modern CI/CD pipelines.</p>
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="get-started-btn"><i class="fas fa-play-circle"></i> Get Started</button>
+                <button class="btn btn-outline" id="view-docs-btn"><i class="fas fa-book-open"></i> View Documentation</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content - Updated Layout -->
+    <div class="container">
+        <div class="main-content">
+            <!-- Response Section - Now at the top -->
+            <div class="card">
+                <div class="response-section">
+                    <div class="response-header">
+                        <h2 class="card-title"><i class="fas fa-terminal"></i> Generated Output</h2>
+                        <div class="response-meta">
+                            <span id="response-info">Ready to generate</span>
+                            <div class="response-actions">
+                                <button class="btn btn-outline" id="copy-btn" style="color: var(--dark-color); border-color: var(--dark-color); padding: 6px 12px;" title="Copy to clipboard">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                                <button class="btn btn-outline" id="download-btn" style="color: var(--dark-color); border-color: var(--dark-color); padding: 6px 12px;" title="Download as file">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="response-container" id="response-container">
+                        <div class="loading" id="loading-indicator">
+                            <div class="spinner"></div>
+                            <div class="loading-dots">
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                            </div>
+                            <p>Generating response with AI model...</p>
+                        </div>
+                        <div class="response-content" id="response-content">
+                            <div class="response-placeholder">
+                                <i class="fas fa-code"></i>
+                                <h3>Your CI/CD Code Will Appear Here</h3>
+                                <p>Enter your requirements in the input field and click "Generate Code" to get started.</p>
+                                <div class="mt-4 p-3 bg-light rounded">
+                                    <strong>Try these examples:</strong>
+                                    <ul style="text-align: left; margin-top: 0.5rem;">
+                                        <li>"Create a GitHub Actions workflow for a Node.js application"</li>
+                                        <li>"How can I optimize my Docker build process?"</li>
+                                        <li>"Explain blue-green deployment strategy"</li>
+                                        <li>"Generate a Jenkins pipeline for a Python microservice"</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Section - Now below the response -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fas fa-code"></i> CI/CD Code Generator</h2>
+                    <span class="badge" style="background-color: var(--success-color); color: white; padding: 6px 12px; border-radius: 20px; font-size: 0.8rem;">AI Powered</span>
+                </div>
+                <div class="input-section">
+                    <div class="input-controls">
+                        <div class="question-input">
+                            <textarea id="question-input" placeholder="Describe your CI/CD requirements or ask a question about deployment pipelines... (e.g., Create a GitHub Actions workflow for a Node.js application)"></textarea>
+                            <div class="action-buttons">
+                                <button class="btn btn-primary" id="generate-btn"><i class="fas fa-bolt"></i> Generate Code</button>
+                                <button class="btn btn-success" id="optimize-btn"><i class="fas fa-magic"></i> Optimize Pipeline</button>
+                                <button class="btn btn-warning" id="explain-btn"><i class="fas fa-lightbulb"></i> Explain Concept</button>
+                                <button class="btn btn-secondary" id="clear-btn"><i class="fas fa-broom"></i> Clear</button>
+                            </div>
+                        </div>
+                        <div class="parameters-panel">
+                            <div class="parameter-group">
+                                <label class="parameter-label"><i class="fas fa-brain"></i> AI Model</label>
+                                <div class="model-selector">
+                                    <select id="model-selector">
+                                        <option value="meta-llama-3-3-70b-instruct">Llama 3 70B (Recommended)</option>
+                                        <option value="llama-4-maverick">Llama 4 Maverick</option>
+                                        <option value="meta-llama-3-1-405b-instruct">Llama 3.1 405B (Advanced)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="parameter-group">
+                                <label class="parameter-label"><i class="fas fa-sliders-h"></i> Action Type</label>
+                                <div class="action-selector">
+                                    <select id="action-selector">
+                                        <option value="generate">Generate Code</option>
+                                        <option value="optimize">Optimize Pipeline</option>
+                                        <option value="explain">Explain Concept</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="parameter-group">
+                                <label class="parameter-label"><i class="fas fa-cog"></i> Parameters</label>
+                                <div style="font-size: 0.8rem; color: var(--gray-color);">
+                                    <div>• Max Tokens: 4096</div>
+                                    <div>• Temperature: 0.1</div>
+                                    <div>• Top P: 0.9</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Documentation Section -->
+        <section class="documentation-section">
+            <h2 class="section-title">CI/CD Documentation & Resources</h2>
+            <div class="doc-grid">
+                <div class="doc-card">
+                    <div class="doc-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h3 class="doc-title">Getting Started Guide</h3>
+                    <p class="doc-description">Learn the basics of CI/CD and how to implement automated deployment pipelines for your projects with step-by-step tutorials.</p>
+                    <div class="doc-actions">
+                        <button class="btn btn-primary doc-read-btn" style="padding: 8px 16px;">Read Guide</button>
+                        <button class="btn btn-outline doc-download-btn" style="color: var(--dark-color); border-color: var(--dark-color); padding: 8px 16px;"><i class="fas fa-download"></i></button>
+                    </div>
+                </div>
+                <div class="doc-card">
+                    <div class="doc-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <h3 class="doc-title">Best Practices</h3>
+                    <p class="doc-description">Explore industry best practices for building secure, efficient, and reliable CI/CD pipelines with real-world examples.</p>
+                    <div class="doc-actions">
+                        <button class="btn btn-primary doc-read-btn" style="padding: 8px 16px;">View Practices</button>
+                        <button class="btn btn-outline doc-download-btn" style="color: var(--dark-color); border-color: var(--dark-color); padding: 8px 16px;"><i class="fas fa-download"></i></button>
+                    </div>
+                </div>
+                <div class="doc-card">
+                    <div class="doc-icon">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <h3 class="doc-title">Tool Integrations</h3>
+                    <p class="doc-description">Learn how to integrate popular CI/CD tools like Jenkins, GitHub Actions, GitLab CI, Azure DevOps, and more.</p>
+                    <div class="doc-actions">
+                        <button class="btn btn-primary doc-read-btn" style="padding: 8px 16px;">Explore Tools</button>
+                        <button class="btn btn-outline doc-download-btn" style="color: var(--dark-color); border-color: var(--dark-color); padding: 8px 16px;"><i class="fas fa-download"></i></button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>CI/CD Helper</h3>
+                    <p>Advanced AI-powered platform for streamlining deployment processes and generating CI/CD code.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-github"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Resources</h3>
+                    <ul>
+                        <li><a href="/documentation">Documentation</a></li>
+                        <li><a href="/documentation">Tutorials</a></li>
+                        <li><a href="/documentation">Blog</a></li>
+                        <li><a href="#">API Reference</a></li>
+                        <li><a href="#">Community</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Tools</h3>
+                    <ul>
+                        <li><a href="#">Code Generator</a></li>
+                        <li><a href="#">Pipeline Optimizer</a></li>
+                        <li><a href="#">Security Scanner</a></li>
+                        <li><a href="#">Performance Analyzer</a></li>
+                        <li><a href="#">Compliance Checker</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Support</h3>
+                    <ul>
+                        <li><a href="/support">Help Center</a></li>
+                        <li><a href="/support">Contact Us</a></li>
+                        <li><a href="/support">Status</a></li>
+                        <li><a href="/support">Report Issue</a></li>
+                        <li><a href="/support">Feature Request</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2025 Advanced CI/CD Code Generation Tool. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Enhanced frontend JavaScript with improved UI
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const generateBtn = document.getElementById('generate-btn');
+            const optimizeBtn = document.getElementById('optimize-btn');
+            const explainBtn = document.getElementById('explain-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            const questionInput = document.getElementById('question-input');
+            const modelSelector = document.getElementById('model-selector');
+            const actionSelector = document.getElementById('action-selector');
+            const responseContent = document.getElementById('response-content');
+            const responseContainer = document.getElementById('response-container');
+            const responseInfo = document.getElementById('response-info');
+            const loadingIndicator = document.getElementById('loading-indicator');
+            const copyBtn = document.getElementById('copy-btn');
+            const downloadBtn = document.getElementById('download-btn');
+            const backendStatus = document.getElementById('backend-status');
+            const getStartedBtn = document.getElementById('get-started-btn');
+            const viewDocsBtn = document.getElementById('view-docs-btn');
+
+            // API Configuration
+            const API_BASE_URL = window.location.origin + '/api';
+            let API_KEY = localStorage.getItem('cicd_api_key');
+
+            // Check if we have an API key, if not, generate one
+            if (!API_KEY) {
+                generateApiKey();
+            } else {
+                // Validate existing API key on startup
+                validateApiKey();
+            }
+
+            // Clear response function
+            function clearResponse() {
+                responseContent.innerHTML = `
+                    <div class="response-placeholder">
+                        <i class="fas fa-code"></i>
+                        <h3>Your CI/CD Code Will Appear Here</h3>
+                        <p>Enter your requirements in the input field and click "Generate Code" to get started.</p>
+                        <div class="mt-4 p-3 bg-light rounded">
+                            <strong>Try these examples:</strong>
+                            <ul style="text-align: left; margin-top: 0.5rem;">
+                                <li>"Create a GitHub Actions workflow for a Node.js application"</li>
+                                <li>"How can I optimize my Docker build process?"</li>
+                                <li>"Explain blue-green deployment strategy"</li>
+                                <li>"Generate a Jenkins pipeline for a Python microservice"</li>
+                            </ul>
+                        </div>
+                    </div>
+                `;
+                responseInfo.textContent = "Ready to generate";
+                questionInput.focus();
+                showNotification('🧹 Response area cleared', 'info');
+            }
+
+            // Initialize clear button
+            clearBtn.addEventListener('click', clearResponse);
+
+            async function generateApiKey() {
+                try {
+                    showNotification('🔑 Generating API key...', 'info');
+                    const response = await fetch(`${API_BASE_URL}/generate-api-key`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ user_id: 'frontend_user' })
+                    });
+                    
+                    const result = await response.json();
+                    if (result.success) {
+                        API_KEY = result.api_key;
+                        localStorage.setItem('cicd_api_key', API_KEY);
+                        showNotification('✅ API key generated successfully!', 'success');
+                        updateBackendStatus(true);
+                    } else {
+                        showNotification('❌ Failed to generate API key: ' + result.error, 'error');
+                        updateBackendStatus(false);
+                    }
+                } catch (error) {
+                    console.error('Failed to generate API key:', error);
+                    showNotification('❌ Failed to generate API key. Please check backend connection.', 'error');
+                    updateBackendStatus(false);
+                }
+            }
+
+            async function validateApiKey() {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/validate-api-key`, {
+                        method: 'POST',
+                        headers: {
+                            'X-API-Key': API_KEY,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    const result = await response.json();
+                    if (result.success && result.valid) {
+                        updateBackendStatus(true);
+                    } else {
+                        // API key is invalid, generate a new one
+                        localStorage.removeItem('cicd_api_key');
+                        generateApiKey();
+                    }
+                } catch (error) {
+                    console.error('Failed to validate API key:', error);
+                }
+            }
+
+            async function makeAPICall(endpoint, data, method = 'POST') {
+                try {
+                    const options = {
+                        method: method,
+                        headers: {
+                            'X-API-Key': API_KEY
+                        }
+                    };
+
+                    if (method === 'POST' && data) {
+                        options.headers['Content-Type'] = 'application/json';
+                        options.body = JSON.stringify(data);
+                    }
+
+                    const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    return await response.json();
+                } catch (error) {
+                    console.error('API call failed:', error);
+                    return { 
+                        success: false, 
+                        error: 'Network error - make sure the backend is running on port 5000' 
+                    };
+                }
+            }
+
+            function updateBackendStatus(isOnline) {
+                if (isOnline) {
+                    backendStatus.className = 'status-indicator status-online';
+                    backendStatus.innerHTML = '<span class="status-dot"></span><span>Backend Online</span>';
+                } else {
+                    backendStatus.className = 'status-indicator status-offline';
+                    backendStatus.innerHTML = '<span class="status-dot"></span><span>Backend Offline</span>';
+                }
+            }
+
+            function showNotification(message, type = 'info') {
+                // Remove existing notifications
+                const existingNotifications = document.querySelectorAll('.notification');
+                existingNotifications.forEach(notif => notif.remove());
+
+                const notification = document.createElement('div');
+                notification.className = `notification notification-${type}`;
+                notification.innerHTML = `
+                    <div class="notification-content">
+                        <span class="notification-message">${message}</span>
+                        <button class="notification-close">&times;</button>
+                    </div>
+                `;
+
+                document.body.appendChild(notification);
+
+                // Auto remove after 5 seconds
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.remove();
+                    }
+                }, 5000);
+
+                // Close button
+                notification.querySelector('.notification-close').addEventListener('click', () => {
+                    notification.remove();
+                });
+            }
+
+            async function handleAPICall(action) {
+                if (questionInput.value.trim() === '') {
+                    showNotification('⚠️ Please enter your CI/CD requirements or question.', 'warning');
+                    questionInput.focus();
+                    return;
+                }
+                
+                loadingIndicator.style.display = 'flex';
+                responseContent.innerHTML = '';
+                responseInfo.textContent = `Generating ${action}...`;
+                
+                const requestData = {
+                    prompt: questionInput.value,
+                    model: modelSelector.value,
+                    action: action
+                };
+                
+                showNotification(`🔄 Generating ${action} response with ${modelSelector.options[modelSelector.selectedIndex].text}...`, 'info');
+                
+                try {
+                    const result = await makeAPICall('/generate', requestData);
+                    
+                    loadingIndicator.style.display = 'none';
+                    
+                    if (result.success) {
+                        const formattedContent = formatCodeResponse(result.content);
+                        responseContent.innerHTML = formattedContent;
+                        
+                        // Update response info
+                        responseInfo.textContent = `Generated with ${result.model_used} • ${result.processing_time.toFixed(2)}s`;
+                        
+                        showNotification(`✅ ${action.charAt(0).toUpperCase() + action.slice(1)} completed successfully!`, 'success');
+                        updateBackendStatus(true);
+                    } else {
+                        responseContent.innerHTML = `
+                            <div class="p-3 bg-light rounded" style="color: #d00000;">
+                                <strong><i class="fas fa-exclamation-triangle"></i> Error:</strong> ${result.error}
+                                <br><br>
+                                <small>Make sure your backend is running and your Databricks token is configured correctly.</small>
+                            </div>
+                        `;
+                        responseInfo.textContent = "Error occurred";
+                        showNotification(`❌ Failed to generate response: ${result.error}`, 'error');
+                        updateBackendStatus(false);
+                    }
+                    
+                    // Apply syntax highlighting to code blocks
+                    highlightCodeBlocks();
+                } catch (error) {
+                    loadingIndicator.style.display = 'none';
+                    responseInfo.textContent = "Request failed";
+                    showNotification('❌ Request failed: ' + error.message, 'error');
+                }
+            }
+
+            function formatCodeResponse(content) {
+                // Convert markdown code blocks to enhanced HTML
+                content = content.replace(/```(\w+)?\n([\s\S]*?)```/g, function(match, lang, code) {
+                    const language = lang || 'plaintext';
+                    return `
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="code-language">${language}</span>
+                                <button class="btn btn-outline copy-code-btn" style="color: #a0aec0; border-color: #a0aec0; padding: 4px 8px; font-size: 0.8rem;">
+                                    <i class="fas fa-copy"></i> Copy
+                                </button>
+                            </div>
+                            <pre class="code-content">${escapeHtml(code.trim())}</pre>
+                        </div>
+                    `;
+                });
+                
+                // Convert markdown headers
+                content = content.replace(/^### (.*?)$/gm, '<h3 style="margin: 1.5rem 0 0.8rem 0; color: #2d3748;">$1</h3>');
+                content = content.replace(/^## (.*?)$/gm, '<h2 style="margin: 2rem 0 1rem 0; color: #2d3748; border-bottom: 2px solid #f1f5f9; padding-bottom: 0.5rem;">$1</h2>');
+                content = content.replace(/^# (.*?)$/gm, '<h1 style="margin: 2.5rem 0 1.2rem 0; color: #2d3748;">$1</h1>');
+                
+                // Convert markdown lists
+                content = content.replace(/^\* (.*?)$/gm, '<li style="margin-bottom: 0.5rem;">$1</li>');
+                content = content.replace(/(<li>.*?<\/li>\n?)+/g, '<ul style="margin: 1rem 0; padding-left: 1.5rem;">$&</ul>');
+                
+                // Convert markdown bold and italic
+                content = content.replace(/\*\*(.*?)\*\*/g, '<strong style="color: #2d3748;">$1</strong>');
+                content = content.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                
+                // Convert line breaks
+                content = content.replace(/\n/g, '<br>');
+                
+                return content;
+            }
+
+            function escapeHtml(text) {
+                const map = {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                };
+                return text.replace(/[&<>"']/g, m => map[m]);
+            }
+
+            function highlightCodeBlocks() {
+                // Add event listeners to copy code buttons
+                document.querySelectorAll('.copy-code-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const codeContent = this.closest('.code-block').querySelector('.code-content').textContent;
+                        navigator.clipboard.writeText(codeContent).then(() => {
+                            const originalText = this.innerHTML;
+                            this.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                            this.style.color = '#38b000';
+                            setTimeout(() => {
+                                this.innerHTML = originalText;
+                                this.style.color = '#a0aec0';
+                            }, 2000);
+                        });
+                    });
+                });
+            }
+
+            // Copy to clipboard functionality
+            copyBtn.addEventListener('click', function() {
+                const textToCopy = responseContent.innerText;
+                if (!textToCopy || textToCopy.includes('Your CI/CD Code Will Appear Here')) {
+                    showNotification('⚠️ No content to copy', 'warning');
+                    return;
+                }
+                
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    showNotification('✅ Code copied to clipboard!', 'success');
+                    // Visual feedback
+                    const originalHTML = copyBtn.innerHTML;
+                    copyBtn.innerHTML = '<i class="fas fa-check"></i>';
+                    copyBtn.style.backgroundColor = 'var(--success-color)';
+                    setTimeout(() => {
+                        copyBtn.innerHTML = originalHTML;
+                        copyBtn.style.backgroundColor = '';
+                    }, 2000);
+                }).catch(err => {
+                    showNotification('❌ Failed to copy to clipboard', 'error');
+                });
+            });
+
+            // Download functionality
+            downloadBtn.addEventListener('click', function() {
+                const textToDownload = responseContent.innerText;
+                if (!textToDownload || textToDownload.includes('Your CI/CD Code Will Appear Here')) {
+                    showNotification('⚠️ No content to download', 'warning');
+                    return;
+                }
+                
+                const blob = new Blob([textToDownload], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `ci-cd-generated-${Date.now()}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showNotification('✅ File downloaded successfully!', 'success');
+            });
+
+            // Navigation and button handlers
+            document.querySelectorAll('nav a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    
+                    // Only prevent default for anchor links and handle smooth scrolling
+                    if (href === '#' || href.startsWith('#')) {
+                        e.preventDefault();
+                        const text = this.querySelector('i').nextSibling.textContent.trim();
+                        
+                        switch(text) {
+                            case 'Home':
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                                break;
+                            case 'Tools':
+                                document.querySelector('.main-content').scrollIntoView({ behavior: 'smooth' });
+                                break;
+                            case 'Help':
+                                showNotification('📖 Help section coming soon! For now, try the documentation.', 'info');
+                                break;
+                        }
+                    }
+                    // For actual page links (/documentation, /), let the browser handle them normally
+                });
+            });
+
+            // Auth buttons
+            document.querySelector('.auth-buttons .btn-outline').addEventListener('click', function() {
+                window.location.href = '/login';
+            });
+            
+            document.querySelector('.auth-buttons .btn-primary').addEventListener('click', function() {
+                window.location.href = '/signup';
+            });
+
+            // Get Started button
+            getStartedBtn.addEventListener('click', function() {
+                document.querySelector('.main-content').scrollIntoView({ behavior: 'smooth' });
+                questionInput.focus();
+            });
+
+            // View Documentation button
+            viewDocsBtn.addEventListener('click', function() {
+                window.location.href = '/documentation';
+            });
+
+            // Documentation cards
+            document.querySelectorAll('.doc-read-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const title = this.closest('.doc-card').querySelector('.doc-title').textContent;
+                    showNotification(`📚 Opening ${title}... (Coming soon!)`, 'info');
+                });
+            });
+
+            document.querySelectorAll('.doc-download-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const title = this.closest('.doc-card').querySelector('.doc-title').textContent;
+                    showNotification(`💾 Downloading ${title}... (Coming soon!)`, 'info');
+                });
+            });
+
+            // Event listeners for main action buttons
+            generateBtn.addEventListener('click', () => {
+                const action = actionSelector.value;
+                handleAPICall(action);
+            });
+
+            optimizeBtn.addEventListener('click', () => handleAPICall('optimize'));
+            explainBtn.addEventListener('click', () => handleAPICall('explain'));
+
+            // Sync action selector with button clicks
+            optimizeBtn.addEventListener('click', () => {
+                actionSelector.value = 'optimize';
+            });
+
+            explainBtn.addEventListener('click', () => {
+                actionSelector.value = 'explain';
+            });
+
+            // Test backend connection on load
+            async function initializeApp() {
+                showNotification('🚀 Initializing CI/CD Helper...', 'info');
+                
+                try {
+                    const healthResult = await makeAPICall('/health', null, 'GET');
+                    if (healthResult.status === 'healthy') {
+                        updateBackendStatus(true);
+                        showNotification('✅ Backend connected successfully!', 'success');
+                        
+                        // Load available models
+                        const modelsResult = await makeAPICall('/models', null, 'GET');
+                        if (modelsResult.success) {
+                            console.log('Available models:', modelsResult.models);
+                        }
+                    } else {
+                        updateBackendStatus(false);
+                        showNotification('❌ Backend connection failed', 'error');
+                    }
+                } catch (error) {
+                    updateBackendStatus(false);
+                    showNotification('❌ Backend not available: ' + error.message, 'error');
+                }
+            }
+            
+            // Initialize the application
+            initializeApp();
+        });
+    </script>
+</body>
+</html>

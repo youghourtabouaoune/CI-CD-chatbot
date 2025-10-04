@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CI/CD Documentation Library - Professional Resources & Guides</title>
+    <meta name="description" content="Comprehensive CI/CD documentation library with official guides, best practices, and tool documentation from industry leaders.">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3a86ff;
+            --secondary-color: #8338ec;
+            --accent-color: #ff006e;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #38b000;
+            --warning-color: #ff9e00;
+            --danger-color: #d00000;
+            --gray-color: #6c757d;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fb;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: var(--box-shadow);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .logo i {
+            font-size: 2.2rem;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            padding: 5px 10px;
+            border-radius: var(--border-radius);
+        }
+
+        nav a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 3rem 0;
+            text-align: center;
+            background-color: white;
+            margin-bottom: 2rem;
+            border-radius: 0 0 20px 20px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: var(--gray-color);
+            max-width: 800px;
+            margin: 0 auto 2rem;
+        }
+
+        /* Library Navigation */
+        .library-nav {
+            background: white;
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            padding: 0.8rem 1.5rem;
+            background: #f8f9fa;
+            border: 2px solid transparent;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .nav-tab.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .nav-tab:hover:not(.active) {
+            border-color: var(--primary-color);
+        }
+
+        /* Library Content */
+        .library-content {
+            display: none;
+        }
+
+        .library-content.active {
+            display: block;
+        }
+
+        .doc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .doc-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 1.5rem;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .doc-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .doc-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .doc-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .doc-description {
+            color: var(--gray-color);
+            margin-bottom: 1rem;
+            flex-grow: 1;
+        }
+
+        .doc-meta {
+            font-size: 0.8rem;
+            color: var(--gray-color);
+            margin-bottom: 1rem;
+        }
+
+        .doc-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+
+        .doc-actions .btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        /* Upload Section */
+        .upload-section {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .upload-area {
+            border: 2px dashed #dee2e6;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            text-align: center;
+            transition: var(--transition);
+            cursor: pointer;
+            margin-bottom: 1.5rem;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary-color);
+            background-color: rgba(58, 134, 255, 0.05);
+        }
+
+        .upload-area i {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .upload-area h3 {
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-area p {
+            color: var(--gray-color);
+            margin-bottom: 1rem;
+        }
+
+        .uploaded-files {
+            margin-top: 1.5rem;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid #dee2e6;
+            border-radius: var(--border-radius);
+            margin-bottom: 0.5rem;
+            background-color: white;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-icon {
+            color: var(--primary-color);
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Search and Filter */
+        .search-filter {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 0.8rem;
+            border: 1px solid #dee2e6;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+        }
+
+        .filter-options {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .filter-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 3rem 0 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-column h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 40px;
+            height: 3px;
+            background-color: var(--primary-color);
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-column a {
+            color: #adb5bd;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-column a:hover {
+            color: white;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .social-links a:hover {
+            background-color: var(--primary-color);
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #adb5bd;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            nav ul {
+                gap: 1rem;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .search-box {
+                flex-direction: column;
+            }
+        }
+
+        /* Status indicators */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 12px;
+            margin-left: 10px;
+        }
+        
+        .status-online {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-offline {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        
+        .status-online .status-dot {
+            background-color: #28a745;
+        }
+        
+        .status-offline .status-dot {
+            background-color: #dc3545;
+        }
+
+        /* Notification Styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            min-width: 300px;
+            max-width: 500px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-left: 4px solid #3a86ff;
+            animation: slideIn 0.3s ease;
+        }
+        .notification-success { border-left-color: var(--success-color); }
+        .notification-error { border-left-color: var(--danger-color); }
+        .notification-warning { border-left-color: var(--warning-color); }
+        .notification-info { border-left-color: var(--primary-color); }
+        .notification-content {
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .notification-message {
+            flex: 1;
+            margin-right: 10px;
+        }
+        .notification-close {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #666;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--gray-color);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: #dee2e6;
+        }
+
+        /* Badge for official documentation */
+        .official-badge {
+            background: var(--success-color);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        /* Source badge */
+        .source-badge {
+            display: inline-block;
+            background: #e9ecef;
+            color: var(--gray-color);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-rocket"></i>
+                    <span>CI/CD Helper</span>
+                    <span id="backend-status" class="status-indicator status-offline">
+                        <span class="status-dot"></span>
+                        <span>Backend Offline</span>
+                    </span>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
+                        <li><a href="/documentation" class="active"><i class="fas fa-book"></i> Documentation</a></li>
+                        <li><a href="#"><i class="fas fa-cogs"></i> Tools</a></li>
+                        <li><a href="#"><i class="fas fa-question-circle"></i> Help</a></li>
+                    </ul>
+                </nav>
+                <div class="auth-buttons">
+                    <button class="btn btn-outline" onclick="window.location.href='/login'"><i class="fas fa-sign-in-alt"></i> Login</button>
+                    <button class="btn btn-primary" onclick="window.location.href='/signup'"><i class="fas fa-user-plus"></i> Sign Up</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>CI/CD Documentation Library</h1>
+            <p>Access comprehensive CI/CD guides, best practices, tool documentation, and your uploaded resources in one centralized location.</p>
+        </div>
+    </section>
+
+    <!-- Library Navigation -->
+    <section class="library-nav">
+        <div class="container">
+            <div class="nav-tabs">
+                <div class="nav-tab active" data-tab="all">All Resources</div>
+                <div class="nav-tab" data-tab="guides">Getting Started</div>
+                <div class="nav-tab" data-tab="best-practices">Best Practices</div>
+                <div class="nav-tab" data-tab="tools">Tool Guides</div>
+                <div class="nav-tab" data-tab="uploaded">My Uploads</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Search and Filter -->
+    <section class="search-filter">
+        <div class="container">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Search documentation...">
+                <button class="btn btn-primary" id="search-btn">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+            <div class="filter-options">
+                <div class="filter-btn active" data-filter="all">All Types</div>
+                <div class="filter-btn" data-filter="pdf">PDF</div>
+                <div class="filter-btn" data-filter="txt">Text</div>
+                <div class="filter-btn" data-filter="yaml">YAML</div>
+                <div class="filter-btn" data-filter="json">JSON</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Upload Section -->
+        <section class="upload-section">
+            <h2 style="margin-bottom: 1.5rem;">Upload CI/CD Documents</h2>
+            <div class="upload-area" id="upload-area">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <h3>Add to Your Library</h3>
+                <p>Drag and drop your CI/CD documentation, configuration files, or best practices guides</p>
+                <p style="font-size: 0.9rem; color: var(--gray-color);">Supported formats: PDF, TXT, YAML, JSON, MD (Max 10MB)</p>
+                <button class="btn btn-primary" id="browse-btn" style="margin-top: 1rem;">
+                    <i class="fas fa-folder-open"></i> Browse Files
+                </button>
+                <input type="file" id="file-input" style="display: none;" accept=".pdf,.txt,.md,.yaml,.yml,.json">
+            </div>
+            <div class="uploaded-files">
+                <h4 style="margin-bottom: 1rem;">Recently Uploaded</h4>
+                <div id="files-list">
+                    <!-- Files will be dynamically added here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Library Content -->
+        <div id="library-content">
+            <!-- Content will be dynamically loaded based on selected tab -->
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>CI/CD Helper</h3>
+                    <p>Advanced AI-powered platform for streamlining deployment processes and generating CI/CD code.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-github"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Resources</h3>
+                    <ul>
+                        <li><a href="/documentation">Documentation</a></li>
+                        <li><a href="#">Tutorials</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">API Reference</a></li>
+                        <li><a href="#">Community</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Tools</h3>
+                    <ul>
+                        <li><a href="/">Code Generator</a></li>
+                        <li><a href="/">Pipeline Optimizer</a></li>
+                        <li><a href="#">Security Scanner</a></li>
+                        <li><a href="#">Performance Analyzer</a></li>
+                        <li><a href="#">Compliance Checker</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Support</h3>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Status</a></li>
+                        <li><a href="#">Report Issue</a></li>
+                        <li><a href="#">Feature Request</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 Advanced CI/CD Code Generation Tool. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Documentation Library JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const backendStatus = document.getElementById('backend-status');
+            const uploadArea = document.getElementById('upload-area');
+            const browseBtn = document.getElementById('browse-btn');
+            const fileInput = document.getElementById('file-input');
+            const filesList = document.getElementById('files-list');
+            const libraryContent = document.getElementById('library-content');
+            const navTabs = document.querySelectorAll('.nav-tab');
+            const searchInput = document.getElementById('search-input');
+            const searchBtn = document.getElementById('search-btn');
+            const filterBtns = document.querySelectorAll('.filter-btn');
+
+            // API Configuration
+            const API_BASE_URL = window.location.origin + '/api';
+            let API_KEY = localStorage.getItem('cicd_api_key');
+
+            // Current state
+            let currentTab = 'all';
+            let currentFilter = 'all';
+            let currentSearch = '';
+
+            // Check if we have an API key, if not, generate one
+            if (!API_KEY) {
+                generateApiKey();
+            } else {
+                validateApiKey();
+            }
+
+            // Initialize the application
+            initializeApp();
+
+            async function generateApiKey() {
+                try {
+                    showNotification('🔑 Generating API key...', 'info');
+                    const response = await fetch(`${API_BASE_URL}/generate-api-key`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ user_id: 'frontend_user' })
+                    });
+                    
+                    const result = await response.json();
+                    if (result.success) {
+                        API_KEY = result.api_key;
+                        localStorage.setItem('cicd_api_key', API_KEY);
+                        showNotification('✅ API key generated successfully!', 'success');
+                        updateBackendStatus(true);
+                    } else {
+                        showNotification('❌ Failed to generate API key: ' + result.error, 'error');
+                        updateBackendStatus(false);
+                    }
+                } catch (error) {
+                    console.error('Failed to generate API key:', error);
+                    showNotification('❌ Failed to generate API key. Please check backend connection.', 'error');
+                    updateBackendStatus(false);
+                }
+            }
+
+            async function validateApiKey() {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/validate-api-key`, {
+                        method: 'POST',
+                        headers: {
+                            'X-API-Key': API_KEY,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    const result = await response.json();
+                    if (result.success && result.valid) {
+                        updateBackendStatus(true);
+                    } else {
+                        localStorage.removeItem('cicd_api_key');
+                        generateApiKey();
+                    }
+                } catch (error) {
+                    console.error('Failed to validate API key:', error);
+                }
+            }
+
+            async function makeAPICall(endpoint, data, method = 'POST') {
+                try {
+                    const options = {
+                        method: method,
+                        headers: {
+                            'X-API-Key': API_KEY
+                        }
+                    };
+
+                    if (method === 'POST' && data) {
+                        options.headers['Content-Type'] = 'application/json';
+                        options.body = JSON.stringify(data);
+                    }
+
+                    const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    return await response.json();
+                } catch (error) {
+                    console.error('API call failed:', error);
+                    return { 
+                        success: false, 
+                        error: 'Network error - make sure the backend is running' 
+                    };
+                }
+            }
+
+            function updateBackendStatus(isOnline) {
+                if (isOnline) {
+                    backendStatus.className = 'status-indicator status-online';
+                    backendStatus.innerHTML = '<span class="status-dot"></span><span>Backend Online</span>';
+                } else {
+                    backendStatus.className = 'status-indicator status-offline';
+                    backendStatus.innerHTML = '<span class="status-dot"></span><span>Backend Offline</span>';
+                }
+            }
+
+            function showNotification(message, type = 'info') {
+                const existingNotifications = document.querySelectorAll('.notification');
+                existingNotifications.forEach(notif => notif.remove());
+
+                const notification = document.createElement('div');
+                notification.className = `notification notification-${type}`;
+                notification.innerHTML = `
+                    <div class="notification-content">
+                        <span class="notification-message">${message}</span>
+                        <button class="notification-close">&times;</button>
+                    </div>
+                `;
+
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.remove();
+                    }
+                }, 5000);
+
+                notification.querySelector('.notification-close').addEventListener('click', () => {
+                    notification.remove();
+                });
+            }
+
+            // Navigation Tabs
+            navTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Update active tab
+                    navTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    currentTab = this.getAttribute('data-tab');
+                    loadLibraryContent();
+                });
+            });
+
+            // Filter Buttons
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    currentFilter = this.getAttribute('data-filter');
+                    loadLibraryContent();
+                });
+            });
+
+            // Search Functionality
+            searchBtn.addEventListener('click', function() {
+                currentSearch = searchInput.value.trim();
+                loadLibraryContent();
+            });
+
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    currentSearch = this.value.trim();
+                    loadLibraryContent();
+                }
+            });
+
+            async function loadLibraryContent() {
+                try {
+                    // Show loading state
+                    libraryContent.innerHTML = `
+                        <div style="text-align: center; padding: 3rem;">
+                            <div class="spinner"></div>
+                            <p>Loading ${currentTab} resources...</p>
+                        </div>
+                    `;
+
+                    // Get uploaded files
+                    const filesResult = await makeAPICall('/files', null, 'GET');
+                    
+                    if (filesResult.success) {
+                        const allFiles = [...(filesResult.files.documents || []), ...(filesResult.files.licenses || [])];
+                        const staticResources = getStaticResources();
+                        
+                        let resources = [];
+                        
+                        // Combine resources based on current tab
+                        switch(currentTab) {
+                            case 'all':
+                                resources = [...staticResources, ...allFiles];
+                                break;
+                            case 'uploaded':
+                                resources = allFiles;
+                                break;
+                            case 'guides':
+                                resources = staticResources.filter(r => r.category === 'guides');
+                                break;
+                            case 'best-practices':
+                                resources = staticResources.filter(r => r.category === 'best-practices');
+                                break;
+                            case 'tools':
+                                resources = staticResources.filter(r => r.category === 'tools');
+                                break;
+                        }
+
+                        // Apply search filter
+                        if (currentSearch) {
+                            resources = resources.filter(resource => 
+                                resource.title.toLowerCase().includes(currentSearch.toLowerCase()) ||
+                                resource.description.toLowerCase().includes(currentSearch.toLowerCase())
+                            );
+                        }
+
+                        // Apply type filter
+                        if (currentFilter !== 'all') {
+                            resources = resources.filter(resource => {
+                                if (resource.filename) {
+                                    const ext = resource.filename.split('.').pop();
+                                    return ext === currentFilter;
+                                }
+                                return resource.type === currentFilter;
+                            });
+                        }
+
+                        // Render resources
+                        renderResources(resources);
+                    } else {
+                        libraryContent.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <h3>Error Loading Resources</h3>
+                                <p>${filesResult.error}</p>
+                            </div>
+                        `;
+                    }
+                } catch (error) {
+                    libraryContent.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <h3>Error Loading Resources</h3>
+                            <p>${error.message}</p>
+                        </div>
+                    `;
+                }
+            }
+
+            function getStaticResources() {
+                return [
+                    // Getting Started Guides
+                    {
+                        id: 1,
+                        title: 'GitLab CI/CD Getting Started',
+                        description: 'Official GitLab guide to setting up CI/CD pipelines from scratch with practical examples',
+                        category: 'guides',
+                        type: 'web',
+                        icon: 'fa-gitlab',
+                        url: 'https://docs.gitlab.com/ee/ci/quick_start/',
+                        upload_time: new Date().toISOString(),
+                        official: true,
+                        source: 'GitLab'
+                    },
+                    {
+                        id: 2,
+                        title: 'GitHub Actions Quickstart',
+                        description: 'Official GitHub guide to creating your first workflow with GitHub Actions',
+                        category: 'guides',
+                        type: 'yaml',
+                        icon: 'fa-github',
+                        url: 'https://docs.github.com/en/actions/quickstart',
+                        upload_time: new Date().toISOString(),
+                        official: true,
+                        source: 'GitHub'
+                    },
+                    {
+                        id: 3,
+                        title: 'Jenkins Beginner Tutorial',
+                        description: 'Step-by-step tutorial for creating your first Jenkins pipeline with best practices',
+                        category: 'guides',
+                        type: 'web',
+                        icon: 'fa-server',
+                        url: 'https://www.jenkins.io/doc/tutorials/',
+                        upload_time: new Date().toISOString(),
+                        official: true,
+                        source: 'Jenkins'
+                    },
+                    {
+                        id: 4,
+                        title: 'AWS CodePipeline Guide',
+                        description: 'Amazon Web Services guide to building CI/CD pipelines on AWS infrastructure',
+                        category: 'guides',
+                        type: 'web',
+                        icon: 'fa-cloud',
+                        url: 'https://docs.aws.amazon.com/codepipeline/latest/userguide/welcome.html',
+                        upload_time: new Date().toISOString(),
+                        official: true,
+                        source: 'AWS'
+                    },
+
+                    // Best Practices
+                    {
+                        id: 5,
+                        title: 'Google CI/CD Best Practices',
+                        description: 'Comprehensive guide to CI/CD best practices from Google Cloud experts',
+                        category: 'best-practices',
+                        type: 'web',
+                        icon: 'fa-google',
+                        url: 'https://cloud.google.com/architecture/devops/devops-tech-ci-cd',
+                        upload_time: new Date().toISOString(),
+                        official: true,
+                        source: 'Google Cloud'
+                    },
+                    {
+                        id: 6,
+                        title: 'Microsoft DevOps Practices',
+                        description: 'Azure DevOps best practices for building reliable CI/CD pipelines',
+                        category: 'best-practices',
+                        type: 'web',
+                        icon: 'fa-microsoft',
+                        url: 'https://docs.microsoft.com/en-us/azure/devops/learn/what-is-devops',
+                        upload_time: new Date().toISOString(),
+                        official: true,
+                        source: 'Microsoft'
+                    },
+                    {
+                        id: 7,
+                        title: 'Security Best Practices for CI/CD',
+                        description: 'OWASP guide to securing your CI/CD pipeline against common vulnerabilities',
+                        category: 'best-practices',
+                        type: 'pdf',
+                        icon: 'fa-shield-alt',
+                        url: 'https://owasp.org/www-project-devsecops-guideline/',
+                        upload_time: new Date().toISOString(),
+                        official: true,
+                        source: 'OWASP'
+                    },
+                    {
+                        id: 8,
+                        title: 'Docker Security Scanning',
+                        description: 'Best practices for securing Docker images in CI/CD pipelines',
+                        category: 'best-practices',
+                        type: 'web',
+                        icon: 'fa-docker',
+                        url: 'https://docs.docker.com/develop/scanning/',
+                        upload_time: new Date().toISOString(),
+                        official: true,
+                        source: 'Docker'
+                    },
+
+                    // Tool Guides
+                    {
+                        id: 9,
+                        title: 'GitHub Actions Reference',
+                        description: 'Complete reference for GitHub Actions workflow syntax and features',
+                        category: 'tools',
+                        type: 'yaml',
+                        icon: 'fa-github',
+                        url: 'https://docs.github.com/en/actions/reference',
+                        upload_time: new Date().toISOString(),
+                        official: true,
+                        source: 'GitHub'
+                    },
+                    {
+                        id: 10,
+                        title: 'GitLab CI YAML Reference',
+                        description: 'Official GitLab CI/CD pipeline configuration reference with examples',
+                        category: 'tools',
+                        type: 'yaml',
+                        icon: 'fa-gitlab',
+                        url: 'https://docs.gitlab.com/ee/ci/yaml/',
+                        upload_time: new Date().toISOString(),
+                        official: true,
+                        source: 'GitLab'
+                    },
+                    {
+                        id: 11,
+                        title: 'Jenkins Pipeline Syntax',
+                        description: 'Complete Jenkins Pipeline DSL reference with declarative and scripted syntax',
+                        category: 'tools',
+                        type: 'web',
+                        icon: 'fa-server',
+                        url: 'https://www.jenkins.io/doc/book/pipeline/syntax/',
+                        upload_time: new Date().toISOString(),
+                        official: true,
+                        source: 'Jenkins'
+                    },
+                    {
+                        id: 12,
+                        title: 'CircleCI Configuration Reference',
+                        description: 'Official CircleCI configuration reference for building efficient pipelines',
+                        category: 'tools',
+                        type: 'yaml',
+                        icon: 'fa-circle',
+                        url: 'https://circleci.com/docs/config-intro/',
+                        upload_time: new Date().toISOString(),
+                        official: true,
+                        source: 'CircleCI'
+                    },
+                    {
+                        id: 13,
+                        title: 'Azure Pipelines YAML Schema',
+                        description: 'Microsoft Azure DevOps Pipelines YAML schema reference and examples',
+                        category: 'tools',
+                        type: 'yaml',
+                        icon: 'fa-microsoft',
+                        url: 'https://docs.microsoft.com/en-us/azure/devops/pipelines/yaml-schema',
+                        upload_time: new Date().toISOString(),
+                        official: true,
+                        source: 'Microsoft'
+                    },
+                    {
+                        id: 14,
+                        title: 'Travis CI Build Configuration',
+                        description: 'Travis CI .travis.yml configuration reference with advanced examples',
+                        category: 'tools',
+                        type: 'yaml',
+                        icon: 'fa-code',
+                        url: 'https://config.travis-ci.com/',
+                        upload_time: new Date().toISOString(),
+                        official: true,
+                        source: 'Travis CI'
+                    }
+                ];
+            }
+
+            function renderResources(resources) {
+                if (resources.length === 0) {
+                    libraryContent.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <h3>No Resources Found</h3>
+                            <p>Try changing your search criteria or upload new documents.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const resourcesHTML = resources.map(resource => {
+                    const isUploaded = !!resource.filename;
+                    const fileExtension = isUploaded ? resource.filename.split('.').pop() : resource.type;
+                    const iconClass = isUploaded ? getFileIcon(fileExtension) : resource.icon;
+                    const uploadDate = new Date(resource.upload_time).toLocaleDateString();
+
+                    return `
+                        <div class="doc-card">
+                            <div class="doc-icon">
+                                <i class="fas ${iconClass}"></i>
+                            </div>
+                            <h3 class="doc-title">
+                                ${resource.title}
+                                ${resource.official ? '<span class="official-badge">Official</span>' : ''}
+                            </h3>
+                            <p class="doc-description">${resource.description}</p>
+                            <div class="doc-meta">
+                                ${isUploaded ? 'Uploaded' : (resource.source ? resource.source : 'Built-in')} • ${fileExtension.toUpperCase()} • ${uploadDate}
+                            </div>
+                            <div class="doc-actions">
+                                ${isUploaded ? 
+                                    `<a href="${resource.file_url}" target="_blank" class="btn btn-outline" style="color: var(--dark-color); border-color: var(--dark-color);">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                    <a href="${API_BASE_URL}/files/${resource.file_type}/${resource.filename}/download" class="btn btn-outline" style="color: var(--dark-color); border-color: var(--dark-color);">
+                                        <i class="fas fa-download"></i> Download
+                                    </a>` :
+                                    `<a href="${resource.url}" target="_blank" class="btn btn-outline" style="color: var(--dark-color); border-color: var(--dark-color);">
+                                        <i class="fas fa-external-link-alt"></i> Visit
+                                    </a>
+                                    <button class="btn btn-outline" style="color: var(--dark-color); border-color: var(--dark-color);" onclick="showNotification('Bookmarking ${resource.title}...', 'info')">
+                                        <i class="fas fa-bookmark"></i> Save
+                                    </button>`
+                                }
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                libraryContent.innerHTML = `
+                    <section class="documentation-section">
+                        <h2 style="margin-bottom: 1.5rem; font-size: 1.8rem;">
+                            ${getTabTitle(currentTab)} 
+                            <span style="font-size: 1rem; color: var(--gray-color);">(${resources.length} resources)</span>
+                        </h2>
+                        <div class="doc-grid">
+                            ${resourcesHTML}
+                        </div>
+                    </section>
+                `;
+            }
+
+            function getTabTitle(tab) {
+                const titles = {
+                    'all': 'All Resources',
+                    'guides': 'Getting Started Guides',
+                    'best-practices': 'Best Practices',
+                    'tools': 'Tool Guides',
+                    'uploaded': 'My Uploaded Documents'
+                };
+                return titles[tab] || 'Resources';
+            }
+
+            function getFileIcon(extension) {
+                const iconMap = {
+                    'pdf': 'fa-file-pdf',
+                    'txt': 'fa-file-alt',
+                    'md': 'fa-file-alt',
+                    'yaml': 'fa-file-code',
+                    'yml': 'fa-file-code',
+                    'json': 'fa-file-code',
+                    'web': 'fa-globe'
+                };
+                return iconMap[extension] || 'fa-file';
+            }
+
+            // File upload functionality
+            browseBtn.addEventListener('click', function() {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', async function(e) {
+                if (e.target.files.length > 0) {
+                    await handleFileUpload(e.target.files[0]);
+                }
+            });
+
+            async function handleFileUpload(file) {
+                if (file.size > 10 * 1024 * 1024) {
+                    showNotification('❌ File too large. Maximum size is 10MB.', 'error');
+                    return;
+                }
+
+                const allowedExtensions = ['pdf', 'txt', 'md', 'yaml', 'yml', 'json'];
+                const fileExtension = file.name.split('.').pop().toLowerCase();
+                if (!allowedExtensions.includes(fileExtension)) {
+                    showNotification('❌ File type not allowed. Supported formats: PDF, TXT, MD, YAML, YML, JSON', 'error');
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('file', file);
+
+                showNotification('📤 Uploading file...', 'info');
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/upload`, {
+                        method: 'POST',
+                        headers: {
+                            'X-API-Key': API_KEY
+                        },
+                        body: formData
+                    });
+
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        showNotification('✅ File uploaded successfully!', 'success');
+                        await loadFilesList();
+                        await loadLibraryContent();
+                        fileInput.value = '';
+                    } else {
+                        showNotification('❌ File upload failed: ' + result.error, 'error');
+                    }
+                } catch (error) {
+                    showNotification('❌ File upload error: ' + error.message, 'error');
+                }
+            }
+
+            async function loadFilesList() {
+                try {
+                    const result = await makeAPICall('/files', null, 'GET');
+                    
+                    if (result.success) {
+                        filesList.innerHTML = '';
+                        
+                        const allFiles = [...(result.files.documents || []), ...(result.files.licenses || [])];
+                        const recentFiles = allFiles.slice(0, 5); // Show only 5 most recent
+                        
+                        if (recentFiles.length === 0) {
+                            filesList.innerHTML = '<p style="color: var(--gray-color);">No files uploaded yet.</p>';
+                            return;
+                        }
+                        
+                        recentFiles.forEach(file => {
+                            const fileItem = createFileItem(file);
+                            filesList.appendChild(fileItem);
+                        });
+                    } else {
+                        filesList.innerHTML = '<p style="color: var(--danger-color);">Error loading files</p>';
+                    }
+                } catch (error) {
+                    console.error('Error loading files:', error);
+                    filesList.innerHTML = '<p style="color: var(--danger-color);">Error loading file list</p>';
+                }
+            }
+
+            function createFileItem(file) {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                
+                const fileExtension = file.filename.split('.').pop();
+                const iconClass = getFileIcon(fileExtension);
+                
+                fileItem.innerHTML = `
+                    <div class="file-info">
+                        <i class="fas ${iconClass} file-icon"></i>
+                        <div>
+                            <div style="font-weight: 500;">${file.filename}</div>
+                            <div style="font-size: 0.8rem; color: var(--gray-color);">
+                                ${formatFileSize(file.file_size)} • ${new Date(file.upload_time).toLocaleDateString()}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="file-actions">
+                        <a href="${file.file_url}" target="_blank" class="btn btn-outline" style="color: var(--dark-color); border-color: var(--dark-color); padding: 4px 8px;" title="View File">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="${API_BASE_URL}/files/${file.file_type}/${file.filename}/download" class="btn btn-outline" style="color: var(--dark-color); border-color: var(--dark-color); padding: 4px 8px;" title="Download File">
+                            <i class="fas fa-download"></i>
+                        </a>
+                        <button class="btn btn-outline delete-file" data-filename="${file.filename}" data-file-type="${file.file_type}" style="color: var(--danger-color); border-color: var(--danger-color); padding: 4px 8px;" title="Delete File">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                // Add event listener for delete button
+                const deleteBtn = fileItem.querySelector('.delete-file');
+                deleteBtn.addEventListener('click', async function() {
+                    const filename = this.getAttribute('data-filename');
+                    const fileType = this.getAttribute('data-file-type');
+                    
+                    if (confirm(`Are you sure you want to delete "${filename}"?`)) {
+                        try {
+                            const result = await makeAPICall(`/files/${fileType}/${filename}`, null, 'DELETE');
+                            if (result.success) {
+                                showNotification('✅ File deleted successfully!', 'success');
+                                await loadFilesList();
+                                await loadLibraryContent();
+                            } else {
+                                showNotification('❌ Failed to delete file: ' + result.error, 'error');
+                            }
+                        } catch (error) {
+                            showNotification('❌ Error deleting file: ' + error.message, 'error');
+                        }
+                    }
+                });
+                
+                return fileItem;
+            }
+
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            // Drag and drop for upload area
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                uploadArea.style.borderColor = 'var(--primary-color)';
+                uploadArea.style.backgroundColor = 'rgba(58, 134, 255, 0.1)';
+            });
+
+            uploadArea.addEventListener('dragleave', function() {
+                uploadArea.style.borderColor = '#dee2e6';
+                uploadArea.style.backgroundColor = 'transparent';
+            });
+
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#dee2e6';
+                uploadArea.style.backgroundColor = 'transparent';
+                
+                if (e.dataTransfer.files.length > 0) {
+                    handleFileUpload(e.dataTransfer.files[0]);
+                }
+            });
+
+            // Initialize application
+            async function initializeApp() {
+                showNotification('📚 Loading documentation library...', 'info');
+                
+                try {
+                    const healthResult = await makeAPICall('/health', null, 'GET');
+                    if (healthResult.status === 'healthy') {
+                        updateBackendStatus(true);
+                        showNotification('✅ Documentation library loaded!', 'success');
+                        await loadFilesList();
+                        await loadLibraryContent();
+                    } else {
+                        updateBackendStatus(false);
+                        showNotification('❌ Backend connection failed', 'error');
+                    }
+                } catch (error) {
+                    updateBackendStatus(false);
+                    showNotification('❌ Backend not available: ' + error.message, 'error');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
