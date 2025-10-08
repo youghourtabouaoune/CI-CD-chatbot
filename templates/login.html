@@ -5,200 +5,96 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - CI/CD Helper</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary-color: #3a86ff;
             --secondary-color: #8338ec;
-            --accent-color: #ff006e;
-            --light-color: #f8f9fa;
-            --dark-color: #212529;
+            --accent-color: #3593ff;
             --success-color: #38b000;
             --warning-color: #ff9e00;
             --danger-color: #d00000;
-            --gray-color: #6c757d;
-            --border-radius: 8px;
-            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --transition: all 0.3s ease;
+            
+            /* Dark theme */
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #252525;
+            --text-primary: #e8e8e8;
+            --text-secondary: #b0b0b0;
+            --text-tertiary: #8a8a8a;
+            --border-color: #404040;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
         }
 
         body {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            color: var(--text-primary);
         }
 
-        .container {
+        .login-container {
             width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
+            max-width: 420px;
+            background: var(--bg-primary);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
         }
 
-        /* Header Styles */
-        header {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            color: white;
-            padding: 1.5rem 0;
-            box-shadow: var(--box-shadow);
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .login-header {
+            padding: 3rem 2rem 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
         }
 
         .logo {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 10px;
-            font-size: 1.8rem;
-            font-weight: 700;
+            gap: 1rem;
+            margin-bottom: 1rem;
         }
 
-        .logo i {
+        .logo-icon {
+            font-size: 3.5rem;
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo-text {
             font-size: 2.2rem;
-        }
-
-        nav ul {
-            display: flex;
-            list-style: none;
-            gap: 2rem;
-        }
-
-        nav a {
+            font-weight: 700;
             color: white;
-            text-decoration: none;
-            font-weight: 500;
-            transition: var(--transition);
-            padding: 5px 10px;
-            border-radius: var(--border-radius);
+            letter-spacing: -0.5px;
         }
 
-        nav a:hover {
-            background-color: rgba(255, 255, 255, 0.2);
+        .tagline {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+            font-weight: 400;
+            margin-top: 0.5rem;
         }
 
-        .auth-buttons {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .btn {
-            padding: 0.6rem 1.2rem;
-            border: none;
-            border-radius: var(--border-radius);
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-primary {
-            background-color: white;
-            color: var(--primary-color);
-        }
-
-        .btn-outline {
-            background-color: transparent;
-            color: white;
-            border: 2px solid white;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        /* Login Container */
-        .login-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 3rem;
-            align-items: center;
-            margin-top: 6rem;
-        }
-
-        @media (max-width: 992px) {
-            .login-container {
-                grid-template-columns: 1fr;
-                gap: 2rem;
-            }
-        }
-
-        .welcome-section {
-            color: white;
-        }
-
-        .welcome-section h1 {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            line-height: 1.2;
-        }
-
-        .welcome-section p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            margin-bottom: 2rem;
-        }
-
-        .features-list {
-            list-style: none;
-            margin-top: 2rem;
-        }
-
-        .features-list li {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
-        }
-
-        .features-list i {
-            color: var(--success-color);
-            font-size: 1.2rem;
-        }
-
-        /* Login Form */
         .login-form-container {
-            background: white;
-            padding: 3rem;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-        }
-
-        .form-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .form-header h2 {
-            font-size: 2rem;
-            color: var(--dark-color);
-            margin-bottom: 0.5rem;
-        }
-
-        .form-header p {
-            color: var(--gray-color);
+            padding: 2.5rem 2rem;
         }
 
         .form-group {
@@ -209,16 +105,19 @@
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 500;
-            color: var(--dark-color);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
         }
 
         .form-group input {
             width: 100%;
             padding: 1rem;
-            border: 2px solid #e9ecef;
-            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
             font-size: 1rem;
-            transition: var(--transition);
+            transition: all 0.3s ease;
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
         }
 
         .form-group input:focus {
@@ -227,117 +126,41 @@
             box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.2);
         }
 
-        .remember-forgot {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .remember-me {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .remember-me input {
-            width: auto;
-        }
-
-        .forgot-password {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .forgot-password:hover {
-            text-decoration: underline;
-        }
-
         .login-btn {
             width: 100%;
             padding: 1rem;
             background: var(--primary-color);
             color: white;
             border: none;
-            border-radius: var(--border-radius);
+            border-radius: 8px;
             font-size: 1.1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: var(--transition);
-            margin-bottom: 1.5rem;
-        }
-
-        .login-btn:hover {
-            background: var(--secondary-color);
-            transform: translateY(-2px);
-        }
-
-        .social-login {
-            text-align: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .social-login p {
-            color: var(--gray-color);
-            margin-bottom: 1rem;
-            position: relative;
-        }
-
-        .social-login p::before,
-        .social-login p::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            width: 30%;
-            height: 1px;
-            background: #e9ecef;
-        }
-
-        .social-login p::before {
-            left: 0;
-        }
-
-        .social-login p::after {
-            right: 0;
-        }
-
-        .social-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-        }
-
-        .social-btn {
-            flex: 1;
-            padding: 0.8rem;
-            border: 2px solid #e9ecef;
-            border-radius: var(--border-radius);
-            background: white;
-            cursor: pointer;
-            transition: var(--transition);
+            transition: all 0.3s ease;
+            margin-top: 1rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
+            gap: 8px;
         }
 
-        .social-btn:hover {
-            border-color: var(--primary-color);
+        .login-btn:hover:not(:disabled) {
+            background: var(--secondary-color);
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
-        .social-btn.google {
-            color: #db4437;
-        }
-
-        .social-btn.github {
-            color: var(--dark-color);
+        .login-btn:disabled {
+            background-color: var(--border-color);
+            cursor: not-allowed;
+            transform: none;
         }
 
         .signup-link {
             text-align: center;
-            color: var(--gray-color);
+            margin-top: 2rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
         }
 
         .signup-link a {
@@ -350,7 +173,22 @@
             text-decoration: underline;
         }
 
-        /* Notification Styles */
+        .help-link {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .help-link a {
+            color: var(--text-tertiary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.3s ease;
+        }
+
+        .help-link a:hover {
+            color: var(--primary-color);
+        }
+
         .notification {
             position: fixed;
             top: 20px;
@@ -358,11 +196,12 @@
             z-index: 1000;
             min-width: 300px;
             max-width: 500px;
-            background: white;
+            background: var(--bg-primary);
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            border-left: 4px solid #3a86ff;
+            border-left: 4px solid var(--primary-color);
             animation: slideIn 0.3s ease;
+            color: var(--text-primary);
         }
         .notification-success { border-left-color: var(--success-color); }
         .notification-error { border-left-color: var(--danger-color); }
@@ -383,150 +222,96 @@
             border: none;
             font-size: 18px;
             cursor: pointer;
-            color: #666;
+            color: var(--text-tertiary);
         }
         @keyframes slideIn {
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                gap: 1rem;
+        @media (max-width: 480px) {
+            .login-container {
+                max-width: 100%;
             }
             
-            nav ul {
-                gap: 1rem;
+            .login-header {
+                padding: 2rem 1.5rem 1.5rem;
             }
             
-            .welcome-section h1 {
-                font-size: 2.2rem;
+            .logo-icon {
+                font-size: 2.8rem;
+                width: 70px;
+                height: 70px;
+            }
+            
+            .logo-text {
+                font-size: 1.8rem;
             }
             
             .login-form-container {
-                padding: 2rem;
-            }
-            
-            .social-buttons {
-                flex-direction: column;
+                padding: 2rem 1.5rem;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header>
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">
-                    <i class="fas fa-rocket"></i>
-                    <span>CI/CD Helper</span>
-                </div>
-                <nav>
-                    <ul>
-                        <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
-                        <li><a href="/documentation"><i class="fas fa-book"></i> Documentation</a></li>
-                        <li><a href="#"><i class="fas fa-cogs"></i> Tools</a></li>
-                        <li><a href="#"><i class="fas fa-question-circle"></i> Help</a></li>
-                    </ul>
-                </nav>
-                <div class="auth-buttons">
-                    <button class="btn btn-primary" onclick="window.location.href='/signup'">
-                        <i class="fas fa-user-plus"></i> Sign Up
-                    </button>
-                </div>
+    <div class="login-container">
+        <div class="login-header">
+            <div class="logo">
+                <i class="fas fa-rocket logo-icon"></i>
+                <div class="logo-text">CI/CD Helper</div>
             </div>
+            <div class="tagline">Professional CI/CD Code Generation</div>
         </div>
-    </header>
 
-    <!-- Main Content -->
-    <div class="container">
-        <div class="login-container">
-            <!-- Welcome Section -->
-            <div class="welcome-section">
-                <h1>Welcome Back to CI/CD Helper</h1>
-                <p>Sign in to access your AI-powered CI/CD code generation tools, documentation library, and personalized workspace.</p>
-                
-                <ul class="features-list">
-                    <li>
-                        <i class="fas fa-check-circle"></i>
-                        <span>Generate CI/CD pipelines with AI</span>
-                    </li>
-                    <li>
-                        <i class="fas fa-check-circle"></i>
-                        <span>Access your saved documentation</span>
-                    </li>
-                    <li>
-                        <i class="fas fa-check-circle"></i>
-                        <span>Collaborate with your team</span>
-                    </li>
-                    <li>
-                        <i class="fas fa-check-circle"></i>
-                        <span>Advanced pipeline optimization</span>
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Login Form -->
-            <div class="login-form-container">
-                <div class="form-header">
-                    <h2>Sign In</h2>
-                    <p>Enter your credentials to access your account</p>
+        <div class="login-form-container">
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your email" required>
                 </div>
 
-                <form id="login-form">
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" placeholder="Enter your email" required>
-                    </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                </div>
 
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" name="password" placeholder="Enter your password" required>
-                    </div>
+                <button type="submit" class="login-btn" id="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
 
-                    <div class="remember-forgot">
-                        <div class="remember-me">
-                            <input type="checkbox" id="remember-me" name="remember-me">
-                            <label for="remember-me">Remember me</label>
-                        </div>
-                        <a href="#" class="forgot-password">Forgot password?</a>
-                    </div>
+                <div class="signup-link">
+                    <p>Don't have an account? <a href="/signup">Sign up here</a></p>
+                </div>
 
-                    <button type="submit" class="login-btn">
-                        <i class="fas fa-sign-in-alt"></i> Sign In
-                    </button>
-
-                    <div class="social-login">
-                        <p>Or continue with</p>
-                        <div class="social-buttons">
-                            <button type="button" class="social-btn google">
-                                <i class="fab fa-google"></i> Google
-                            </button>
-                            <button type="button" class="social-btn github">
-                                <i class="fab fa-github"></i> GitHub
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="signup-link">
-                        <p>Don't have an account? <a href="/signup">Sign up here</a></p>
-                    </div>
-                </form>
-            </div>
+                <div class="help-link">
+                    <a href="/support">Help</a>
+                </div>
+            </form>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const loginForm = document.getElementById('login-form');
+            const loginBtn = document.getElementById('login-btn');
             
+            // Apply dark theme from localStorage if available
+            const isDarkMode = localStorage.getItem('cicd_dark_mode') !== 'false';
+            if (isDarkMode) {
+                document.documentElement.style.setProperty('--bg-primary', '#1a1a1a');
+                document.documentElement.style.setProperty('--bg-secondary', '#2d2d2d');
+                document.documentElement.style.setProperty('--bg-tertiary', '#252525');
+                document.documentElement.style.setProperty('--text-primary', '#e8e8e8');
+                document.documentElement.style.setProperty('--text-secondary', '#b0b0b0');
+                document.documentElement.style.setProperty('--text-tertiary', '#8a8a8a');
+                document.documentElement.style.setProperty('--border-color', '#404040');
+            }
+        
             function showNotification(message, type = 'info') {
                 const existingNotifications = document.querySelectorAll('.notification');
                 existingNotifications.forEach(notif => notif.remove());
-
+        
                 const notification = document.createElement('div');
                 notification.className = `notification notification-${type}`;
                 notification.innerHTML = `
@@ -535,68 +320,110 @@
                         <button class="notification-close">&times;</button>
                     </div>
                 `;
-
+        
                 document.body.appendChild(notification);
-
+        
                 setTimeout(() => {
                     if (notification.parentNode) {
                         notification.remove();
                     }
                 }, 5000);
-
+        
                 notification.querySelector('.notification-close').addEventListener('click', () => {
                     notification.remove();
                 });
             }
-
-            loginForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const email = document.getElementById('email').value;
-                const password = document.getElementById('password').value;
-                
-                // Simple validation
-                if (!email || !password) {
-                    showNotification('⚠️ Please fill in all fields', 'warning');
-                    return;
-                }
-                
-                if (!isValidEmail(email)) {
-                    showNotification('⚠️ Please enter a valid email address', 'warning');
-                    return;
-                }
-                
-                // Simulate login process
-                showNotification('🔐 Signing you in...', 'info');
-                
-                // In a real application, you would make an API call here
-                setTimeout(() => {
-                    showNotification('✅ Login successful! Redirecting...', 'success');
-                    setTimeout(() => {
-                        window.location.href = '/';
-                    }, 2000);
-                }, 1500);
-            });
-
-            // Social login buttons
-            document.querySelector('.social-btn.google').addEventListener('click', function() {
-                showNotification('🔐 Google authentication coming soon!', 'info');
-            });
-
-            document.querySelector('.social-btn.github').addEventListener('click', function() {
-                showNotification('🔐 GitHub authentication coming soon!', 'info');
-            });
-
-            // Forgot password
-            document.querySelector('.forgot-password').addEventListener('click', function(e) {
-                e.preventDefault();
-                showNotification('📧 Password reset feature coming soon!', 'info');
-            });
-
+        
             function isValidEmail(email) {
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 return emailRegex.test(email);
             }
+        
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value;
+                
+                // Validation
+                if (!email || !password) {
+                    showNotification('Please fill in all fields', 'warning');
+                    return;
+                }
+                
+                if (!isValidEmail(email)) {
+                    showNotification('Please enter a valid email address', 'warning');
+                    return;
+                }
+                
+                // Disable button and show loading state
+                loginBtn.disabled = true;
+                loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing In...';
+                
+                showNotification('Signing you in...', 'info');
+                
+                try {
+                    const response = await fetch('/api/auth/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            email: email,
+                            password: password
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        // CRITICAL FIX: Add error handling for localStorage
+                        try {
+                            localStorage.setItem('cicd_api_key', data.api_key);
+                            localStorage.setItem('cicd_user', JSON.stringify(data.user));
+                            
+                            // Store initial usage if provided
+                            if (data.current_usage) {
+                                localStorage.setItem('cicd_usage_cache', JSON.stringify({
+                                    ...data.current_usage,
+                                    cached_at: Date.now()
+                                }));
+                            }
+                        } catch (storageError) {
+                            console.error('Failed to store credentials:', storageError);
+                            showNotification('Failed to save login credentials. Please enable localStorage and cookies.', 'error');
+                            loginBtn.disabled = false;
+                            loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+                            return;
+                        }
+                        
+                        showNotification('Login successful! Redirecting...', 'success');
+                        
+                        // Redirect to main page
+                        setTimeout(() => {
+                            window.location.href = '/';
+                        }, 1500);
+                    } else {
+                        // Handle specific error cases
+                        if (data.requires_verification) {
+                            showNotification('Please verify your email address before logging in. Check your inbox for the verification link.', 'warning');
+                        } else {
+                            showNotification(data.error || 'Login failed', 'error');
+                        }
+                        
+                        // Re-enable button
+                        loginBtn.disabled = false;
+                        loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+                    }
+                } catch (error) {
+                    console.error('Login error:', error);
+                    showNotification('Network error. Please check your connection and try again.', 'error');
+                    
+                    // Re-enable button
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+                }
+            });
         });
     </script>
 </body>

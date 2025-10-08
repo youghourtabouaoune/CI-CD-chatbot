@@ -1,0 +1,10 @@
+{
+  "current_conversation_id": null,
+  "conversations": {},
+  "user_preferences": {
+    "theme": "light",
+    "selected_model": "meta-llama-3-3-70b-instruct",
+    "sidebar_collapsed": false
+  },
+  "last_active": "2025-10-08T02:12:48.910834"
+}

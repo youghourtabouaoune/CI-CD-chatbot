@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CI/CD Code Generation Tool</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary-color: #3a86ff;
             --secondary-color: #8338ec;
-            --accent-color: #ff006e;
+            --accent-color: #3593ff; /* Orange accent */
             --light-color: #f8f9fa;
             --dark-color: #212529;
             --success-color: #38b000;
@@ -19,632 +20,804 @@
             --border-radius: 12px;
             --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             --transition: all 0.3s ease;
+            --sidebar-width: 280px;
+            
+            /* Light theme (default) */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f7f7f8;
+            --bg-tertiary: #fafafa;
+            --text-primary: #212529;
+            --text-secondary: #4a5568;
+            --text-tertiary: #718096;
+            --border-color: #e5e5e5;
+            --message-user-bg: #e8f2ff;
+            --message-assistant-bg: #ffffff;
+            --code-bg: #1e1e1e;
+            --code-text: #d4d4d4;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #252525;
+            --text-primary: #e8e8e8;
+            --text-secondary: #b0b0b0;
+            --text-tertiary: #8a8a8a;
+            --border-color: #404040;
+            --message-user-bg: #2a4d7a;
+            --message-assistant-bg: #2d2d2d;
+            --code-bg: #1e1e1e;
+            --code-text: #d4d4d4;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
         }
 
         body {
-            background-color: #f8fafc;
-            color: var(--dark-color);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
             line-height: 1.6;
+            height: 100vh;
+            overflow: hidden;
+            transition: var(--transition);
         }
 
-        .container {
-            width: 100%;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 20px;
+        /* Layout Structure */
+        .app-container {
+            display: flex;
+            height: 100vh;
+            position: relative;
         }
 
-        /* Header Styles */
-        header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 1.2rem 0;
-            box-shadow: var(--box-shadow);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: #f7f7f8;
+            border-right: 1px solid #e5e5e5;
+            display: flex;
+            flex-direction: column;
+            transition: margin-left 0.3s ease;
+            position: relative;
         }
 
-        .header-content {
+        .sidebar.collapsed {
+            margin-left: calc(-1 * var(--sidebar-width));
+        }
+
+        .sidebar-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e5e5e5;
+            background-color: #fff;
             display: flex;
             justify-content: space-between;
             align-items: center;
+        }
+
+        .sidebar-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .sidebar-toggle {
+            position: absolute;
+            right: -40px;
+            top: 600px;
+            width: 32px;
+            height: 32px;
+            background-color: #fff;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            z-index: 10;
+        }
+
+        .sidebar-toggle:hover {
+            background-color: #f7f7f8;
+        }
+
+        .sidebar-section {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .sidebar-section-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+
+        .doc-item {
+            padding: 0.5rem 0;
+            cursor: pointer;
+            transition: var(--transition);
+            border-radius: 6px;
+            padding-left: 0.5rem;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .doc-item:hover {
+            background-color: var(--message-user-bg);
+            color: var(--primary-color);
+        }
+
+        .doc-item i {
+            width: 16px;
+            margin-right: 8px;
+            font-size: 0.8rem;
+        }
+
+        .external-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            width: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .external-link:hover {
+            color: var(--primary-color);
+        }
+
+        .chat-history-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .chat-history-item {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background-color: var(--bg-primary);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid transparent;
+            position: relative;
+        }
+
+        .chat-history-item:hover {
+            border-color: var(--border-color);
+            background-color: var(--bg-tertiary);
+        }
+
+        .chat-history-item.active {
+            background-color: var(--message-user-bg);
+            border-color: var(--primary-color);
+        }
+
+        .chat-history-title {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            padding-right: 30px;
+        }
+
+        .chat-history-preview {
+            font-size: 0.8rem;
+            color: var(--text-tertiary);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .chat-history-time {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            margin-top: 0.25rem;
+        }
+
+        .chat-history-actions {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .chat-history-item:hover .chat-history-actions {
+            opacity: 1;
+        }
+
+        .chat-history-menu {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-tertiary);
+            padding: 4px;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+
+        .chat-history-menu:hover {
+            background-color: var(--bg-secondary);
+            color: var(--text-secondary);
+        }
+
+        .chat-history-dropdown {
+            position: absolute;
+            top: 30px;
+            right: 0;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            z-index: 10;
+            width: 150px;
+            display: none;
+            border: 1px solid var(--border-color);
+        }
+
+        .chat-history-dropdown.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--bg-secondary);
+        }
+
+        .dropdown-item.delete {
+            color: var(--danger-color);
+        }
+
+        .new-chat-btn {
+            margin: 1rem;
+            padding: 0.75rem;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .new-chat-btn:hover {
+            background-color: #2b31e5;
+        }
+
+        .clear-history-btn {
+            margin: 1rem;
+            padding: 0.5rem;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .clear-history-btn:hover {
+            background-color: var(--bg-secondary);
+            color: var(--danger-color);
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg-primary);
+            position: relative;
+            transition: var(--transition);
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .logo {
             display: flex;
             align-items: center;
             gap: 10px;
-            font-size: 1.6rem;
-            font-weight: 700;
+            font-size: 1.3rem;
+            font-weight: 600;
         }
 
-        .logo i {
-            font-size: 2rem;
+        .logo-icon {
+            color: var(--accent-color);
         }
 
-        nav ul {
+        .header-right {
             display: flex;
-            list-style: none;
-            gap: 2rem;
-        }
-
-        nav a {
-            color: white;
-            text-decoration: none;
-            font-weight: 500;
-            transition: var(--transition);
-            padding: 8px 16px;
-            border-radius: var(--border-radius);
-        }
-
-        nav a:hover {
-            background-color: rgba(255, 255, 255, 0.15);
-        }
-
-        .auth-buttons {
-            display: flex;
+            align-items: center;
             gap: 1rem;
         }
 
-        .btn {
-            padding: 0.6rem 1.2rem;
+        .theme-toggle {
+            background: none;
             border: none;
-            border-radius: var(--border-radius);
-            font-weight: 600;
+            color: var(--text-secondary);
             cursor: pointer;
-            transition: var(--transition);
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.9rem;
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        .btn-outline {
-            background-color: transparent;
-            color: white;
-            border: 2px solid white;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        /* Hero Section */
-        .hero {
-            padding: 3rem 0;
-            text-align: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            margin-bottom: 2rem;
-            border-radius: 0 0 30px 30px;
-        }
-
-        .hero h1 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            font-weight: 700;
-        }
-
-        .hero p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            max-width: 700px;
-            margin: 0 auto 2rem;
-        }
-
-        /* Main Content - Updated Layout */
-        .main-content {
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
-            margin-bottom: 3rem;
-        }
-
-        .card {
-            background-color: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            padding: 1.8rem;
-            transition: var(--transition);
-            border: 1px solid #e2e8f0;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid #f1f5f9;
-        }
-
-        .card-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        /* Response Section - Now takes more space */
-        .response-section {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            min-height: 500px;
-        }
-
-        .response-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .response-meta {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            font-size: 0.85rem;
-            color: var(--gray-color);
-        }
-
-        .response-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .response-container {
-            flex: 1;
-            min-height: 400px;
-            max-height: 600px;
-            overflow-y: auto;
-            padding: 1.5rem;
-            border: 2px solid #e2e8f0;
-            border-radius: var(--border-radius);
-            background: #f8fafc;
-            margin-bottom: 1rem;
-            transition: var(--transition);
-        }
-
-        .response-container:focus {
-            border-color: var(--primary-color);
-        }
-
-        .response-content {
-            white-space: pre-wrap;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.7;
-            color: #2d3748;
-        }
-
-        .response-placeholder {
-            text-align: center;
-            color: var(--gray-color);
-            padding: 2rem;
-        }
-
-        .response-placeholder i {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            opacity: 0.5;
-        }
-
-        /* Input Section - Positioned below the response */
-        .input-section {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .input-controls {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 1rem;
-            align-items: start;
-        }
-
-        .question-input {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .question-input textarea {
-            width: 100%;
-            min-height: 140px;
-            padding: 1.2rem;
-            border: 2px solid #e2e8f0;
-            border-radius: var(--border-radius);
-            resize: vertical;
-            font-size: 1rem;
-            transition: var(--transition);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.5;
-            background: #f8fafc;
-        }
-
-        .question-input textarea:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.1);
-            background: white;
-        }
-
-        .parameters-panel {
-            background: #f8fafc;
-            border-radius: var(--border-radius);
-            padding: 1.2rem;
-            border: 1px solid #e2e8f0;
-        }
-
-        .parameter-group {
-            margin-bottom: 1.2rem;
-        }
-
-        .parameter-group:last-child {
-            margin-bottom: 0;
-        }
-
-        .parameter-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: var(--dark-color);
-            font-size: 0.9rem;
-        }
-
-        .model-selector select, .action-selector select {
-            width: 100%;
-            padding: 0.8rem;
-            border: 2px solid #e2e8f0;
-            border-radius: var(--border-radius);
-            font-size: 0.9rem;
-            background-color: white;
-            transition: var(--transition);
-        }
-
-        .model-selector select:focus, .action-selector select:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px rgba(58, 134, 255, 0.1);
-        }
-
-        .action-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.8rem;
-            margin-top: 1rem;
-        }
-
-        .btn-success {
-            background-color: var(--success-color);
-            color: white;
-        }
-
-        .btn-warning {
-            background-color: var(--warning-color);
-            color: white;
-        }
-
-        .btn-danger {
-            background-color: var(--danger-color);
-            color: white;
-        }
-
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-        }
-
-        /* Enhanced Code Blocks */
-        .code-block {
-            background: #1a202c;
-            color: #e2e8f0;
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin: 1rem 0;
-            overflow-x: auto;
-            border-left: 4px solid var(--primary-color);
-        }
-
-        .code-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid #2d3748;
-        }
-
-        .code-language {
-            font-size: 0.8rem;
-            color: #a0aec0;
-            text-transform: uppercase;
-            font-weight: 600;
-        }
-
-        .code-content {
-            font-family: 'Fira Code', 'Courier New', monospace;
-            line-height: 1.5;
-            white-space: pre;
-        }
-
-        /* Documentation Section */
-        .documentation-section {
-            margin-bottom: 3rem;
-        }
-
-        .section-title {
-            font-size: 1.8rem;
-            margin-bottom: 1.5rem;
-            color: var(--dark-color);
-            text-align: center;
-            font-weight: 700;
-        }
-
-        .doc-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 1.8rem;
-        }
-
-        .doc-card {
-            background-color: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            padding: 1.8rem;
+            padding: 0.5rem;
+            border-radius: 50%;
             transition: var(--transition);
             display: flex;
-            flex-direction: column;
-            height: 100%;
-            border: 1px solid #e2e8f0;
-        }
-
-        .doc-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
-        }
-
-        .doc-icon {
-            font-size: 2.5rem;
-            color: var(--primary-color);
-            margin-bottom: 1.2rem;
-        }
-
-        .doc-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 0.8rem;
-            color: var(--dark-color);
-        }
-
-        .doc-description {
-            color: var(--gray-color);
-            margin-bottom: 1.5rem;
-            flex-grow: 1;
-            line-height: 1.6;
-        }
-
-        .doc-actions {
-            display: flex;
-            justify-content: space-between;
-            gap: 0.8rem;
-        }
-
-        /* Footer */
-        footer {
-            background-color: var(--dark-color);
-            color: white;
-            padding: 3rem 0 1.5rem;
-            margin-top: 4rem;
-        }
-
-        .footer-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .footer-column h3 {
-            font-size: 1.2rem;
-            margin-bottom: 1.5rem;
-            position: relative;
-            padding-bottom: 0.5rem;
-        }
-
-        .footer-column h3::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            bottom: 0;
-            width: 40px;
-            height: 3px;
-            background-color: var(--primary-color);
-        }
-
-        .footer-column ul {
-            list-style: none;
-        }
-
-        .footer-column ul li {
-            margin-bottom: 0.8rem;
-        }
-
-        .footer-column a {
-            color: #adb5bd;
-            text-decoration: none;
-            transition: var(--transition);
-        }
-
-        .footer-column a:hover {
-            color: white;
-        }
-
-        .social-links {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .social-links a {
-            display: inline-flex;
             align-items: center;
             justify-content: center;
             width: 36px;
             height: 36px;
-            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
+            background-color: var(--text-tertiary);
+        }
+
+        .status-online .status-dot {
+            background-color: #10b981;
+        }
+
+        .status-offline .status-dot {
+            background-color: #ef4444;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-auth {
+            padding: 0.4rem 0.8rem;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            cursor: pointer;
             transition: var(--transition);
+            text-decoration: none;
         }
 
-        .social-links a:hover {
-            background-color: var(--primary-color);
-            transform: translateY(-3px);
+        .btn-auth:hover {
+            background: var(--bg-secondary);
         }
 
-        .copyright {
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .user-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        /* Usage Indicator */
+        .usage-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+        }
+        .usage-progress {
+            width: 60px;
+            height: 4px;
+            background: var(--border-color);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .usage-progress-bar {
+            height: 100%;
+            background: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+        .usage-warning .usage-progress-bar {
+            background: var(--warning-color);
+        }
+        .usage-critical .usage-progress-bar {
+            background: var(--danger-color);
+        }
+
+        /* Chat Area - Larger Output */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background-color: var(--bg-tertiary);
+        }
+        
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem; /* Reduced padding for more space */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .messages-content {
+            width: 100%;
+            max-width: 900px; /* Increased from 768px to 900px */
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .message-user .message-content {
+            background-color: var(--message-user-bg);
+            border-radius: 18px 18px 4px 18px;
+            padding: 0.75rem 1.25rem;
+            max-width: 80%; /* Increased from 70% */
+            word-wrap: break-word;
+            font-size: 0.95rem;
+        }
+        
+        .message-assistant .message-content {
+            background-color: var(--message-assistant-bg);
+            border-radius: 18px 18px 18px 4px;
+            padding: 1rem 1.25rem;
+            max-width: 90%; /* Increased from 85% */
+            word-wrap: break-word;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        @keyframes fadeIn {
+            from { 
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message-user {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .message-user .message-content {
+            background-color: var(--message-user-bg);
+            border-radius: 18px 18px 4px 18px;
+            padding: 0.75rem 1.25rem;
+            max-width: 70%;
+            word-wrap: break-word;
+            font-size: 0.95rem;
+        }
+
+        .message-assistant {
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .message-assistant .message-content {
+            background-color: var(--message-assistant-bg);
+            border-radius: 18px 18px 18px 4px;
+            padding: 1rem 1.25rem;
+            max-width: 85%;
+            word-wrap: break-word;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        .message-content {
+            line-height: 1.6;
+        }
+
+        .empty-state {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .empty-state-content {
             text-align: center;
-            padding-top: 1.5rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            color: #adb5bd;
+            max-width: 500px;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            color: var(--text-tertiary);
+            margin-bottom: 1rem;
+        }
+
+        .empty-state-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state-text {
+            color: var(--text-tertiary);
+            font-size: 0.95rem;
+        }
+
+        /* Input Area */
+        .input-area {
+            padding: 1.5rem 2rem 2rem;
+            background-color: var(--bg-primary);
+            display: flex;
+            justify-content: center;
+        }
+
+        .input-container {
+            width: 100%;
+            max-width: 768px;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            resize: none;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            max-height: 120px;
+            overflow-y: auto;
+            transition: var(--transition);
+            background-color: var(--bg-tertiary);
+            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background-color: var(--bg-primary);
+        }
+
+        .input-field::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .input-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .model-selector {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            background-color: var(--bg-tertiary);
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
+        }
+
+        .model-selector:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 20px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
             font-size: 0.9rem;
         }
 
-        /* Loading Animation */
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 3rem;
-            flex-direction: column;
+        .btn-send {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid rgba(58, 134, 255, 0.2);
-            border-left-color: var(--primary-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 1rem;
+        .btn-send:hover:not(:disabled) {
+            background-color: #2e6fdb;
+            transform: scale(1.1);
         }
 
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+        .btn-send:disabled {
+            background-color: var(--border-color);
+            cursor: not-allowed;
         }
 
-        .loading-dots {
-            display: inline-block;
+        /* Enhanced Code Block Styles */
+        .code-block {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 0.75rem 0;
+            overflow-x: auto;
             position: relative;
-            width: 80px;
-            height: 20px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
         }
 
-        .loading-dots div {
+        .code-block pre {
+            margin: 0;
+            font-family: inherit;
+            font-size: inherit;
+            line-height: inherit;
+        }
+
+        /* VS Code-like syntax highlighting */
+        .code-block .keyword { color: #569cd6; }
+        .code-block .string { color: #ce9178; }
+        .code-block .function { color: #dcdcaa; }
+        .code-block .comment { color: #6a9955; font-style: italic; }
+        .code-block .number { color: #b5cea8; }
+        .code-block .operator { color: #d4d4d4; }
+        .code-block .punctuation { color: #d4d4d4; }
+        .code-block .class-name { color: #4ec9b0; }
+        .code-block .property { color: #9cdcfe; }
+        .code-block .variable { color: #9cdcfe; }
+        .code-block .constant { color: #4fc1ff; }
+        .code-block .builtin { color: #4ec9b0; }
+        .code-block .type { color: #4ec9b0; }
+        .code-block .parameter { color: #9cdcfe; }
+        .code-block .tag { color: #569cd6; }
+        .code-block .attribute { color: #9cdcfe; }
+        .code-block .regex { color: #d16969; }
+
+        .copy-code-btn {
             position: absolute;
-            top: 8px;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            animation-timing-function: cubic-bezier(0, 1, 1, 0);
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #a0aec0;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: var(--transition);
         }
 
-        .loading-dots div:nth-child(1) {
-            left: 8px;
-            animation: loading-dots1 0.6s infinite;
+        .copy-code-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #fff;
         }
 
-        .loading-dots div:nth-child(2) {
-            left: 8px;
-            animation: loading-dots2 0.6s infinite;
-        }
-
-        .loading-dots div:nth-child(3) {
-            left: 32px;
-            animation: loading-dots2 0.6s infinite;
-        }
-
-        .loading-dots div:nth-child(4) {
-            left: 56px;
-            animation: loading-dots3 0.6s infinite;
-        }
-
-        @keyframes loading-dots1 {
-            0% { transform: scale(0); }
-            100% { transform: scale(1); }
-        }
-
-        @keyframes loading-dots3 {
-            0% { transform: scale(1); }
-            100% { transform: scale(0); }
-        }
-
-        @keyframes loading-dots2 {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(24px, 0); }
-        }
-
-        /* Status indicators */
-        .status-indicator {
+        /* Loading Animation */
+        .loading-dots {
             display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 0.8rem;
-            padding: 6px 12px;
-            border-radius: 20px;
-            margin-left: 10px;
-            background: rgba(255, 255, 255, 0.2);
+            gap: 4px;
         }
-        
-        .status-online {
-            background-color: rgba(40, 167, 69, 0.2);
-            color: #155724;
-        }
-        
-        .status-offline {
-            background-color: rgba(220, 53, 69, 0.2);
-            color: #721c24;
-        }
-        
-        .status-dot {
+
+        .loading-dots span {
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            display: inline-block;
+            background-color: var(--text-tertiary);
+            animation: bounce 1.4s ease-in-out infinite both;
         }
-        
-        .status-online .status-dot {
-            background-color: #28a745;
+
+        .loading-dots span:nth-child(1) {
+            animation-delay: -0.32s;
         }
-        
-        .status-offline .status-dot {
-            background-color: #dc3545;
+
+        .loading-dots span:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes bounce {
+            0%, 80%, 100% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Typewriter effect */
+        .typewriter {
+            overflow: hidden;
+            border-right: 2px solid var(--primary-color);
+            white-space: pre-wrap;
+            animation: blink-caret 1s step-end infinite;
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent; }
+            50% { border-color: var(--primary-color); }
         }
 
         /* Notification Styles */
@@ -653,609 +826,1328 @@
             top: 20px;
             right: 20px;
             z-index: 1000;
-            min-width: 300px;
-            max-width: 500px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-            border-left: 4px solid #3a86ff;
+            min-width: 250px;
+            max-width: 400px;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             animation: slideIn 0.3s ease;
+            border-left: 3px solid var(--primary-color);
+            color: var(--text-primary);
         }
-        .notification-success { border-left-color: var(--success-color); }
-        .notification-error { border-left-color: var(--danger-color); }
-        .notification-warning { border-left-color: var(--warning-color); }
-        .notification-info { border-left-color: var(--primary-color); }
+
         .notification-content {
-            padding: 16px 20px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .notification-close {
+            margin-left: auto;
+            background: none;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            color: var(--text-tertiary);
+            padding: 4px;
+        }
+
+        /* Rename Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: var(--bg-primary);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            color: var(--text-primary);
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        .notification-message {
-            flex: 1;
-            margin-right: 10px;
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
         }
-        .notification-close {
+
+        .modal-close {
             background: none;
             border: none;
-            font-size: 18px;
+            font-size: 1.5rem;
             cursor: pointer;
-            color: #666;
-            padding: 4px;
-            border-radius: 4px;
+            color: var(--text-tertiary);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
             transition: var(--transition);
         }
-        .notification-close:hover {
-            background: #f8f9fa;
-        }
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+
+        .btn-primary:hover {
+            background-color: #2e6fdb;
         }
 
-        /* Responsive Adjustments */
+        .btn-secondary {
+            background-color: var(--bg-secondary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
-            .header-content {
+            .sidebar {
+                position: absolute;
+                height: 100%;
+                box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            }
+
+            .sidebar.collapsed {
+                transform: translateX(-100%);
+                width: 0;
+            }
+
+            .sidebar-toggle {
+                right: -35px;
+            }
+
+            .message-user .message-content,
+            .message-assistant .message-content {
+                max-width: 90%;
+            }
+
+            .header-right {
                 flex-direction: column;
-                gap: 1rem;
-            }
-            
-            nav ul {
-                gap: 1rem;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-            
-            .hero h1 {
-                font-size: 2rem;
-            }
-            
-            .hero p {
-                font-size: 1rem;
-            }
-            
-            .input-controls {
-                grid-template-columns: 1fr;
-            }
-            
-            .action-buttons {
-                grid-template-columns: 1fr;
-            }
-            
-            .btn {
-                width: 100%;
-                justify-content: center;
-            }
-            
-            .response-meta {
-                flex-direction: column;
-                align-items: flex-start;
                 gap: 0.5rem;
+                align-items: flex-end;
             }
         }
-
-        /* Utility Classes */
-        .text-sm { font-size: 0.875rem; }
-        .text-xs { font-size: 0.75rem; }
-        .font-semibold { font-weight: 600; }
-        .text-center { text-align: center; }
-        .mb-2 { margin-bottom: 0.5rem; }
-        .mb-4 { margin-bottom: 1rem; }
-        .mt-2 { margin-top: 0.5rem; }
-        .mt-4 { margin-top: 1rem; }
-        .p-3 { padding: 0.75rem; }
-        .bg-light { background-color: #f8f9fa; }
-        .rounded { border-radius: 6px; }
-        .shadow-sm { box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header>
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">
-                    <i class="fas fa-rocket"></i>
-                    <span>CI/CD Helper</span>
-                    <span id="backend-status" class="status-indicator status-offline">
-                        <span class="status-dot"></span>
-                        <span>Backend Offline</span>
-                    </span>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <span class="sidebar-title">CI/CD Helper</span>
+            </div>
+            <button class="sidebar-toggle" id="sidebar-toggle" title="Toggle sidebar">
+                <i class="fas fa-chevron-left" id="toggle-icon"></i>
+            </button>
+
+            <!-- Documentation Section -->
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">
+                    <i class="fas fa-book"></i>
+                    <span>Documentation & Help</span>
                 </div>
-                <nav>
-                    <ul>
-                        <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
-                        <li><a href="/documentation"><i class="fas fa-book"></i> Documentation</a></li>
-                        <li><a href="#"><i class="fas fa-cogs"></i> Tools</a></li>
-                        <li><a href="/support"><i class="fas fa-question-circle"></i> Help</a></li>
-                    </ul>
-                </nav>
-                <div class="auth-buttons">
-                    <button class="btn btn-outline"><i class="fas fa-sign-in-alt"></i> Login</button>
-                    <button class="btn btn-primary"><i class="fas fa-user-plus"></i> Sign Up</button>
+                <div class="doc-item">
+                    <a href="/documentation" class="external-link">
+                        <i class="fas fa-file-alt"></i>
+                        Documentation
+                    </a>
+                </div>
+                <div class="doc-item">
+                    <a href="/support" class="external-link">
+                        <i class="fas fa-question-circle"></i>
+                        Help & Support
+                    </a>
                 </div>
             </div>
-        </div>
-    </header>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="container">
-            <h1>CI/CD Code Generation Tool</h1>
-            <p>Streamline your deployment processes with AI-powered code generation, documentation, and best practices for modern CI/CD pipelines.</p>
-            <div class="action-buttons">
-                <button class="btn btn-primary" id="get-started-btn"><i class="fas fa-play-circle"></i> Get Started</button>
-                <button class="btn btn-outline" id="view-docs-btn"><i class="fas fa-book-open"></i> View Documentation</button>
+            <!-- Chat History Section -->
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">
+                    <i class="fas fa-history"></i>
+                    <span>Chat History</span>
+                </div>
             </div>
+            <button class="new-chat-btn" id="new-chat-btn">
+                <i class="fas fa-plus"></i> New Chat
+            </button>
+            <div class="chat-history-container" id="chat-history-container">
+                <!-- Chat history items will be added here -->
+            </div>
+            <button class="clear-history-btn" id="clear-history-btn">
+                <i class="fas fa-trash"></i> Clear History
+            </button>
         </div>
-    </section>
 
-    <!-- Main Content - Updated Layout -->
-    <div class="container">
+        <!-- Main Content -->
         <div class="main-content">
-            <!-- Response Section - Now at the top -->
-            <div class="card">
-                <div class="response-section">
-                    <div class="response-header">
-                        <h2 class="card-title"><i class="fas fa-terminal"></i> Generated Output</h2>
-                        <div class="response-meta">
-                            <span id="response-info">Ready to generate</span>
-                            <div class="response-actions">
-                                <button class="btn btn-outline" id="copy-btn" style="color: var(--dark-color); border-color: var(--dark-color); padding: 6px 12px;" title="Copy to clipboard">
-                                    <i class="fas fa-copy"></i>
-                                </button>
-                                <button class="btn btn-outline" id="download-btn" style="color: var(--dark-color); border-color: var(--dark-color); padding: 6px 12px;" title="Download as file">
-                                    <i class="fas fa-download"></i>
-                                </button>
-                            </div>
+            <!-- Header -->
+            <div class="header">
+                <div class="logo">
+                    <i class="fas fa-rocket logo-icon"></i>
+                    <span>CI/CD Helper</span>
+                </div>
+                <div class="header-right">
+                    <button class="theme-toggle" id="theme-toggle" title="Toggle theme">
+                        <i class="fas fa-moon" id="theme-icon"></i>
+                    </button>
+                    <div id="usage-indicator" class="usage-indicator">
+                        <span>5/5</span>
+                        <div class="usage-progress">
+                            <div class="usage-progress-bar" style="width: 100%"></div>
                         </div>
+                        <i class="fas fa-robot"></i>
                     </div>
-                    <div class="response-container" id="response-container">
-                        <div class="loading" id="loading-indicator">
-                            <div class="spinner"></div>
-                            <div class="loading-dots">
-                                <div></div>
-                                <div></div>
-                                <div></div>
-                                <div></div>
-                            </div>
-                            <p>Generating response with AI model...</p>
-                        </div>
-                        <div class="response-content" id="response-content">
-                            <div class="response-placeholder">
-                                <i class="fas fa-code"></i>
-                                <h3>Your CI/CD Code Will Appear Here</h3>
-                                <p>Enter your requirements in the input field and click "Generate Code" to get started.</p>
-                                <div class="mt-4 p-3 bg-light rounded">
-                                    <strong>Try these examples:</strong>
-                                    <ul style="text-align: left; margin-top: 0.5rem;">
-                                        <li>"Create a GitHub Actions workflow for a Node.js application"</li>
-                                        <li>"How can I optimize my Docker build process?"</li>
-                                        <li>"Explain blue-green deployment strategy"</li>
-                                        <li>"Generate a Jenkins pipeline for a Python microservice"</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
+                    <div id="backend-status" class="status-indicator status-offline">
+                        <span class="status-dot"></span>
+                        <span>Offline</span>
+                    </div>
+                    <div class="auth-buttons" id="auth-buttons">
+                        <a href="/login" class="btn-auth" id="login-btn">Login</a>
+                        <a href="/signup" class="btn-auth" id="signup-btn">Sign Up</a>
+                    </div>
+                    <div class="user-info" id="user-info" style="display: none;">
+                        <div class="user-avatar" id="user-avatar">U</div>
+                        <span id="user-name">User</span>
+                        <button class="btn-auth" id="logout-btn" style="margin-left: 0.5rem;">Logout</button>
                     </div>
                 </div>
             </div>
 
-            <!-- Input Section - Now below the response -->
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title"><i class="fas fa-code"></i> CI/CD Code Generator</h2>
-                    <span class="badge" style="background-color: var(--success-color); color: white; padding: 6px 12px; border-radius: 20px; font-size: 0.8rem;">AI Powered</span>
+            <!-- Chat Area -->
+            <div class="chat-area">
+                <div class="messages-container" id="messages-container">
+                    <div class="messages-content" id="messages-content">
+                        <!-- Empty state -->
+                        <div class="empty-state" id="empty-state">
+                            <div class="empty-state-content">
+                                <i class="fas fa-code empty-state-icon"></i>
+                                <h2 class="empty-state-title">Ready to Generate CI/CD Code</h2>
+                                <p class="empty-state-text">Ask me to create GitHub Actions workflows, Jenkins pipelines, Docker configurations, or any CI/CD automation you need.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="input-section">
-                    <div class="input-controls">
-                        <div class="question-input">
-                            <textarea id="question-input" placeholder="Describe your CI/CD requirements or ask a question about deployment pipelines... (e.g., Create a GitHub Actions workflow for a Node.js application)"></textarea>
-                            <div class="action-buttons">
-                                <button class="btn btn-primary" id="generate-btn"><i class="fas fa-bolt"></i> Generate Code</button>
-                                <button class="btn btn-success" id="optimize-btn"><i class="fas fa-magic"></i> Optimize Pipeline</button>
-                                <button class="btn btn-warning" id="explain-btn"><i class="fas fa-lightbulb"></i> Explain Concept</button>
-                                <button class="btn btn-secondary" id="clear-btn"><i class="fas fa-broom"></i> Clear</button>
-                            </div>
+
+                <!-- Input Area -->
+                <div class="input-area">
+                    <div class="input-container">
+                        <select class="model-selector" id="model-selector">
+                            <option value="meta-llama-3-3-70b-instruct">Llama 3 70B</option>
+                            <option value="llama-4-maverick">Llama 4 Maverick</option>
+                            <option value="meta-llama-3-1-405b-instruct">Llama 3.1 405B</option>
+                            <option value="deepseek-coder">DeepSeek Coder</option>
+                            <option value="deepseek-chat">DeepSeek Chat</option>
+                        </select>
+                        <div class="input-wrapper">
+                            <textarea 
+                                class="input-field" 
+                                id="input-field" 
+                                placeholder="Ask me to generate CI/CD code..."
+                                rows="1"></textarea>
                         </div>
-                        <div class="parameters-panel">
-                            <div class="parameter-group">
-                                <label class="parameter-label"><i class="fas fa-brain"></i> AI Model</label>
-                                <div class="model-selector">
-                                    <select id="model-selector">
-                                        <option value="meta-llama-3-3-70b-instruct">Llama 3 70B (Recommended)</option>
-                                        <option value="llama-4-maverick">Llama 4 Maverick</option>
-                                        <option value="meta-llama-3-1-405b-instruct">Llama 3.1 405B (Advanced)</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="parameter-group">
-                                <label class="parameter-label"><i class="fas fa-sliders-h"></i> Action Type</label>
-                                <div class="action-selector">
-                                    <select id="action-selector">
-                                        <option value="generate">Generate Code</option>
-                                        <option value="optimize">Optimize Pipeline</option>
-                                        <option value="explain">Explain Concept</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="parameter-group">
-                                <label class="parameter-label"><i class="fas fa-cog"></i> Parameters</label>
-                                <div style="font-size: 0.8rem; color: var(--gray-color);">
-                                    <div>• Max Tokens: 4096</div>
-                                    <div>• Temperature: 0.1</div>
-                                    <div>• Top P: 0.9</div>
-                                </div>
-                            </div>
-                        </div>
+                        <button class="btn btn-send" id="send-btn" title="Send">
+                            <i class="fas fa-arrow-up"></i>
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Documentation Section -->
-        <section class="documentation-section">
-            <h2 class="section-title">CI/CD Documentation & Resources</h2>
-            <div class="doc-grid">
-                <div class="doc-card">
-                    <div class="doc-icon">
-                        <i class="fas fa-graduation-cap"></i>
-                    </div>
-                    <h3 class="doc-title">Getting Started Guide</h3>
-                    <p class="doc-description">Learn the basics of CI/CD and how to implement automated deployment pipelines for your projects with step-by-step tutorials.</p>
-                    <div class="doc-actions">
-                        <button class="btn btn-primary doc-read-btn" style="padding: 8px 16px;">Read Guide</button>
-                        <button class="btn btn-outline doc-download-btn" style="color: var(--dark-color); border-color: var(--dark-color); padding: 8px 16px;"><i class="fas fa-download"></i></button>
-                    </div>
-                </div>
-                <div class="doc-card">
-                    <div class="doc-icon">
-                        <i class="fas fa-book"></i>
-                    </div>
-                    <h3 class="doc-title">Best Practices</h3>
-                    <p class="doc-description">Explore industry best practices for building secure, efficient, and reliable CI/CD pipelines with real-world examples.</p>
-                    <div class="doc-actions">
-                        <button class="btn btn-primary doc-read-btn" style="padding: 8px 16px;">View Practices</button>
-                        <button class="btn btn-outline doc-download-btn" style="color: var(--dark-color); border-color: var(--dark-color); padding: 8px 16px;"><i class="fas fa-download"></i></button>
-                    </div>
-                </div>
-                <div class="doc-card">
-                    <div class="doc-icon">
-                        <i class="fas fa-tools"></i>
-                    </div>
-                    <h3 class="doc-title">Tool Integrations</h3>
-                    <p class="doc-description">Learn how to integrate popular CI/CD tools like Jenkins, GitHub Actions, GitLab CI, Azure DevOps, and more.</p>
-                    <div class="doc-actions">
-                        <button class="btn btn-primary doc-read-btn" style="padding: 8px 16px;">Explore Tools</button>
-                        <button class="btn btn-outline doc-download-btn" style="color: var(--dark-color); border-color: var(--dark-color); padding: 8px 16px;"><i class="fas fa-download"></i></button>
-                    </div>
-                </div>
-            </div>
-        </section>
     </div>
 
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-column">
-                    <h3>CI/CD Helper</h3>
-                    <p>Advanced AI-powered platform for streamlining deployment processes and generating CI/CD code.</p>
-                    <div class="social-links">
-                        <a href="#"><i class="fab fa-github"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-linkedin"></i></a>
-                        <a href="#"><i class="fab fa-youtube"></i></a>
-                    </div>
-                </div>
-                <div class="footer-column">
-                    <h3>Resources</h3>
-                    <ul>
-                        <li><a href="/documentation">Documentation</a></li>
-                        <li><a href="/documentation">Tutorials</a></li>
-                        <li><a href="/documentation">Blog</a></li>
-                        <li><a href="#">API Reference</a></li>
-                        <li><a href="#">Community</a></li>
-                    </ul>
-                </div>
-                <div class="footer-column">
-                    <h3>Tools</h3>
-                    <ul>
-                        <li><a href="#">Code Generator</a></li>
-                        <li><a href="#">Pipeline Optimizer</a></li>
-                        <li><a href="#">Security Scanner</a></li>
-                        <li><a href="#">Performance Analyzer</a></li>
-                        <li><a href="#">Compliance Checker</a></li>
-                    </ul>
-                </div>
-                <div class="footer-column">
-                    <h3>Support</h3>
-                    <ul>
-                        <li><a href="/support">Help Center</a></li>
-                        <li><a href="/support">Contact Us</a></li>
-                        <li><a href="/support">Status</a></li>
-                        <li><a href="/support">Report Issue</a></li>
-                        <li><a href="/support">Feature Request</a></li>
-                    </ul>
+    <!-- Rename Modal -->
+    <div class="modal" id="rename-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Rename Chat</h2>
+                <button class="modal-close" id="rename-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label" for="chat-title-input">Chat Title</label>
+                    <input type="text" class="form-input" id="chat-title-input" placeholder="Enter chat title">
                 </div>
             </div>
-            <div class="copyright">
-                <p>&copy; 2025 Advanced CI/CD Code Generation Tool. All rights reserved.</p>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="rename-cancel-btn">Cancel</button>
+                <button class="btn-primary" id="rename-save-btn">Save</button>
             </div>
         </div>
-    </footer>
+    </div>
+
+    <!-- Usage Limit Modal -->
+    <div class="modal" id="usage-limit-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Usage Limit Reached</h2>
+                <button class="modal-close" id="usage-limit-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; padding: 2rem 1rem;">
+                    <i class="fas fa-hourglass-half" style="font-size: 3rem; color: var(--warning-color); margin-bottom: 1rem;"></i>
+                    <h3 style="margin-bottom: 1rem; color: var(--text-primary);">Free Trial Limit Reached</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.6;">
+                        You've used all your free AI generations. 
+                        <span id="wait-message">Wait <strong id="minutes-until-reset">60</strong> minutes for your uses to reset, or sign up for 100 generations per hour.</span>
+                    </p>
+                    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                        <button class="btn-primary" onclick="window.location.href='/signup'" style="padding: 0.75rem 1.5rem;">
+                            <i class="fas fa-user-plus"></i> Sign Up for 100 Generations
+                        </button>
+                        <button class="btn-secondary" onclick="window.location.href='/login'" style="padding: 0.75rem 1.5rem;">
+                            <i class="fas fa-sign-in-alt"></i> Sign In
+                        </button>
+                        <button class="btn-secondary" id="wait-btn" style="padding: 0.75rem 1.5rem;">
+                            Wait <span id="wait-minutes">60</span> Minutes
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        // Enhanced frontend JavaScript with improved UI
-        document.addEventListener('DOMContentLoaded', function() {
-            // DOM Elements
-            const generateBtn = document.getElementById('generate-btn');
-            const optimizeBtn = document.getElementById('optimize-btn');
-            const explainBtn = document.getElementById('explain-btn');
-            const clearBtn = document.getElementById('clear-btn');
-            const questionInput = document.getElementById('question-input');
-            const modelSelector = document.getElementById('model-selector');
-            const actionSelector = document.getElementById('action-selector');
-            const responseContent = document.getElementById('response-content');
-            const responseContainer = document.getElementById('response-container');
-            const responseInfo = document.getElementById('response-info');
-            const loadingIndicator = document.getElementById('loading-indicator');
-            const copyBtn = document.getElementById('copy-btn');
-            const downloadBtn = document.getElementById('download-btn');
-            const backendStatus = document.getElementById('backend-status');
-            const getStartedBtn = document.getElementById('get-started-btn');
-            const viewDocsBtn = document.getElementById('view-docs-btn');
-
-            // API Configuration
-            const API_BASE_URL = window.location.origin + '/api';
-            let API_KEY = localStorage.getItem('cicd_api_key');
-
-            // Check if we have an API key, if not, generate one
-            if (!API_KEY) {
-                generateApiKey();
+        // Usage limit modal functions
+        function showUsageLimitModal(minutesUntilReset) {
+            const modal = document.getElementById('usage-limit-modal');
+            const minutesElement = document.getElementById('minutes-until-reset');
+            const waitMinutesElement = document.getElementById('wait-minutes');
+            const waitMessage = document.getElementById('wait-message');
+            const waitBtn = document.getElementById('wait-btn');
+            
+            if (minutesUntilReset > 0) {
+                minutesElement.textContent = minutesUntilReset;
+                waitMinutesElement.textContent = minutesUntilReset;
+                waitMessage.style.display = 'block';
+                waitBtn.style.display = 'inline-flex';
             } else {
-                // Validate existing API key on startup
-                validateApiKey();
+                waitMessage.style.display = 'none';
+                waitBtn.style.display = 'none';
+            }
+            
+            modal.style.display = 'flex';
+        }
+
+        function closeUsageLimitModal() {
+            const modal = document.getElementById('usage-limit-modal');
+            modal.style.display = 'none';
+        }
+
+        // Initialize usage limit modal events
+        document.getElementById('usage-limit-modal-close').addEventListener('click', closeUsageLimitModal);
+        document.getElementById('wait-btn').addEventListener('click', closeUsageLimitModal);
+        document.getElementById('usage-limit-modal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('usage-limit-modal')) {
+                closeUsageLimitModal();
+            }
+        });
+
+        class CICDHelper {
+            constructor() {
+                this.API_BASE_URL = window.location.origin + '/api';
+                this.API_KEY = localStorage.getItem('cicd_api_key');
+                this.currentUser = JSON.parse(localStorage.getItem('cicd_user') || 'null');
+                this.conversations = {};
+                this.currentConversationId = null;
+                this.isGenerating = false;
+                this.currentRenamingId = null;
+                this.currentStreamingMessageId = null;
+                this.isDarkMode = localStorage.getItem('cicd_dark_mode') === 'true';
+                this.usageInfo = {
+                    is_authenticated: false,
+                    request_count: 0,
+                    max_requests: 5,
+                    remaining_requests: 5,
+                    minutes_until_reset: 0
+                };
+                
+                // Session management
+                this.sessionSaveInterval = null;
+                this.autoSaveEnabled = true;
+                this.wasOffline = false; // Track backend status changes
+                
+                this.initializeElements();
+                this.initializeEventListeners();
+                this.initializeApp();
             }
 
-            // Clear response function
-            function clearResponse() {
-                responseContent.innerHTML = `
-                    <div class="response-placeholder">
-                        <i class="fas fa-code"></i>
-                        <h3>Your CI/CD Code Will Appear Here</h3>
-                        <p>Enter your requirements in the input field and click "Generate Code" to get started.</p>
-                        <div class="mt-4 p-3 bg-light rounded">
-                            <strong>Try these examples:</strong>
-                            <ul style="text-align: left; margin-top: 0.5rem;">
-                                <li>"Create a GitHub Actions workflow for a Node.js application"</li>
-                                <li>"How can I optimize my Docker build process?"</li>
-                                <li>"Explain blue-green deployment strategy"</li>
-                                <li>"Generate a Jenkins pipeline for a Python microservice"</li>
-                            </ul>
-                        </div>
-                    </div>
-                `;
-                responseInfo.textContent = "Ready to generate";
-                questionInput.focus();
-                showNotification('🧹 Response area cleared', 'info');
+            initializeElements() {
+                this.sidebar = document.getElementById('sidebar');
+                this.sidebarToggle = document.getElementById('sidebar-toggle');
+                this.toggleIcon = document.getElementById('toggle-icon');
+                this.chatHistoryContainer = document.getElementById('chat-history-container');
+                this.clearHistoryBtn = document.getElementById('clear-history-btn');
+                this.newChatBtn = document.getElementById('new-chat-btn');
+                this.messagesContainer = document.getElementById('messages-container');
+                this.messagesContent = document.getElementById('messages-content');
+                this.emptyState = document.getElementById('empty-state');
+                this.inputField = document.getElementById('input-field');
+                this.sendBtn = document.getElementById('send-btn');
+                this.modelSelector = document.getElementById('model-selector');
+                this.backendStatus = document.getElementById('backend-status');
+                this.loginBtn = document.getElementById('login-btn');
+                this.signupBtn = document.getElementById('signup-btn');
+                this.authButtons = document.getElementById('auth-buttons');
+                this.userInfo = document.getElementById('user-info');
+                this.userAvatar = document.getElementById('user-avatar');
+                this.userName = document.getElementById('user-name');
+                this.logoutBtn = document.getElementById('logout-btn');
+                this.renameModal = document.getElementById('rename-modal');
+                this.renameModalClose = document.getElementById('rename-modal-close');
+                this.renameCancelBtn = document.getElementById('rename-cancel-btn');
+                this.renameSaveBtn = document.getElementById('rename-save-btn');
+                this.chatTitleInput = document.getElementById('chat-title-input');
+                this.themeToggle = document.getElementById('theme-toggle');
+                this.themeIcon = document.getElementById('theme-icon');
+                this.usageIndicator = document.getElementById('usage-indicator');
             }
 
-            // Initialize clear button
-            clearBtn.addEventListener('click', clearResponse);
+            initializeEventListeners() {
+                // Sidebar toggle
+                this.sidebarToggle.addEventListener('click', () => this.toggleSidebar());
+                
+                // Clear history
+                this.clearHistoryBtn.addEventListener('click', () => this.clearHistory());
+                
+                // New chat
+                this.newChatBtn.addEventListener('click', () => this.startNewChat());
+                
+                // Send message
+                this.sendBtn.addEventListener('click', () => this.sendMessage());
+                this.inputField.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
+                });
 
-            async function generateApiKey() {
+                // Auto-resize textarea
+                this.inputField.addEventListener('input', () => {
+                    this.inputField.style.height = 'auto';
+                    this.inputField.style.height = Math.min(this.inputField.scrollHeight, 120) + 'px';
+                });
+
+                // Logout
+                this.logoutBtn.addEventListener('click', () => this.logout());
+
+                // Rename modal
+                this.renameModalClose.addEventListener('click', () => this.closeRenameModal());
+                this.renameCancelBtn.addEventListener('click', () => this.closeRenameModal());
+                this.renameSaveBtn.addEventListener('click', () => this.saveRenamedChat());
+                this.renameModal.addEventListener('click', (e) => {
+                    if (e.target === this.renameModal) {
+                        this.closeRenameModal();
+                    }
+                });
+                this.chatTitleInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        this.saveRenamedChat();
+                    }
+                });
+
+                // Theme toggle
+                this.themeToggle.addEventListener('click', () => this.toggleTheme());
+
+                // Model selector change
+                this.modelSelector.addEventListener('change', () => this.saveUserPreferences());
+
+                // Auto-save session data periodically
+                this.sessionSaveInterval = setInterval(() => {
+                    if (this.currentUser && this.autoSaveEnabled) {
+                        this.saveUserSessionData();
+                    }
+                }, 30000); // Save every 30 seconds
+
+                // Save session data before page unload
+                window.addEventListener('beforeunload', () => {
+                    if (this.currentUser) {
+                        this.saveUserSessionData();
+                    }
+                });
+            }
+
+            async initializeApp() {
+                console.log('Initializing app...');
+                
+                // 1. Apply theme first
+                this.applyTheme();
+                
+                // 2. Load credentials from localStorage
+                this.API_KEY = localStorage.getItem('cicd_api_key');
+                this.currentUser = JSON.parse(localStorage.getItem('cicd_user') || 'null');
+                
+                // 3. VALIDATE credentials with server
+                if (this.API_KEY && this.currentUser) {
+                    console.log('Found stored credentials, validating...');
+                    const valid = await this.validateStoredCredentials();
+                    
+                    if (!valid) {
+                        console.log('Stored credentials invalid, clearing...');
+                        // Clear invalid credentials
+                        this.API_KEY = null;
+                        this.currentUser = null;
+                        localStorage.removeItem('cicd_api_key');
+                        localStorage.removeItem('cicd_user');
+                        localStorage.removeItem('cicd_conversations');
+                    }
+                }
+                
+                // 4. Update UI based on validated auth state
+                this.updateUserUI();
+                
+                // 5. Fetch FRESH usage from server (don't trust cache)
+                await this.checkUsage();
+                console.log('Usage after init:', this.usageInfo);
+                
+                // 6. Load conversations
+                await this.loadUserConversations();
+                
+                // 7. Load session data if authenticated
+                if (this.currentUser && this.API_KEY) {
+                    await this.loadUserSessionData();
+                }
+                
+                // 8. Check backend health
+                await this.checkBackendStatus();
+                
+                // 9. Set up periodic checks (every 30 seconds)
+                setInterval(() => this.checkUsage(), 30000);
+                
+                // 10. Set up storage sync for multiple tabs
+                this.setupStorageSync();
+                
+                console.log('App initialization complete');
+            }
+
+            async validateStoredCredentials() {
                 try {
-                    showNotification('🔑 Generating API key...', 'info');
-                    const response = await fetch(`${API_BASE_URL}/generate-api-key`, {
+                    const response = await this.makeAPICall('/auth/me', {}, 'GET');
+                    return response.success;
+                } catch (error) {
+                    console.error('Credential validation failed:', error);
+                    return false;
+                }
+            }
+
+            setupStorageSync() {
+                // Add storage event listener to sync across tabs
+                window.addEventListener('storage', (e) => {
+                    if (e.key === 'cicd_api_key' || e.key === 'cicd_user') {
+                        console.log('Credentials changed in another tab, reloading...');
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    }
+                });
+            }
+
+            applyTheme() {
+                document.body.setAttribute('data-theme', this.isDarkMode ? 'dark' : 'light');
+                this.themeIcon.className = this.isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+            }
+
+            toggleSidebar() {
+                this.sidebar.classList.toggle('collapsed');
+                const isCollapsed = this.sidebar.classList.contains('collapsed');
+                this.toggleIcon.className = isCollapsed ? 'fas fa-chevron-right' : 'fas fa-chevron-left';
+                
+                // Save preference
+                this.saveUserPreferences();
+            }
+
+            toggleTheme() {
+                this.isDarkMode = !this.isDarkMode;
+                this.applyTheme();
+                localStorage.setItem('cicd_dark_mode', this.isDarkMode);
+                this.saveUserPreferences();
+            }
+
+            async logout() {
+                try {
+                    // Save final session state before logout
+                    if (this.currentUser) {
+                        await this.saveUserSessionData();
+                    }
+
+                    const response = await this.makeAPICall('/auth/logout', {}, 'POST');
+                    if (response.success) {
+                        // Clear all local storage except usage tracking
+                        localStorage.removeItem('cicd_api_key');
+                        localStorage.removeItem('cicd_user');
+                        localStorage.removeItem('cicd_conversations');
+                        
+                        // Reset application state
+                        this.API_KEY = null;
+                        this.currentUser = null;
+                        this.conversations = {};
+                        this.currentConversationId = null;
+                        
+                        // Reset UI
+                        this.updateUserUI();
+                        this.messagesContent.innerHTML = '';
+                        this.showEmptyState();
+                        this.loadChatHistory();
+                        
+                        // IMPORTANT: Check usage after logout to switch to anonymous tracking
+                        await this.checkUsage();
+                        
+                        this.showNotification('Logged out successfully', 'success');
+                    }
+                } catch (error) {
+                    console.error('Logout error:', error);
+                    // Clear local storage anyway
+                    localStorage.removeItem('cicd_api_key');
+                    localStorage.removeItem('cicd_user');
+                    localStorage.removeItem('cicd_conversations');
+                    
+                    // Reset state
+                    this.API_KEY = null;
+                    this.currentUser = null;
+                    this.conversations = {};
+                    this.updateUserUI();
+                    this.loadChatHistory();
+                    
+                    // Check usage after logout
+                    await this.checkUsage();
+                    
+                    this.showNotification('Logged out successfully', 'success');
+                }
+            }
+
+            updateUserUI() {
+                if (this.currentUser) {
+                    this.authButtons.style.display = 'none';
+                    this.userInfo.style.display = 'flex';
+                    this.userAvatar.textContent = this.currentUser.first_name ? this.currentUser.first_name.charAt(0).toUpperCase() : 'U';
+                    this.userName.textContent = this.currentUser.first_name || 'User';
+                } else {
+                    this.authButtons.style.display = 'flex';
+                    this.userInfo.style.display = 'none';
+                }
+            }
+
+            async loadUserConversations() {
+                if (!this.API_KEY) {
+                    // Fall back to local storage for unauthenticated users
+                    this.conversations = JSON.parse(localStorage.getItem('cicd_conversations')) || {};
+                    this.loadChatHistory();
+                    return;
+                }
+
+                try {
+                    const response = await this.makeAPICall('/conversations', {}, 'GET');
+                    if (response.success) {
+                        this.conversations = response.conversations || {};
+                        this.loadChatHistory();
+                    } else {
+                        console.error('Failed to load conversations from server:', response.error);
+                        // Fall back to local storage
+                        this.conversations = JSON.parse(localStorage.getItem('cicd_conversations')) || {};
+                        this.loadChatHistory();
+                    }
+                } catch (error) {
+                    console.error('Error loading conversations:', error);
+                    // Fall back to local storage
+                    this.conversations = JSON.parse(localStorage.getItem('cicd_conversations')) || {};
+                    this.loadChatHistory();
+                }
+            }
+
+            async saveUserConversations() {
+                if (!this.API_KEY) {
+                    // Save to local storage for unauthenticated users
+                    localStorage.setItem('cicd_conversations', JSON.stringify(this.conversations));
+                    return;
+                }
+
+                try {
+                    const response = await this.makeAPICall('/conversations', {
+                        conversations: this.conversations
+                    }, 'POST');
+                    
+                    if (!response.success) {
+                        console.error('Failed to save conversations to server:', response.error);
+                        // Fall back to local storage
+                        localStorage.setItem('cicd_conversations', JSON.stringify(this.conversations));
+                    }
+                } catch (error) {
+                    console.error('Error saving conversations:', error);
+                    // Fall back to local storage
+                    localStorage.setItem('cicd_conversations', JSON.stringify(this.conversations));
+                }
+            }
+
+            async loadUserSessionData() {
+                if (!this.API_KEY) return;
+
+                try {
+                    const response = await this.makeAPICall('/auth/session-data', {}, 'GET');
+                    if (response.success && response.session_data) {
+                        // Restore user session data
+                        this.conversations = response.session_data.conversations || {};
+                        this.currentConversationId = response.session_data.current_conversation_id;
+                        
+                        // Restore user preferences
+                        if (response.session_data.user_preferences) {
+                            this.applyUserPreferences(response.session_data.user_preferences);
+                        }
+                        
+                        // Load the current conversation if exists
+                        if (this.currentConversationId && this.conversations[this.currentConversationId]) {
+                            this.loadConversation(this.currentConversationId);
+                        }
+                        
+                        this.loadChatHistory();
+                        console.log('User session data loaded successfully');
+                    }
+                } catch (error) {
+                    console.error('Error loading user session data:', error);
+                }
+            }
+
+            async saveUserSessionData() {
+                if (!this.API_KEY) return;
+
+                try {
+                    const sessionData = {
+                        current_conversation_id: this.currentConversationId,
+                        conversations: this.conversations,
+                        user_preferences: this.getUserPreferences()
+                    };
+                    
+                    await this.makeAPICall('/auth/session-data', sessionData, 'POST');
+                } catch (error) {
+                    console.error('Error saving user session data:', error);
+                }
+            }
+
+            getUserPreferences() {
+                return {
+                    theme: this.isDarkMode ? 'dark' : 'light',
+                    selected_model: this.modelSelector.value,
+                    sidebar_collapsed: this.sidebar.classList.contains('collapsed')
+                };
+            }
+
+            applyUserPreferences(preferences) {
+                if (preferences.theme) {
+                    this.isDarkMode = preferences.theme === 'dark';
+                    this.applyTheme();
+                }
+                
+                if (preferences.selected_model) {
+                    this.modelSelector.value = preferences.selected_model;
+                }
+                
+                if (preferences.sidebar_collapsed !== undefined) {
+                    this.sidebar.classList.toggle('collapsed', preferences.sidebar_collapsed);
+                    this.toggleIcon.className = preferences.sidebar_collapsed ? 'fas fa-chevron-right' : 'fas fa-chevron-left';
+                }
+            }
+
+            async saveUserPreferences() {
+                if (this.currentUser) {
+                    await this.saveUserSessionData();
+                }
+            }
+
+            clearHistory() {
+                if (confirm('Are you sure you want to clear all chat history?')) {
+                    this.conversations = {};
+                    this.currentConversationId = null;
+                    this.saveUserConversations();
+                    this.saveUserSessionData();
+                    this.loadChatHistory();
+                    this.showEmptyState();
+                    this.showNotification('Chat history cleared', 'info');
+                }
+            }
+
+            startNewChat() {
+                this.currentConversationId = null;
+                this.messagesContent.innerHTML = '';
+                this.showEmptyState();
+                this.inputField.focus();
+                this.saveUserSessionData();
+            }
+
+            loadChatHistory() {
+                this.chatHistoryContainer.innerHTML = '';
+                
+                const conversationsArray = Object.values(this.conversations);
+                
+                if (conversationsArray.length === 0) {
+                    this.chatHistoryContainer.innerHTML = '<p style="text-align: center; color: var(--text-tertiary); padding: 1rem;">No previous conversations</p>';
+                    return;
+                }
+
+                // Sort conversations by updatedAt (newest first)
+                conversationsArray.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
+                conversationsArray.forEach((conversation) => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'chat-history-item';
+                    if (conversation.id === this.currentConversationId) {
+                        historyItem.classList.add('active');
+                    }
+                    
+                    const lastMessage = conversation.messages.length > 0 ? 
+                        conversation.messages[conversation.messages.length - 1] : 
+                        { content: 'No messages' };
+                    
+                    historyItem.innerHTML = `
+                        <div class="chat-history-title">${this.escapeHtml(conversation.title)}</div>
+                        <div class="chat-history-preview">${this.escapeHtml(lastMessage.content.substring(0, 100))}</div>
+                        <div class="chat-history-time">${conversation.updatedAt}</div>
+                        <div class="chat-history-actions">
+                            <button class="chat-history-menu">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <div class="chat-history-dropdown">
+                                <div class="dropdown-item rename" data-id="${conversation.id}">
+                                    <i class="fas fa-edit"></i> Rename
+                                </div>
+                                <div class="dropdown-item delete" data-id="${conversation.id}">
+                                    <i class="fas fa-trash"></i> Delete
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    historyItem.addEventListener('click', (e) => {
+                        if (!e.target.closest('.chat-history-actions')) {
+                            this.loadConversation(conversation.id);
+                        }
+                    });
+                    
+                    const menuButton = historyItem.querySelector('.chat-history-menu');
+                    const dropdown = historyItem.querySelector('.chat-history-dropdown');
+                    
+                    menuButton.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        dropdown.classList.toggle('show');
+                    });
+                    
+                    // Close dropdown when clicking elsewhere
+                    document.addEventListener('click', () => {
+                        dropdown.classList.remove('show');
+                    });
+                    
+                    const renameOption = historyItem.querySelector('.dropdown-item.rename');
+                    const deleteOption = historyItem.querySelector('.dropdown-item.delete');
+                    
+                    renameOption.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.openRenameModal(conversation.id, conversation.title);
+                        dropdown.classList.remove('show');
+                    });
+                    
+                    deleteOption.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.deleteConversation(conversation.id);
+                        dropdown.classList.remove('show');
+                    });
+                    
+                    this.chatHistoryContainer.appendChild(historyItem);
+                });
+            }
+
+            openRenameModal(conversationId, currentTitle) {
+                this.currentRenamingId = conversationId;
+                this.chatTitleInput.value = currentTitle;
+                this.renameModal.style.display = 'flex';
+                this.chatTitleInput.focus();
+            }
+
+            closeRenameModal() {
+                this.renameModal.style.display = 'none';
+                this.currentRenamingId = null;
+            }
+
+            saveRenamedChat() {
+                if (!this.currentRenamingId) return;
+                
+                const newTitle = this.chatTitleInput.value.trim();
+                if (!newTitle) {
+                    alert('Please enter a title');
+                    return;
+                }
+                
+                const conversation = this.conversations[this.currentRenamingId];
+                if (conversation) {
+                    conversation.title = newTitle;
+                    this.saveUserConversations();
+                    this.saveUserSessionData();
+                    this.loadChatHistory();
+                    this.closeRenameModal();
+                    this.showNotification('Chat renamed successfully', 'success');
+                }
+            }
+
+            deleteConversation(conversationId) {
+                if (confirm('Are you sure you want to delete this chat?')) {
+                    delete this.conversations[conversationId];
+                    
+                    if (this.currentConversationId === conversationId) {
+                        this.currentConversationId = null;
+                        this.messagesContent.innerHTML = '';
+                        this.showEmptyState();
+                    }
+                    
+                    this.saveUserConversations();
+                    this.saveUserSessionData();
+                    this.loadChatHistory();
+                    this.showNotification('Chat deleted successfully', 'success');
+                }
+            }
+
+            loadConversation(conversationId) {
+                const conversation = this.conversations[conversationId];
+                if (!conversation) return;
+                
+                this.currentConversationId = conversationId;
+                this.hideEmptyState();
+                this.messagesContent.innerHTML = '';
+                
+                conversation.messages.forEach(message => {
+                    this.addMessage(message.content, message.role);
+                });
+                
+                this.loadChatHistory();
+                this.saveUserSessionData();
+            }
+
+            hideEmptyState() {
+                if (this.emptyState) {
+                    this.emptyState.style.display = 'none';
+                }
+            }
+
+            showEmptyState() {
+                if (this.emptyState) {
+                    this.emptyState.style.display = 'flex';
+                }
+            }
+
+            async sendMessage() {
+                const message = this.inputField.value.trim();
+                
+                // CRITICAL: Prevent concurrent requests
+                if (!message || this.isGenerating) {
+                    console.log('Already generating or empty message');
+                    return;
+                }
+                
+                // === LOCK UI IMMEDIATELY ===
+                this.isGenerating = true;
+                this.sendBtn.disabled = true;
+                this.inputField.disabled = true;
+                this.inputField.style.opacity = '0.5';
+                this.inputField.placeholder = 'Generating response...';
+                
+                // Check usage FIRST
+                await this.checkUsage();
+                if (this.usageInfo.remaining_requests <= 0) {
+                    // UNLOCK on error
+                    this.isGenerating = false;
+                    this.sendBtn.disabled = false;
+                    this.inputField.disabled = false;
+                    this.inputField.style.opacity = '1';
+                    this.inputField.placeholder = 'Ask me to generate CI/CD code...';
+                    
+                    this.showUsageLimitModal(this.usageInfo.minutes_until_reset);
+                    return;
+                }
+
+                this.hideEmptyState();
+
+                // Create a new conversation if needed
+                if (!this.currentConversationId) {
+                    this.currentConversationId = 'conv-' + Date.now();
+                    const newConversation = {
+                        id: this.currentConversationId,
+                        title: message.substring(0, 30) + (message.length > 30 ? '...' : ''),
+                        messages: [],
+                        createdAt: new Date().toLocaleString(),
+                        updatedAt: new Date().toLocaleString()
+                    };
+                    this.conversations[this.currentConversationId] = newConversation;
+                }
+
+                // Add user message to current conversation
+                const userMessage = {
+                    role: 'user',
+                    content: message,
+                    timestamp: new Date().toLocaleString()
+                };
+                
+                const currentConversation = this.conversations[this.currentConversationId];
+                currentConversation.messages.push(userMessage);
+                currentConversation.updatedAt = new Date().toLocaleString();
+                
+                // Update conversation title if it's the first message
+                if (currentConversation.messages.length === 1) {
+                    currentConversation.title = message.substring(0, 30) + (message.length > 30 ? '...' : '');
+                }
+
+                // Add user message to UI
+                this.addMessage(message, 'user');
+                
+                // Clear input
+                this.inputField.value = '';
+                this.inputField.style.height = 'auto';
+
+                // Add loading message
+                const loadingId = this.addMessage('<div class="loading-dots"><span></span><span></span><span></span></div>', 'assistant', true);
+
+                try {
+                    // Prepare conversation history for the API (exclude system messages and current message)
+                    const conversationHistory = currentConversation.messages
+                        .filter(msg => msg.role === 'user' || msg.role === 'assistant')
+                        .map(msg => ({
+                            role: msg.role,
+                            content: msg.content
+                        }));
+
+                    const result = await this.generateResponse(message, conversationHistory);
+                    
+                    // Remove loading message
+                    const loadingElement = document.getElementById(loadingId);
+                    if (loadingElement) {
+                        loadingElement.remove();
+                    }
+
+                    if (result.success) {
+                        // Update usage info from server response
+                        if (result.updated_usage) {
+                            this.usageInfo = result.updated_usage;
+                            this.updateUsageIndicator();
+                        } else {
+                            // Fallback: fetch usage
+                            await this.checkUsage();
+                        }
+                        
+                        // Add assistant response with streaming effect
+                        this.addStreamingMessage(result.content);
+                        
+                        // Add assistant message to conversation after streaming completes
+                        setTimeout(() => {
+                            const assistantMessage = {
+                                role: 'assistant',
+                                content: result.content,
+                                timestamp: new Date().toLocaleString(),
+                                needs_clarification: result.needs_clarification || false
+                            };
+                            
+                            currentConversation.messages.push(assistantMessage);
+                            currentConversation.updatedAt = new Date().toLocaleString();
+                            
+                            // Save conversations and session data
+                            this.saveUserConversations();
+                            this.saveUserSessionData();
+                            this.loadChatHistory();
+                        }, 100);
+                        
+                        this.updateBackendStatus(true);
+                    } else {
+                        // Handle usage limit error
+                        if (result.error_code === 'USAGE_LIMIT_EXCEEDED') {
+                            await this.checkUsage(); // Refresh usage info
+                            this.showUsageLimitModal(result.minutes_until_reset);
+                        } else {
+                            // Handle other errors
+                            this.addMessage(`Error: ${result.error}`, 'assistant');
+                        }
+                        this.updateBackendStatus(false);
+                    }
+                } catch (error) {
+                    console.error('Generation error:', error);
+                    const loadingElement = document.getElementById(loadingId);
+                    if (loadingElement) {
+                        loadingElement.remove();
+                    }
+                    this.addMessage(`Error: ${error.message}`, 'assistant');
+                    this.updateBackendStatus(false);
+                } finally {
+                    // === ALWAYS UNLOCK UI ===
+                    this.isGenerating = false;
+                    this.sendBtn.disabled = false;
+                    this.inputField.disabled = false;
+                    this.inputField.style.opacity = '1';
+                    this.inputField.placeholder = 'Ask me to generate CI/CD code...';
+                    
+                    // Final usage check
+                    await this.checkUsage();
+                }
+            }
+
+            async generateResponse(prompt, conversationHistory = []) {
+                const requestData = {
+                    prompt: prompt,
+                    model: this.modelSelector.value,
+                    action: 'generate',
+                    conversation_history: conversationHistory
+                };
+
+                try {
+                    const response = await fetch(`${this.API_BASE_URL}/generate`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
+                            'X-API-Key': this.API_KEY || ''
                         },
-                        body: JSON.stringify({ user_id: 'frontend_user' })
+                        body: JSON.stringify(requestData)
                     });
-                    
-                    const result = await response.json();
-                    if (result.success) {
-                        API_KEY = result.api_key;
-                        localStorage.setItem('cicd_api_key', API_KEY);
-                        showNotification('✅ API key generated successfully!', 'success');
-                        updateBackendStatus(true);
-                    } else {
-                        showNotification('❌ Failed to generate API key: ' + result.error, 'error');
-                        updateBackendStatus(false);
-                    }
-                } catch (error) {
-                    console.error('Failed to generate API key:', error);
-                    showNotification('❌ Failed to generate API key. Please check backend connection.', 'error');
-                    updateBackendStatus(false);
-                }
-            }
-
-            async function validateApiKey() {
-                try {
-                    const response = await fetch(`${API_BASE_URL}/validate-api-key`, {
-                        method: 'POST',
-                        headers: {
-                            'X-API-Key': API_KEY,
-                            'Content-Type': 'application/json'
-                        }
-                    });
-                    
-                    const result = await response.json();
-                    if (result.success && result.valid) {
-                        updateBackendStatus(true);
-                    } else {
-                        // API key is invalid, generate a new one
-                        localStorage.removeItem('cicd_api_key');
-                        generateApiKey();
-                    }
-                } catch (error) {
-                    console.error('Failed to validate API key:', error);
-                }
-            }
-
-            async function makeAPICall(endpoint, data, method = 'POST') {
-                try {
-                    const options = {
-                        method: method,
-                        headers: {
-                            'X-API-Key': API_KEY
-                        }
-                    };
-
-                    if (method === 'POST' && data) {
-                        options.headers['Content-Type'] = 'application/json';
-                        options.body = JSON.stringify(data);
-                    }
-
-                    const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
                     
                     if (!response.ok) {
+                        if (response.status === 429) {
+                            // Handle rate limit specifically
+                            const errorData = await response.json();
+                            return {
+                                success: false,
+                                error: errorData.error || 'Rate limit exceeded',
+                                error_code: 'USAGE_LIMIT_EXCEEDED',
+                                minutes_until_reset: errorData.minutes_until_reset
+                            };
+                        }
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
                     
                     return await response.json();
                 } catch (error) {
-                    console.error('API call failed:', error);
-                    return { 
-                        success: false, 
-                        error: 'Network error - make sure the backend is running on port 5000' 
+                    console.error('Network error during generation:', error);
+                    return {
+                        success: false,
+                        error: 'Network error. Please check your connection and try again.'
                     };
                 }
             }
 
-            function updateBackendStatus(isOnline) {
-                if (isOnline) {
-                    backendStatus.className = 'status-indicator status-online';
-                    backendStatus.innerHTML = '<span class="status-dot"></span><span>Backend Online</span>';
+            addMessage(content, type, isLoading = false) {
+                const messageId = 'msg-' + Date.now() + '-' + Math.random();
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message message-${type}`;
+                messageDiv.id = messageId;
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'message-content';
+                
+                if (isLoading) {
+                    contentDiv.innerHTML = content;
                 } else {
-                    backendStatus.className = 'status-indicator status-offline';
-                    backendStatus.innerHTML = '<span class="status-dot"></span><span>Backend Offline</span>';
+                    contentDiv.innerHTML = this.formatContent(content, type);
                 }
+                
+                messageDiv.appendChild(contentDiv);
+                this.messagesContent.appendChild(messageDiv);
+                
+                // Scroll to bottom
+                this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+                
+                // Add copy buttons to code blocks
+                if (!isLoading && type === 'assistant') {
+                    this.addCopyButtons(contentDiv);
+                }
+                
+                return messageId;
             }
 
-            function showNotification(message, type = 'info') {
-                // Remove existing notifications
-                const existingNotifications = document.querySelectorAll('.notification');
-                existingNotifications.forEach(notif => notif.remove());
+            addStreamingMessage(content) {
+                const messageId = 'msg-' + Date.now() + '-' + Math.random();
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message message-assistant';
+                messageDiv.id = messageId;
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'message-content';
+                contentDiv.id = `content-${messageId}`;
+                
+                messageDiv.appendChild(contentDiv);
+                this.messagesContent.appendChild(messageDiv);
+                
+                this.currentStreamingMessageId = messageId;
+                this.streamContent(content, messageId);
+                
+                // Scroll to bottom
+                this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+                
+                return messageId;
+            }
 
-                const notification = document.createElement('div');
-                notification.className = `notification notification-${type}`;
-                notification.innerHTML = `
-                    <div class="notification-content">
-                        <span class="notification-message">${message}</span>
-                        <button class="notification-close">&times;</button>
-                    </div>
-                `;
-
-                document.body.appendChild(notification);
-
-                // Auto remove after 5 seconds
-                setTimeout(() => {
-                    if (notification.parentNode) {
-                        notification.remove();
+            streamContent(content, messageId) {
+                const contentDiv = document.getElementById(`content-${messageId}`);
+                let index = 0;
+                const speed = 10; // Adjust speed as needed
+                
+                const typeWriter = () => {
+                    if (index < content.length) {
+                        const currentContent = content.substring(0, index + 1);
+                        contentDiv.innerHTML = this.formatContent(currentContent, 'assistant');
+                        this.addCopyButtons(contentDiv);
+                        index++;
+                        setTimeout(typeWriter, speed);
+                    } else {
+                        // Remove typewriter cursor when done
+                        contentDiv.classList.remove('typewriter');
+                        this.currentStreamingMessageId = null;
                     }
-                }, 5000);
-
-                // Close button
-                notification.querySelector('.notification-close').addEventListener('click', () => {
-                    notification.remove();
-                });
-            }
-
-            async function handleAPICall(action) {
-                if (questionInput.value.trim() === '') {
-                    showNotification('⚠️ Please enter your CI/CD requirements or question.', 'warning');
-                    questionInput.focus();
-                    return;
-                }
-                
-                loadingIndicator.style.display = 'flex';
-                responseContent.innerHTML = '';
-                responseInfo.textContent = `Generating ${action}...`;
-                
-                const requestData = {
-                    prompt: questionInput.value,
-                    model: modelSelector.value,
-                    action: action
                 };
                 
-                showNotification(`🔄 Generating ${action} response with ${modelSelector.options[modelSelector.selectedIndex].text}...`, 'info');
-                
-                try {
-                    const result = await makeAPICall('/generate', requestData);
-                    
-                    loadingIndicator.style.display = 'none';
-                    
-                    if (result.success) {
-                        const formattedContent = formatCodeResponse(result.content);
-                        responseContent.innerHTML = formattedContent;
-                        
-                        // Update response info
-                        responseInfo.textContent = `Generated with ${result.model_used} • ${result.processing_time.toFixed(2)}s`;
-                        
-                        showNotification(`✅ ${action.charAt(0).toUpperCase() + action.slice(1)} completed successfully!`, 'success');
-                        updateBackendStatus(true);
-                    } else {
-                        responseContent.innerHTML = `
-                            <div class="p-3 bg-light rounded" style="color: #d00000;">
-                                <strong><i class="fas fa-exclamation-triangle"></i> Error:</strong> ${result.error}
-                                <br><br>
-                                <small>Make sure your backend is running and your Databricks token is configured correctly.</small>
-                            </div>
-                        `;
-                        responseInfo.textContent = "Error occurred";
-                        showNotification(`❌ Failed to generate response: ${result.error}`, 'error');
-                        updateBackendStatus(false);
-                    }
-                    
-                    // Apply syntax highlighting to code blocks
-                    highlightCodeBlocks();
-                } catch (error) {
-                    loadingIndicator.style.display = 'none';
-                    responseInfo.textContent = "Request failed";
-                    showNotification('❌ Request failed: ' + error.message, 'error');
-                }
+                // Add typewriter effect
+                contentDiv.classList.add('typewriter');
+                typeWriter();
             }
 
-            function formatCodeResponse(content) {
-                // Convert markdown code blocks to enhanced HTML
-                content = content.replace(/```(\w+)?\n([\s\S]*?)```/g, function(match, lang, code) {
+            formatContent(content, type) {
+                if (type === 'user') {
+                    return this.escapeHtml(content);
+                }
+
+                // Format code blocks with enhanced syntax highlighting
+                content = content.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
                     const language = lang || 'plaintext';
+                    const highlightedCode = this.highlightCode(code.trim(), language);
                     return `
                         <div class="code-block">
-                            <div class="code-header">
-                                <span class="code-language">${language}</span>
-                                <button class="btn btn-outline copy-code-btn" style="color: #a0aec0; border-color: #a0aec0; padding: 4px 8px; font-size: 0.8rem;">
-                                    <i class="fas fa-copy"></i> Copy
-                                </button>
-                            </div>
-                            <pre class="code-content">${escapeHtml(code.trim())}</pre>
+                            <button class="copy-code-btn" data-code="${this.escapeHtml(code.trim()).replace(/"/g, '&quot;')}">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                            <pre>${highlightedCode}</pre>
                         </div>
                     `;
                 });
-                
-                // Convert markdown headers
-                content = content.replace(/^### (.*?)$/gm, '<h3 style="margin: 1.5rem 0 0.8rem 0; color: #2d3748;">$1</h3>');
-                content = content.replace(/^## (.*?)$/gm, '<h2 style="margin: 2rem 0 1rem 0; color: #2d3748; border-bottom: 2px solid #f1f5f9; padding-bottom: 0.5rem;">$1</h2>');
-                content = content.replace(/^# (.*?)$/gm, '<h1 style="margin: 2.5rem 0 1.2rem 0; color: #2d3748;">$1</h1>');
-                
-                // Convert markdown lists
-                content = content.replace(/^\* (.*?)$/gm, '<li style="margin-bottom: 0.5rem;">$1</li>');
-                content = content.replace(/(<li>.*?<\/li>\n?)+/g, '<ul style="margin: 1rem 0; padding-left: 1.5rem;">$&</ul>');
-                
-                // Convert markdown bold and italic
-                content = content.replace(/\*\*(.*?)\*\*/g, '<strong style="color: #2d3748;">$1</strong>');
+
+                // Format inline code
+                content = content.replace(/`([^`]+)`/g, '<code style="background: var(--bg-secondary); padding: 2px 6px; border-radius: 4px; font-family: monospace;">$1</code>');
+
+                // Format markdown
+                content = content.replace(/^### (.*?)$/gm, '<h3>$1</h3>');
+                content = content.replace(/^## (.*?)$/gm, '<h2>$1</h2>');
+                content = content.replace(/^# (.*?)$/gm, '<h1>$1</h1>');
+                content = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
                 content = content.replace(/\*(.*?)\*/g, '<em>$1</em>');
-                
-                // Convert line breaks
                 content = content.replace(/\n/g, '<br>');
-                
+
                 return content;
             }
 
-            function escapeHtml(text) {
+            highlightCode(code, language) {
+                // Enhanced VS Code-like syntax highlighting
+                let highlighted = this.escapeHtml(code);
+                
+                // Apply syntax highlighting classes
+                highlighted = highlighted
+                    // Comments
+                    .replace(/(\/\/.*)/g, '<span class="comment">$1</span>')
+                    .replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="comment">$1</span>')
+                    // Strings
+                    .replace(/("([^"\\]|\\.)*")/g, '<span class="string">$1</span>')
+                    .replace(/('([^'\\]|\\.)*')/g, '<span class="string">$1</span>')
+                    // Numbers
+                    .replace(/\b(\d+\.?\d*|\.\d+)\b/g, '<span class="number">$1</span>')
+                    // Keywords
+                    .replace(/\b(function|if|else|for|while|return|class|import|from|export|default|const|let|var|async|await|try|catch|finally|throw|new|this|super|extends|implements|interface|package|private|protected|public|static|yield|with|debugger|enum|typeof|instanceof|delete|void|in|of)\b/g, '<span class="keyword">$1</span>')
+                    // Built-in types and values
+                    .replace(/\b(true|false|null|undefined|NaN|Infinity)\b/g, '<span class="constant">$1</span>')
+                    // Functions
+                    .replace(/\b([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/g, '<span class="function">$1</span>(')
+                    // Classes
+                    .replace(/\b(class|interface)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/g, '$1 <span class="class-name">$2</span>')
+                    // HTML/XML tags
+                    .replace(/&lt;(\/?)([a-zA-Z][a-zA-Z0-9]*)/g, '&lt;$1<span class="tag">$2</span>')
+                    // HTML/XML attributes
+                    .replace(/\s([a-zA-Z-]+)=/g, ' <span class="attribute">$1</span>=')
+                    // Operators
+                    .replace(/([=+\-*/%&|^~!<>?]+)/g, '<span class="operator">$1</span>')
+                    // Punctuation
+                    .replace(/([{}()\[\],;:])/g, '<span class="punctuation">$1</span>');
+                
+                return highlighted;
+            }
+
+            addCopyButtons(container) {
+                const copyButtons = container.querySelectorAll('.copy-code-btn');
+                copyButtons.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const code = btn.getAttribute('data-code').replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+                        navigator.clipboard.writeText(code).then(() => {
+                            const originalText = btn.innerHTML;
+                            btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                            setTimeout(() => {
+                                btn.innerHTML = originalText;
+                            }, 2000);
+                        });
+                    });
+                });
+            }
+
+            escapeHtml(text) {
                 const map = {
                     '&': '&amp;',
                     '<': '&lt;',
@@ -1266,173 +2158,170 @@
                 return text.replace(/[&<>"']/g, m => map[m]);
             }
 
-            function highlightCodeBlocks() {
-                // Add event listeners to copy code buttons
-                document.querySelectorAll('.copy-code-btn').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const codeContent = this.closest('.code-block').querySelector('.code-content').textContent;
-                        navigator.clipboard.writeText(codeContent).then(() => {
-                            const originalText = this.innerHTML;
-                            this.innerHTML = '<i class="fas fa-check"></i> Copied!';
-                            this.style.color = '#38b000';
-                            setTimeout(() => {
-                                this.innerHTML = originalText;
-                                this.style.color = '#a0aec0';
-                            }, 2000);
-                        });
-                    });
-                });
+            async makeAPICall(endpoint, data, method = 'POST') {
+                try {
+                    const options = {
+                        method: method,
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-API-Key': this.API_KEY || ''
+                        }
+                    };
+
+                    if (method === 'POST' && data) {
+                        options.body = JSON.stringify(data);
+                    }
+
+                    const response = await fetch(`${this.API_BASE_URL}${endpoint}`, options);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    return await response.json();
+                } catch (error) {
+                    console.error('API call failed:', error);
+                    return { 
+                        success: false, 
+                        error: 'Network error - make sure the backend is running' 
+                    };
+                }
             }
 
-            // Copy to clipboard functionality
-            copyBtn.addEventListener('click', function() {
-                const textToCopy = responseContent.innerText;
-                if (!textToCopy || textToCopy.includes('Your CI/CD Code Will Appear Here')) {
-                    showNotification('⚠️ No content to copy', 'warning');
-                    return;
+            updateBackendStatus(isOnline) {
+                if (isOnline) {
+                    this.backendStatus.className = 'status-indicator status-online';
+                    this.backendStatus.innerHTML = '<span class="status-dot"></span><span>Online</span>';
+                } else {
+                    this.backendStatus.className = 'status-indicator status-offline';
+                    this.backendStatus.innerHTML = '<span class="status-dot"></span><span>Offline</span>';
                 }
-                
-                navigator.clipboard.writeText(textToCopy).then(() => {
-                    showNotification('✅ Code copied to clipboard!', 'success');
-                    // Visual feedback
-                    const originalHTML = copyBtn.innerHTML;
-                    copyBtn.innerHTML = '<i class="fas fa-check"></i>';
-                    copyBtn.style.backgroundColor = 'var(--success-color)';
-                    setTimeout(() => {
-                        copyBtn.innerHTML = originalHTML;
-                        copyBtn.style.backgroundColor = '';
-                    }, 2000);
-                }).catch(err => {
-                    showNotification('❌ Failed to copy to clipboard', 'error');
-                });
-            });
+            }
 
-            // Download functionality
-            downloadBtn.addEventListener('click', function() {
-                const textToDownload = responseContent.innerText;
-                if (!textToDownload || textToDownload.includes('Your CI/CD Code Will Appear Here')) {
-                    showNotification('⚠️ No content to download', 'warning');
-                    return;
-                }
-                
-                const blob = new Blob([textToDownload], { type: 'text/plain' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `ci-cd-generated-${Date.now()}.txt`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                showNotification('✅ File downloaded successfully!', 'success');
-            });
-
-            // Navigation and button handlers
-            document.querySelectorAll('nav a').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    const href = this.getAttribute('href');
-                    
-                    // Only prevent default for anchor links and handle smooth scrolling
-                    if (href === '#' || href.startsWith('#')) {
-                        e.preventDefault();
-                        const text = this.querySelector('i').nextSibling.textContent.trim();
-                        
-                        switch(text) {
-                            case 'Home':
-                                window.scrollTo({ top: 0, behavior: 'smooth' });
-                                break;
-                            case 'Tools':
-                                document.querySelector('.main-content').scrollIntoView({ behavior: 'smooth' });
-                                break;
-                            case 'Help':
-                                showNotification('📖 Help section coming soon! For now, try the documentation.', 'info');
-                                break;
-                        }
-                    }
-                    // For actual page links (/documentation, /), let the browser handle them normally
-                });
-            });
-
-            // Auth buttons
-            document.querySelector('.auth-buttons .btn-outline').addEventListener('click', function() {
-                window.location.href = '/login';
-            });
-            
-            document.querySelector('.auth-buttons .btn-primary').addEventListener('click', function() {
-                window.location.href = '/signup';
-            });
-
-            // Get Started button
-            getStartedBtn.addEventListener('click', function() {
-                document.querySelector('.main-content').scrollIntoView({ behavior: 'smooth' });
-                questionInput.focus();
-            });
-
-            // View Documentation button
-            viewDocsBtn.addEventListener('click', function() {
-                window.location.href = '/documentation';
-            });
-
-            // Documentation cards
-            document.querySelectorAll('.doc-read-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const title = this.closest('.doc-card').querySelector('.doc-title').textContent;
-                    showNotification(`📚 Opening ${title}... (Coming soon!)`, 'info');
-                });
-            });
-
-            document.querySelectorAll('.doc-download-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const title = this.closest('.doc-card').querySelector('.doc-title').textContent;
-                    showNotification(`💾 Downloading ${title}... (Coming soon!)`, 'info');
-                });
-            });
-
-            // Event listeners for main action buttons
-            generateBtn.addEventListener('click', () => {
-                const action = actionSelector.value;
-                handleAPICall(action);
-            });
-
-            optimizeBtn.addEventListener('click', () => handleAPICall('optimize'));
-            explainBtn.addEventListener('click', () => handleAPICall('explain'));
-
-            // Sync action selector with button clicks
-            optimizeBtn.addEventListener('click', () => {
-                actionSelector.value = 'optimize';
-            });
-
-            explainBtn.addEventListener('click', () => {
-                actionSelector.value = 'explain';
-            });
-
-            // Test backend connection on load
-            async function initializeApp() {
-                showNotification('🚀 Initializing CI/CD Helper...', 'info');
-                
+            async checkUsage() {
                 try {
-                    const healthResult = await makeAPICall('/health', null, 'GET');
-                    if (healthResult.status === 'healthy') {
-                        updateBackendStatus(true);
-                        showNotification('✅ Backend connected successfully!', 'success');
+                    const response = await this.makeAPICall('/auth/usage', {}, 'GET');
+                    if (response.success) {
+                        this.usageInfo = response.usage;
+                        this.updateUsageIndicator();
                         
-                        // Load available models
-                        const modelsResult = await makeAPICall('/models', null, 'GET');
-                        if (modelsResult.success) {
-                            console.log('Available models:', modelsResult.models);
-                        }
-                    } else {
-                        updateBackendStatus(false);
-                        showNotification('❌ Backend connection failed', 'error');
+                        // Debug log
+                        console.log('Usage info updated:', this.usageInfo);
                     }
                 } catch (error) {
-                    updateBackendStatus(false);
-                    showNotification('❌ Backend not available: ' + error.message, 'error');
+                    console.error('Error checking usage:', error);
+                    // If we can't get usage from server, use conservative approach
+                    this.usageInfo.remaining_requests = Math.max(0, this.usageInfo.remaining_requests - 1);
+                    this.updateUsageIndicator();
                 }
             }
-            
-            // Initialize the application
-            initializeApp();
+
+            updateUsageIndicator() {
+                if (!this.usageIndicator) return;
+                
+                // Use values directly from usageInfo
+                const remaining = this.usageInfo.remaining_requests || 0;
+                const max = this.usageInfo.max_requests || 5;
+                
+                // Calculate progress percentage
+                const progressWidth = max > 0 ? (remaining / max) * 100 : 0;
+                
+                // Determine color class
+                let colorClass = '';
+                if (remaining <= 0) {
+                    colorClass = 'usage-critical';
+                } else if (remaining <= 2) {
+                    colorClass = 'usage-warning';
+                }
+                
+                // Update HTML
+                this.usageIndicator.className = `usage-indicator ${colorClass}`;
+                this.usageIndicator.innerHTML = `
+                    <span>${remaining}/${max}</span>
+                    <div class="usage-progress">
+                        <div class="usage-progress-bar" style="width: ${progressWidth}%"></div>
+                    </div>
+                    <i class="fas fa-robot"></i>
+                `;
+                
+                // Update tooltip
+                const resetMsg = this.usageInfo.minutes_until_reset > 0 
+                    ? ` • Resets in ${this.usageInfo.minutes_until_reset} min` 
+                    : '';
+                this.usageIndicator.title = `${remaining} of ${max} generations remaining${resetMsg}`;
+                
+                console.log(`Usage indicator updated: ${remaining}/${max}`);
+            }
+
+            async checkBackendStatus() {
+                try {
+                    const response = await this.makeAPICall('/health', {}, 'GET');
+                    const isOnline = response.status === 'healthy';
+                    
+                    this.updateBackendStatus(isOnline);
+                    
+                    // If backend just came back online, refresh usage
+                    if (isOnline && this.wasOffline) {
+                        console.log('Backend back online, refreshing usage...');
+                        await this.checkUsage();
+                    }
+                    
+                    this.wasOffline = !isOnline;
+                } catch (error) {
+                    this.updateBackendStatus(false);
+                    this.wasOffline = true;
+                }
+            }
+
+            showUsageLimitModal(minutesUntilReset = null) {
+                const mins = minutesUntilReset !== null ? minutesUntilReset : this.usageInfo.minutes_until_reset;
+                showUsageLimitModal(mins);
+            }
+
+            showNotification(message, type = 'info') {
+                const existingNotifications = document.querySelectorAll('.notification');
+                existingNotifications.forEach(notif => notif.remove());
+
+                const notification = document.createElement('div');
+                notification.className = `notification notification-${type}`;
+                notification.innerHTML = `
+                    <div class="notification-content">
+                        <span>${message}</span>
+                        <button class="notification-close">&times;</button>
+                    </div>
+                `;
+
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.remove();
+                    }
+                }, 5000);
+
+                notification.querySelector('.notification-close').addEventListener('click', () => {
+                    notification.remove();
+                });
+            }
+
+            // Cleanup on destroy
+            destroy() {
+                if (this.sessionSaveInterval) {
+                    clearInterval(this.sessionSaveInterval);
+                }
+            }
+        }
+
+        // Initialize the application when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            window.cicdApp = new CICDHelper();
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (window.cicdApp) {
+                window.cicdApp.destroy();
+            }
         });
     </script>
 </body>
