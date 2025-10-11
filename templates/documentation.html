@@ -109,51 +109,75 @@
             margin: 0 auto 2rem;
         }
 
-        /* Library Navigation */
-        .library-nav {
+        /* Search Section */
+        .search-section {
             background: white;
-            padding: 1.5rem 0;
+            padding: 2rem 0;
             margin-bottom: 2rem;
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
         }
 
-        .nav-tabs {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            justify-content: center;
+        .search-container {
+            max-width: 700px;
+            margin: 0 auto;
+            position: relative;
         }
 
-        .nav-tab {
-            padding: 0.8rem 1.5rem;
-            background: #f8f9fa;
-            border: 2px solid transparent;
-            border-radius: var(--border-radius);
-            cursor: pointer;
+        .search-input {
+            width: 100%;
+            padding: 1rem 1.5rem 1rem 3rem;
+            border: 2px solid #e5e5e5;
+            border-radius: 50px;
+            font-size: 1.1rem;
             transition: var(--transition);
-            font-weight: 500;
+            background-color: var(--light-color);
         }
 
-        .nav-tab.active {
-            background: var(--primary-color);
-            color: white;
+        .search-input:focus {
+            outline: none;
             border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.2);
         }
 
-        .nav-tab:hover:not(.active) {
-            border-color: var(--primary-color);
+        .search-icon {
+            position: absolute;
+            left: 1.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-color);
+            font-size: 1.2rem;
+        }
+
+        /* User Status */
+        .user-status {
+            text-align: center;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            padding: 0.5rem;
+            border-radius: var(--border-radius);
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .user-status.admin {
+            background-color: rgba(56, 176, 0, 0.1);
+            color: #2e7d32;
+        }
+
+        .user-status.regular {
+            background-color: rgba(108, 117, 125, 0.1);
+            color: var(--gray-color);
+        }
+
+        /* Results Count */
+        .results-count {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: var(--gray-color);
+            font-size: 1rem;
         }
 
         /* Library Content */
-        .library-content {
-            display: none;
-        }
-
-        .library-content.active {
-            display: block;
-        }
-
         .doc-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -362,10 +386,6 @@
             .hero h1 {
                 font-size: 2rem;
             }
-            
-            .nav-tabs {
-                flex-direction: column;
-            }
         }
 
         /* Notification Styles */
@@ -473,27 +493,36 @@
     <section class="hero">
         <div class="container">
             <h1>CI/CD Documentation Library</h1>
-            <p>Access essential CI/CD guides, best practices, and tool documentation in one place.</p>
+            <p>Search and access essential CI/CD guides, best practices, and tool documentation in one place.</p>
         </div>
     </section>
 
-    <!-- Library Navigation -->
-    <section class="library-nav">
+    <!-- Search Section -->
+    <section class="search-section">
         <div class="container">
-            <div class="nav-tabs">
-                <div class="nav-tab active" data-tab="all">All Resources</div>
-                <div class="nav-tab" data-tab="guides">Getting Started</div>
-                <div class="nav-tab" data-tab="best-practices">Best Practices</div>
-                <div class="nav-tab" data-tab="tools">Tool Guides</div>
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" id="search-input" placeholder="Search documentation...">
             </div>
         </div>
     </section>
 
+    <!-- User Status Indicator -->
+    <div class="container">
+        <div class="user-status" id="user-status" style="display: none;">
+            <i class="fas fa-user"></i>
+            <span id="user-status-text"></span>
+        </div>
+    </div>
+
     <!-- Main Content -->
     <div class="container">
+        <!-- Results Count -->
+        <div class="results-count" id="results-count"></div>
+
         <!-- Admin Section (only visible to admin) -->
         <section class="admin-section" id="admin-section" style="display: none;">
-            <h2 style="margin-bottom: 1.5rem;">Add New Documents</h2>
+            <h2 style="margin-bottom: 1.5rem;">Add New Documents (Admin Only)</h2>
             <div class="upload-area" id="upload-area">
                 <i class="fas fa-cloud-upload-alt"></i>
                 <h3>Add to Library</h3>
@@ -508,7 +537,7 @@
 
         <!-- Library Content -->
         <div id="library-content">
-            <!-- Content will be dynamically loaded based on selected tab -->
+            <!-- Content will be dynamically loaded based on search -->
         </div>
     </div>
 
@@ -526,7 +555,7 @@
                 </div>
             </div>
             <div class="copyright">
-                <p>&copy; 2023 CI/CD Documentation Library. All rights reserved.</p>
+                <p>&copy; 2025 CI/CD Documentation Library. All rights reserved.</p>
             </div>
         </div>
     </footer>
@@ -540,26 +569,20 @@
             const browseBtn = document.getElementById('browse-btn');
             const fileInput = document.getElementById('file-input');
             const libraryContent = document.getElementById('library-content');
-            const navTabs = document.querySelectorAll('.nav-tab');
+            const searchInput = document.getElementById('search-input');
+            const resultsCount = document.getElementById('results-count');
+            const userStatus = document.getElementById('user-status');
+            const userStatusText = document.getElementById('user-status-text');
 
             // Admin configuration
-            const ADMIN_EMAIL = 'yoyo@outlook.com';
+            const ADMIN_EMAIL = 'youghourtabo@outlook.com';
             let isAdmin = false;
 
             // Current state
-            let currentTab = 'all';
+            let allResources = [];
+            let filteredResources = [];
 
             // Helper functions
-            function getTabTitle(tab) {
-                const titles = {
-                    'all': 'All Resources',
-                    'guides': 'Getting Started Guides',
-                    'best-practices': 'Best Practices',
-                    'tools': 'Tool Guides'
-                };
-                return titles[tab] || 'Resources';
-            }
-
             function showNotification(message, type = 'info') {
                 const existingNotifications = document.querySelectorAll('.notification');
                 existingNotifications.forEach(notif => notif.remove());
@@ -588,37 +611,94 @@
 
             // Check if user is admin
             function checkAdminStatus() {
-                // In a real app, this would check against a backend
-                // For demo purposes, we'll check localStorage
-                const storedAdmin = localStorage.getItem('cicd_admin');
+                // Check if user is logged in and has the specific admin email
+                const storedUser = localStorage.getItem('cicd_user');
                 
-                if (storedAdmin === ADMIN_EMAIL) {
-                    isAdmin = true;
-                    adminSection.style.display = 'block';
-                    showNotification('Admin mode enabled', 'success');
-                } else {
-                    // Show admin login prompt (simplified for demo)
-                    const userEmail = prompt('Enter email to access admin features (demo: yoyo@outlook.com):');
-                    if (userEmail === ADMIN_EMAIL) {
-                        isAdmin = true;
-                        localStorage.setItem('cicd_admin', ADMIN_EMAIL);
-                        adminSection.style.display = 'block';
-                        showNotification('Admin mode enabled', 'success');
+                if (storedUser) {
+                    try {
+                        const user = JSON.parse(storedUser);
+                        if (user.email === ADMIN_EMAIL) {
+                            isAdmin = true;
+                            adminSection.style.display = 'block';
+                            showNotification('Admin mode enabled - Upload access granted', 'success');
+                        } else {
+                            // Regular user - hide admin section
+                            isAdmin = false;
+                            adminSection.style.display = 'none';
+                        }
+                    } catch (e) {
+                        console.error('Error parsing user data:', e);
+                        isAdmin = false;
+                        adminSection.style.display = 'none';
                     }
+                } else {
+                    // Not logged in - hide admin section
+                    isAdmin = false;
+                    adminSection.style.display = 'none';
                 }
             }
 
-            // Navigation Tabs
-            navTabs.forEach(tab => {
-                tab.addEventListener('click', function() {
-                    // Update active tab
-                    navTabs.forEach(t => t.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    currentTab = this.getAttribute('data-tab');
-                    loadLibraryContent();
-                });
-            });
+            // Update user status display
+            function updateUserStatus() {
+                const storedUser = localStorage.getItem('cicd_user');
+                
+                if (storedUser) {
+                    try {
+                        const user = JSON.parse(storedUser);
+                        userStatus.style.display = 'block';
+                        if (user.email === ADMIN_EMAIL) {
+                            userStatusText.textContent = `Logged in as Admin (${user.email}) - Upload access enabled`;
+                            userStatus.className = 'user-status admin';
+                        } else {
+                            userStatusText.textContent = `Logged in as ${user.email} - Browse only`;
+                            userStatus.className = 'user-status regular';
+                        }
+                    } catch (e) {
+                        userStatus.style.display = 'none';
+                    }
+                } else {
+                    userStatus.style.display = 'block';
+                    userStatusText.textContent = 'Not logged in - Browse only';
+                    userStatus.className = 'user-status regular';
+                }
+            }
+
+            // Search functionality
+            function performSearch(searchTerm) {
+                if (!searchTerm.trim()) {
+                    filteredResources = [...allResources];
+                } else {
+                    const searchLower = searchTerm.toLowerCase();
+                    filteredResources = allResources.filter(resource => 
+                        resource.title.toLowerCase().includes(searchLower) ||
+                        resource.description.toLowerCase().includes(searchLower) ||
+                        resource.source.toLowerCase().includes(searchLower) ||
+                        resource.category.toLowerCase().includes(searchLower)
+                    );
+                }
+                
+                updateResultsCount();
+                renderResources(filteredResources);
+            }
+
+            function updateResultsCount() {
+                const count = filteredResources.length;
+                const searchTerm = searchInput.value.trim();
+                
+                if (searchTerm) {
+                    if (count === 0) {
+                        resultsCount.textContent = `No results found for "${searchTerm}"`;
+                    } else {
+                        resultsCount.textContent = `Found ${count} result${count !== 1 ? 's' : ''} for "${searchTerm}"`;
+                    }
+                } else {
+                    if (count === 0) {
+                        resultsCount.textContent = 'No documents available';
+                    } else {
+                        resultsCount.textContent = `Showing ${count} document${count !== 1 ? 's' : ''}`;
+                    }
+                }
+            }
 
             function loadLibraryContent() {
                 try {
@@ -626,32 +706,15 @@
                     libraryContent.innerHTML = `
                         <div style="text-align: center; padding: 3rem;">
                             <div class="spinner"></div>
-                            <p>Loading ${currentTab} resources...</p>
+                            <p>Loading resources...</p>
                         </div>
                     `;
 
-                    const staticResources = getStaticResources();
+                    allResources = getStaticResources();
+                    filteredResources = [...allResources];
                     
-                    let resources = [];
-                    
-                    // Filter resources based on current tab
-                    switch(currentTab) {
-                        case 'all':
-                            resources = staticResources;
-                            break;
-                        case 'guides':
-                            resources = staticResources.filter(r => r.category === 'guides');
-                            break;
-                        case 'best-practices':
-                            resources = staticResources.filter(r => r.category === 'best-practices');
-                            break;
-                        case 'tools':
-                            resources = staticResources.filter(r => r.category === 'tools');
-                            break;
-                    }
-
-                    // Render resources
-                    renderResources(resources);
+                    updateResultsCount();
+                    renderResources(filteredResources);
                 } catch (error) {
                     libraryContent.innerHTML = `
                         <div class="empty-state">
@@ -785,9 +848,9 @@
                 if (resources.length === 0) {
                     libraryContent.innerHTML = `
                         <div class="empty-state">
-                            <i class="fas fa-inbox"></i>
+                            <i class="fas fa-search"></i>
                             <h3>No Resources Found</h3>
-                            <p>Try selecting a different category.</p>
+                            <p>Try adjusting your search terms.</p>
                         </div>
                     `;
                     return;
@@ -819,23 +882,17 @@
                 }).join('');
 
                 libraryContent.innerHTML = `
-                    <section class="documentation-section">
-                        <h2 style="margin-bottom: 1.5rem; font-size: 1.8rem;">
-                            ${getTabTitle(currentTab)} 
-                            <span style="font-size: 1rem; color: var(--gray-color);">(${resources.length} resources)</span>
-                        </h2>
-                        <div class="doc-grid">
-                            ${resourcesHTML}
-                        </div>
-                    </section>
+                    <div class="doc-grid">
+                        ${resourcesHTML}
+                    </div>
                 `;
             }
 
             // File upload functionality (admin only)
             browseBtn.addEventListener('click', function() {
                 if (!isAdmin) {
-                    showNotification('Admin access required to upload files', 'error');
-                    checkAdminStatus();
+                    showNotification('Admin access required to upload files. Only youghourtabo@outlook.com can upload documents.', 'error');
+                    checkAdminStatus(); // Re-check admin status
                     return;
                 }
                 fileInput.click();
@@ -876,11 +933,13 @@
                 fileInput.value = '';
             }
 
-            // Drag and drop for upload area
+            // Drag and drop for upload area (admin only)
             uploadArea.addEventListener('dragover', function(e) {
                 e.preventDefault();
-                uploadArea.style.borderColor = 'var(--primary-color)';
-                uploadArea.style.backgroundColor = 'rgba(58, 134, 255, 0.1)';
+                if (isAdmin) {
+                    uploadArea.style.borderColor = 'var(--primary-color)';
+                    uploadArea.style.backgroundColor = 'rgba(58, 134, 255, 0.1)';
+                }
             });
 
             uploadArea.addEventListener('dragleave', function() {
@@ -903,9 +962,15 @@
                 }
             });
 
+            // Search input event listener
+            searchInput.addEventListener('input', function() {
+                performSearch(this.value);
+            });
+
             // Initialize application
             function initializeApp() {
                 checkAdminStatus();
+                updateUserStatus();
                 loadLibraryContent();
             }
 

@@ -293,6 +293,27 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Check if we came from a logout action
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('logout') === 'true') {
+                // Clear any stored credentials
+                localStorage.removeItem('cicd_api_key');
+                localStorage.removeItem('cicd_user');
+                localStorage.removeItem('cicd_conversations');
+                
+                // Clean URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+            
+            // Check if user is already logged in
+            const storedApiKey = localStorage.getItem('cicd_api_key');
+            const storedUser = localStorage.getItem('cicd_user');
+            
+            if (storedApiKey && storedUser) {
+                // User appears to be logged in, redirect to main app
+                window.location.href = '/';
+                return;
+            }
             const loginForm = document.getElementById('login-form');
             const loginBtn = document.getElementById('login-btn');
             

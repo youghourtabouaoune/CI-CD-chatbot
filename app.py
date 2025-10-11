@@ -207,12 +207,14 @@ def create_app(config_name='default'):
         # Use user_id if authenticated, otherwise use client identifier
         if user_id:
             identifier = f"user_{user_id}"  # Prefix to avoid conflicts
-            max_requests = 100  # 100 requests per hour for authenticated users
+            max_requests = 100  # 100 requests per RESET PERIOD for authenticated users
             is_authenticated = True
+            reset_hours = 7  # 7 hours for logged-in users
         else:
             identifier = get_client_identifier()
-            max_requests = 5  # 5 requests per hour for unauthenticated users
+            max_requests = 5  # 5 requests per RESET PERIOD for unauthenticated users
             is_authenticated = False
+            reset_hours = 4  # 4 hours for non-logged-in users
         
         now = datetime.utcnow()
         
@@ -223,7 +225,8 @@ def create_app(config_name='default'):
                 'first_request': now,
                 'last_request': now,
                 'is_authenticated': is_authenticated,
-                'user_id': user_id if user_id else None
+                'user_id': user_id if user_id else None,
+                'reset_hours': reset_hours  # Store the reset period
             }
     
         client_data = usage_data[identifier]
@@ -232,20 +235,24 @@ def create_app(config_name='default'):
         if isinstance(client_data['first_request'], str):
             client_data['first_request'] = datetime.fromisoformat(client_data['first_request'])
         
-        # Reset counter if it's been more than 1 hour since first request
+        # Get the reset period for this client (handle legacy data)
+        client_reset_hours = client_data.get('reset_hours', reset_hours)
+        
+        # Reset counter if it's been more than the reset period since first request
         time_since_first_request = now - client_data['first_request']
-        if time_since_first_request > timedelta(hours=1):
+        if time_since_first_request > timedelta(hours=client_reset_hours):
             print(f"Resetting usage counter for {identifier}. Time since first request: {time_since_first_request}")
             client_data['request_count'] = 0
             client_data['first_request'] = now
+            client_data['reset_hours'] = reset_hours  # Update reset hours in case it changed
         
         current_count = client_data['request_count']
-        print(f"Current usage for {identifier}: {current_count}/{max_requests}")
+        print(f"Current usage for {identifier}: {current_count}/{max_requests} (resets every {client_reset_hours} hours)")
         
         # Check if limit exceeded
         if current_count >= max_requests:
             # Calculate time until reset
-            reset_time = client_data['first_request'] + timedelta(hours=1)
+            reset_time = client_data['first_request'] + timedelta(hours=client_reset_hours)
             time_until_reset = reset_time - now
             minutes_until_reset = max(0, int(time_until_reset.total_seconds() / 60))
             
@@ -261,6 +268,7 @@ def create_app(config_name='default'):
             client_data['last_request'] = now
             client_data['is_authenticated'] = is_authenticated
             client_data['user_id'] = user_id if user_id else None
+            client_data['reset_hours'] = reset_hours  # Ensure reset hours is saved
             
             save_usage_data(usage_data)
             print(f"Request allowed and incremented for {identifier}. New count: {client_data['request_count']}/{max_requests}")
@@ -277,20 +285,26 @@ def create_app(config_name='default'):
 
     def get_usage_info(user_id=None):
         """Get usage information for a user/client"""
+        """Get usage information for a user/client"""
         usage_data = load_usage_data()
         
         if user_id:
             identifier = f"user_{user_id}"
             max_requests = 100
             is_authenticated = True
+            reset_hours = 7  # 7 hours for logged-in users
         else:
             identifier = get_client_identifier()
             max_requests = 5
             is_authenticated = False
+            reset_hours = 4  # 4 hours for non-logged-in users
         
         client_data = usage_data.get(identifier, {})
         request_count = client_data.get('request_count', 0)
         first_request = client_data.get('first_request')
+        
+        # Get the reset period for this client (handle legacy data)
+        client_reset_hours = client_data.get('reset_hours', reset_hours)
         
         # Ensure first_request is a datetime object
         if first_request and isinstance(first_request, str):
@@ -300,9 +314,10 @@ def create_app(config_name='default'):
         now = datetime.utcnow()
         if first_request:
             time_since_first_request = now - first_request
-            if time_since_first_request > timedelta(hours=1):
+            if time_since_first_request > timedelta(hours=client_reset_hours):
                 # If reset period has passed, remaining should be max_requests
                 remaining_requests = max_requests
+                request_count = 0  # Reset the count for display
             else:
                 remaining_requests = max(0, max_requests - request_count)
         else:
@@ -312,7 +327,7 @@ def create_app(config_name='default'):
         reset_time = None
         minutes_until_reset = 0
         if first_request:
-            reset_time = first_request + timedelta(hours=1)
+            reset_time = first_request + timedelta(hours=client_reset_hours)
             time_until_reset = reset_time - now
             minutes_until_reset = max(0, int(time_until_reset.total_seconds() / 60))
         
@@ -322,7 +337,8 @@ def create_app(config_name='default'):
             'max_requests': max_requests,
             'remaining_requests': remaining_requests,
             'minutes_until_reset': minutes_until_reset,
-            'reset_time': reset_time.isoformat() if reset_time else None
+            'reset_time': reset_time.isoformat() if reset_time else None,
+            'reset_hours': client_reset_hours
         }
 
     def get_user_session_data(user_id):
@@ -499,7 +515,8 @@ def create_app(config_name='default'):
                     'first_request': datetime.utcnow(),
                     'last_request': datetime.utcnow(),
                     'is_authenticated': True,
-                    'user_id': user['id']
+                    'user_id': user['id'],
+                    'reset_hours': 7
                 }
                 
                 save_usage_data(usage_data)
@@ -624,7 +641,8 @@ def create_app(config_name='default'):
                     'first_request': datetime.utcnow(),
                     'last_request': datetime.utcnow(),
                     'is_authenticated': True,
-                    'user_id': user['id']
+                    'user_id': user['id'],
+                    'reset_hours': 7
                 }
             else:
                 usage_data[user_identifier]['is_authenticated'] = True
@@ -635,7 +653,7 @@ def create_app(config_name='default'):
                     first_request = datetime.fromisoformat(first_request)
                 
                 time_since_first_request = now - first_request
-                if time_since_first_request > timedelta(hours=1):
+                if time_since_first_request > timedelta(hours=7):
                     usage_data[user_identifier]['request_count'] = 0
                     usage_data[user_identifier]['first_request'] = now
             
@@ -1006,7 +1024,8 @@ def create_app(config_name='default'):
                     'first_request': datetime.utcnow(),
                     'last_request': datetime.utcnow(),
                     'is_authenticated': True,
-                    'user_id': user['id']
+                    'user_id': user['id'],
+                    'reset_hours': 7
                 }
                 save_usage_data(usage_data)
             
@@ -1261,7 +1280,8 @@ def create_app(config_name='default'):
             
             return jsonify({
                 'success': True,
-                'message': 'Logout successful'
+                'message': 'Logout successful',
+                'clear_storage': True
             }), 200
         except Exception as e:
             return jsonify({

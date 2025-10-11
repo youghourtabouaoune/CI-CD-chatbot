@@ -1,16 +1,18 @@
 {
-  "user_158ba443-aacc-4883-93e7-533250bacb49": {
+  "user_09852ad0-6b54-4a43-9174-9717ef4ca034": {
     "request_count": 0,
-    "first_request": "2025-10-08T02:06:47.259487",
-    "last_request": "2025-10-08T02:06:47.259487",
+    "first_request": "2025-10-11T19:02:56.554131",
+    "last_request": "2025-10-11T19:02:56.554131",
     "is_authenticated": true,
-    "user_id": "158ba443-aacc-4883-93e7-533250bacb49"
+    "user_id": "09852ad0-6b54-4a43-9174-9717ef4ca034",
+    "reset_hours": 7
   },
   "e9241d6652b6a16a2876506678e0e4996b89c0c5b2c22badbb9d4674d110d55e": {
     "request_count": 1,
-    "first_request": "2025-10-08T03:00:05.480908",
-    "last_request": "2025-10-08T03:00:05.480908",
+    "first_request": "2025-10-11T19:14:46.481028",
+    "last_request": "2025-10-11T19:14:46.481028",
     "is_authenticated": false,
-    "user_id": null
+    "user_id": null,
+    "reset_hours": 4
   }
 }
