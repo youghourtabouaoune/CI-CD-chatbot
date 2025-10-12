@@ -1,5 +1,6 @@
 import os
 import smtplib
+import ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from typing import Optional
@@ -16,9 +17,10 @@ class EmailService:
         self.base_url = os.environ.get('BASE_URL', 'http://localhost:5000')
 
     def send_email(self, to_email: str, subject: str, html_content: str, text_content: str = None) -> bool:
-        """Send email using SMTP"""
+        """Send email using SMTP with SSL/TLS support"""
         if not all([self.smtp_server, self.smtp_username, self.smtp_password]):
             print("SMTP configuration missing. Email not sent.")
+            print(f"Server: {self.smtp_server}, Username: {self.smtp_username}, Password: {'***' if self.smtp_password else 'None'}")
             return False
 
         try:
@@ -36,17 +38,46 @@ class EmailService:
             html_part = MIMEText(html_content, 'html')
             msg.attach(html_part)
 
-            # Send email
-            with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
-                server.starttls()
-                server.login(self.smtp_username, self.smtp_password)
-                server.send_message(msg)
+            # Send email with proper SSL/TLS handling
+            print(f"Attempting to connect to {self.smtp_server}:{self.smtp_port}")
+            
+            if self.smtp_port == 465:
+                # Use SSL for port 465 (PurelyMail, some Gmail configs)
+                context = ssl.create_default_context()
+                with smtplib.SMTP_SSL(self.smtp_server, self.smtp_port, context=context) as server:
+                    print(f"Connected via SSL to {self.smtp_server}")
+                    server.login(self.smtp_username, self.smtp_password)
+                    print(f"Logged in as {self.smtp_username}")
+                    server.send_message(msg)
+                    print(f"Email sent successfully to {to_email}")
+            else:
+                # Use STARTTLS for port 587 (standard TLS)
+                with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
+                    print(f"Connected to {self.smtp_server}")
+                    server.starttls()
+                    print("STARTTLS initiated")
+                    server.login(self.smtp_username, self.smtp_password)
+                    print(f"Logged in as {self.smtp_username}")
+                    server.send_message(msg)
+                    print(f"Email sent successfully to {to_email}")
 
-            print(f"Email sent to {to_email}")
             return True
 
+        except smtplib.SMTPAuthenticationError as e:
+            print(f"SMTP Authentication Error: {e}")
+            print("Check your username and password")
+            return False
+        except smtplib.SMTPConnectError as e:
+            print(f"SMTP Connection Error: {e}")
+            print("Check your server and port settings")
+            return False
+        except smtplib.SMTPException as e:
+            print(f"SMTP Error: {e}")
+            return False
         except Exception as e:
-            print(f"Error sending email: {e}")
+            print(f"Unexpected error sending email: {e}")
+            import traceback
+            traceback.print_exc()
             return False
 
     def send_email_verification(self, to_email: str, verification_token: str, first_name: str = None) -> bool:
