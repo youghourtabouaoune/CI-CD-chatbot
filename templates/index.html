@@ -10,7 +10,7 @@
         :root {
             --primary-color: #3a86ff;
             --secondary-color: #8338ec;
-            --accent-color: #3593ff; /* Orange accent */
+            --accent-color: #3593ff;
             --light-color: #f8f9fa;
             --dark-color: #212529;
             --success-color: #38b000;
@@ -76,8 +76,8 @@
         /* Sidebar Styles */
         .sidebar {
             width: var(--sidebar-width);
-            background-color: #f7f7f8;
-            border-right: 1px solid #e5e5e5;
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
             transition: margin-left 0.3s ease;
@@ -90,8 +90,8 @@
 
         .sidebar-header {
             padding: 1rem 1.5rem;
-            border-bottom: 1px solid #e5e5e5;
-            background-color: #fff;
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--bg-primary);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -100,7 +100,7 @@
         .sidebar-title {
             font-size: 1rem;
             font-weight: 600;
-            color: #2d3748;
+            color: var(--text-primary);
         }
 
         .sidebar-toggle {
@@ -109,8 +109,8 @@
             top: 350px;
             width: 32px;
             height: 32px;
-            background-color: #fff;
-            border: 1px solid #e5e5e5;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
             border-radius: 8px;
             display: flex;
             align-items: center;
@@ -121,24 +121,23 @@
         }
 
         .sidebar-toggle:hover {
-            background-color: #f7f7f8;
+            background-color: var(--bg-secondary);
         }
 
         .sidebar-section {
             padding: 1rem 1.5rem;
-            border-bottom: 1px solid #e5e5e5;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .sidebar-section-title {
             font-size: 0.9rem;
             font-weight: 600;
-            color: #4a5568;
+            color: var(--text-secondary);
             margin-bottom: 0.75rem;
             display: flex;
             align-items: center;
             gap: 8px;
         }
-
 
         .doc-item {
             padding: 0.5rem 0;
@@ -500,7 +499,7 @@
         .messages-container {
             flex: 1;
             overflow-y: auto;
-            padding: 1.5rem; /* Reduced padding for more space */
+            padding: 1.5rem;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -508,7 +507,7 @@
         
         .messages-content {
             width: 100%;
-            max-width: 900px; /* Increased from 768px to 900px */
+            max-width: 900px;
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
@@ -518,7 +517,7 @@
             background-color: var(--message-user-bg);
             border-radius: 18px 18px 4px 18px;
             padding: 0.75rem 1.25rem;
-            max-width: 80%; /* Increased from 70% */
+            max-width: 80%;
             word-wrap: break-word;
             font-size: 0.95rem;
         }
@@ -527,7 +526,7 @@
             background-color: var(--message-assistant-bg);
             border-radius: 18px 18px 18px 4px;
             padding: 1rem 1.25rem;
-            max-width: 90%; /* Increased from 85% */
+            max-width: 90%;
             word-wrap: break-word;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             font-size: 0.95rem;
@@ -547,7 +546,8 @@
 
         .message-user {
             display: flex;
-            justify-content: flex-end;
+            flex-direction: column;
+            align-items: flex-end;
         }
 
         .message-user .message-content {
@@ -561,7 +561,8 @@
 
         .message-assistant {
             display: flex;
-            justify-content: flex-start;
+            flex-direction: column;
+            align-items: flex-start;
         }
 
         .message-assistant .message-content {
@@ -577,6 +578,84 @@
 
         .message-content {
             line-height: 1.6;
+        }
+
+        /* Enhanced Message Action Buttons */
+        .message-actions {
+            display: flex;
+            gap: 0.4rem;
+            margin-top: 0.5rem;
+            opacity: 1 !important; /* Always visible */
+            transition: opacity 0.2s ease;
+        }
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.3rem 0.6rem;
+            font-size: 0.75rem;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-primary);
+            color: var(--text-secondary);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .action-btn:hover {
+            background-color: var(--bg-secondary);
+            transform: translateY(-1px);
+        }
+
+        .action-btn i {
+            font-size: 0.7rem;
+        }
+
+        .regenerate-btn:hover {
+            color: var(--success-color);
+            border-color: var(--success-color);
+        }
+
+        .copy-answer-btn:hover {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .edit-btn:hover {
+            color: var(--warning-color);
+            border-color: var(--warning-color);
+        }
+
+        /* Hide edit button by default, show on hover */
+        .message-user .action-btn.edit-btn {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+        }
+
+        .message-user:hover .action-btn.edit-btn {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .action-btn:active {
+            transform: translateY(0);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Make sure buttons are properly aligned */
+        .message-assistant .message-actions {
+            justify-content: flex-start;
+        }
+
+        .message-user .message-actions {
+            justify-content: flex-end;
         }
 
         .empty-state {
@@ -610,7 +689,7 @@
             font-size: 0.95rem;
         }
 
-        /* Input Area */
+        /* Input Area - Enhanced Professional Design */
         .input-area {
             padding: 1.5rem 2rem 2rem;
             background-color: var(--bg-primary);
@@ -621,36 +700,39 @@
         .input-container {
             width: 100%;
             max-width: 768px;
-            display: flex;
-            gap: 1rem;
-            align-items: flex-end;
-        }
-
-        .input-wrapper {
-            flex: 1;
             position: relative;
         }
 
-        .input-field {
-            width: 100%;
-            padding: 0.75rem 1rem;
+        .input-wrapper {
+            display: flex;
+            background: var(--bg-primary);
             border: 1px solid var(--border-color);
             border-radius: 24px;
+            padding: 0.5rem 1rem;
+            transition: var(--transition);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            align-items: center;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--primary-color);
+            box-shadow: 0 2px 15px rgba(58, 134, 255, 0.15);
+        }
+
+        .input-field {
+            flex: 1;
+            border: none;
             resize: none;
             font-size: 0.95rem;
             line-height: 1.5;
             max-height: 120px;
             overflow-y: auto;
             transition: var(--transition);
-            background-color: var(--bg-tertiary);
+            background-color: transparent;
             font-family: 'Inter', sans-serif;
             color: var(--text-primary);
-        }
-
-        .input-field:focus {
+            padding: 0.5rem 0;
             outline: none;
-            border-color: var(--primary-color);
-            background-color: var(--bg-primary);
         }
 
         .input-field::placeholder {
@@ -661,18 +743,20 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            margin-left: 0.5rem;
         }
 
         .model-selector {
-            padding: 0.5rem 0.75rem;
+            padding: 0.4rem 0.75rem;
             border: 1px solid var(--border-color);
-            border-radius: 20px;
-            font-size: 0.85rem;
-            background-color: var(--bg-tertiary);
+            border-radius: 16px;
+            font-size: 0.8rem;
+            background-color: var(--bg-secondary);
             cursor: pointer;
             transition: var(--transition);
             font-family: 'Inter', sans-serif;
             color: var(--text-primary);
+            min-width: 140px;
         }
 
         .model-selector:focus {
@@ -707,33 +791,55 @@
 
         .btn-send:hover:not(:disabled) {
             background-color: #2e6fdb;
-            transform: scale(1.1);
+            transform: scale(1.05);
         }
 
         .btn-send:disabled {
             background-color: var(--border-color);
             cursor: not-allowed;
+            transform: none;
         }
 
-        /* Enhanced Code Block Styles */
+        /* Enhanced Code Block Styles - Professional VS Code Theme */
         .code-block {
             background: var(--code-bg);
             color: var(--code-text);
-            padding: 1rem;
             border-radius: 8px;
             margin: 0.75rem 0;
-            overflow-x: auto;
+            overflow: hidden;
             position: relative;
             font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
             font-size: 0.9rem;
             line-height: 1.5;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .code-block pre {
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .code-language {
+            font-weight: 500;
+        }
+
+        .code-content {
+            padding: 1rem;
+            overflow-x: auto;
+        }
+
+        .code-content pre {
             margin: 0;
             font-family: inherit;
             font-size: inherit;
             line-height: inherit;
+            white-space: pre-wrap;
         }
 
         /* VS Code-like syntax highlighting */
@@ -756,14 +862,14 @@
         .code-block .regex { color: #d16969; }
 
         .copy-code-btn {
-            position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
             padding: 0.25rem 0.5rem;
             background-color: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: #a0aec0;
-            border-radius: 6px;
+            border-radius: 4px;
             font-size: 0.75rem;
             cursor: pointer;
             transition: var(--transition);
@@ -772,6 +878,12 @@
         .copy-code-btn:hover {
             background-color: rgba(255, 255, 255, 0.2);
             color: #fff;
+        }
+
+        .copy-code-btn.copied {
+            background-color: rgba(52, 211, 153, 0.2);
+            color: #34d399;
+            border-color: rgba(52, 211, 153, 0.3);
         }
 
         /* Loading Animation */
@@ -966,6 +1078,68 @@
             background-color: var(--bg-tertiary);
         }
 
+        /* Profile Modal */
+        .profile-modal {
+            display: none;
+        }
+
+        .profile-section {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .profile-section:last-child {
+            border-bottom: none;
+        }
+
+        .profile-section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .verification-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .verification-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .verification-badge.verified {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .verification-badge.unverified {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        .verification-form {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .verification-input {
+            flex: 1;
+        }
+
+        .verification-instructions {
+            font-size: 0.85rem;
+            color: var(--text-tertiary);
+            margin-top: 0.5rem;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .sidebar {
@@ -992,6 +1166,22 @@
                 flex-direction: column;
                 gap: 0.5rem;
                 align-items: flex-end;
+            }
+
+            .input-wrapper {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.5rem;
+            }
+
+            .input-controls {
+                margin-left: 0;
+                justify-content: space-between;
+            }
+
+            .model-selector {
+                min-width: auto;
+                flex: 1;
             }
         }
     </style>
@@ -1066,7 +1256,6 @@
                     </div>
                     <div id="backend-status" class="status-indicator status-offline">
                         <span class="status-dot"></span>
-                        <span>Offline</span>
                     </div>
                     <div class="auth-buttons" id="auth-buttons">
                         <a href="/login" class="btn-auth" id="login-btn">Login</a>
@@ -1075,6 +1264,7 @@
                     <div class="user-info" id="user-info" style="display: none;">
                         <div class="user-avatar" id="user-avatar">U</div>
                         <span id="user-name">User</span>
+                        <button class="btn-auth" id="profile-btn" style="margin-left: 0.5rem;">Profile</button>
                         <button class="btn-auth" id="logout-btn" style="margin-left: 0.5rem;">Logout</button>
                     </div>
                 </div>
@@ -1095,26 +1285,29 @@
                     </div>
                 </div>
 
-                <!-- Input Area -->
+                <!-- Input Area - Enhanced Professional Design -->
                 <div class="input-area">
                     <div class="input-container">
-                        <select class="model-selector" id="model-selector">
-                            <option value="meta-llama-3-3-70b-instruct">Llama 3 70B</option>
-                            <option value="llama-4-maverick">Llama 4 Maverick</option>
-                            <option value="meta-llama-3-1-405b-instruct">Llama 3.1 405B</option>
-                            <option value="deepseek-coder">DeepSeek Coder</option>
-                            <option value="deepseek-chat">DeepSeek Chat</option>
-                        </select>
                         <div class="input-wrapper">
                             <textarea 
                                 class="input-field" 
                                 id="input-field" 
                                 placeholder="Ask me to generate CI/CD code..."
                                 rows="1"></textarea>
+                            <div class="input-controls">
+                                <select class="model-selector" id="model-selector">
+                                    <option value="claude-4-1-opus">Claude 4.1 OPUS</option>
+                                    <option value="meta-llama-3-3-70b-instruct">Llama 3 70B</option>
+                                    <option value="llama-4-maverick">Llama 4 Maverick</option>
+                                    <option value="meta-llama-3-1-405b-instruct">Llama 3.1 405B</option>
+                                    <option value="deepseek-coder">DeepSeek Coder</option>
+                                    <option value="deepseek-chat">DeepSeek Chat</option>
+                                </select>
+                                <button class="btn btn-send" id="send-btn" title="Send">
+                                    <i class="fas fa-arrow-up"></i>
+                                </button>
+                            </div>
                         </div>
-                        <button class="btn btn-send" id="send-btn" title="Send">
-                            <i class="fas fa-arrow-up"></i>
-                        </button>
                     </div>
                 </div>
             </div>
@@ -1137,6 +1330,72 @@
             <div class="modal-footer">
                 <button class="btn-secondary" id="rename-cancel-btn">Cancel</button>
                 <button class="btn-primary" id="rename-save-btn">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="modal profile-modal" id="profile-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">User Profile</h2>
+                <button class="modal-close" id="profile-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="profile-section">
+                    <h3 class="profile-section-title">Account Information</h3>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="text" class="form-input" id="profile-email" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">First Name</label>
+                        <input type="text" class="form-input" id="profile-first-name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Last Name</label>
+                        <input type="text" class="form-input" id="profile-last-name">
+                    </div>
+                    <div class="verification-status">
+                        <span>Email Verification:</span>
+                        <span class="verification-badge unverified" id="verification-badge">Unverified</span>
+                    </div>
+                </div>
+
+                <div class="profile-section" id="verification-section">
+                    <h3 class="profile-section-title">Email Verification</h3>
+                    <p class="verification-instructions" id="verification-instructions">
+                        Enter the verification code sent to your email address to verify your account.
+                    </p>
+                    <div class="verification-form">
+                        <input type="text" class="form-input verification-input" id="verification-code" placeholder="Enter verification code">
+                        <button class="btn-primary" id="verify-email-btn">Verify</button>
+                    </div>
+                    <button class="btn-secondary" id="resend-verification-btn" style="margin-top: 0.5rem;">
+                        <i class="fas fa-redo"></i> Resend Code
+                    </button>
+                </div>
+
+                <div class="profile-section">
+                    <h3 class="profile-section-title">Change Password</h3>
+                    <div class="form-group">
+                        <label class="form-label">Current Password</label>
+                        <input type="password" class="form-input" id="current-password" placeholder="Enter current password">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">New Password</label>
+                        <input type="password" class="form-input" id="new-password" placeholder="Enter new password">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Confirm New Password</label>
+                        <input type="password" class="form-input" id="confirm-password" placeholder="Confirm new password">
+                    </div>
+                    <button class="btn-primary" id="change-password-btn">Change Password</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="profile-cancel-btn">Close</button>
+                <button class="btn-primary" id="profile-save-btn">Save Changes</button>
             </div>
         </div>
     </div>
@@ -1213,13 +1472,181 @@
             modal.style.display = 'none';
         }
 
-        // Initialize usage limit modal events
-        document.getElementById('usage-limit-modal-close').addEventListener('click', closeUsageLimitModal);
-        document.getElementById('wait-btn').addEventListener('click', closeUsageLimitModal);
-        document.getElementById('usage-limit-modal').addEventListener('click', (e) => {
-            if (e.target === document.getElementById('usage-limit-modal')) {
-                closeUsageLimitModal();
+        // Profile modal functions
+        function showProfileModal() {
+            const modal = document.getElementById('profile-modal');
+            loadProfileData();
+            modal.style.display = 'flex';
+        }
+
+        function closeProfileModal() {
+            const modal = document.getElementById('profile-modal');
+            modal.style.display = 'none';
+        }
+
+        async function loadProfileData() {
+            try {
+                const response = await window.cicdApp.makeAPICall('/auth/profile', {}, 'GET');
+                if (response.success) {
+                    const profile = response.profile;
+                    document.getElementById('profile-email').value = profile.email;
+                    document.getElementById('profile-first-name').value = profile.first_name;
+                    document.getElementById('profile-last-name').value = profile.last_name;
+                    
+                    // Update verification status
+                    const verificationBadge = document.getElementById('verification-badge');
+                    if (profile.email_verified) {
+                        verificationBadge.textContent = 'Verified';
+                        verificationBadge.className = 'verification-badge verified';
+                        document.getElementById('verification-section').style.display = 'none';
+                    } else {
+                        verificationBadge.textContent = 'Unverified';
+                        verificationBadge.className = 'verification-badge unverified';
+                        document.getElementById('verification-section').style.display = 'block';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                window.cicdApp.showNotification('Error loading profile data', 'error');
             }
+        }
+
+        async function verifyEmail() {
+            const verificationCode = document.getElementById('verification-code').value.trim();
+            if (!verificationCode) {
+                window.cicdApp.showNotification('Please enter verification code', 'warning');
+                return;
+            }
+
+            try {
+                const response = await window.cicdApp.makeAPICall('/auth/verify-email', {
+                    token: verificationCode
+                }, 'POST');
+
+                if (response.success) {
+                    window.cicdApp.showNotification('Email verified successfully!', 'success');
+                    // Update the currentUser's email_verified status
+                    window.cicdApp.currentUser.email_verified = true;
+                    // Update the UI to reflect the change
+                    window.cicdApp.updateUserUI();
+                    // Also, save the updated user to local storage
+                    localStorage.setItem('cicd_user', JSON.stringify(window.cicdApp.currentUser));
+                    closeProfileModal();
+                } else {
+                    window.cicdApp.showNotification(response.error, 'error');
+                }
+            } catch (error) {
+                console.error('Error verifying email:', error);
+                window.cicdApp.showNotification('Error verifying email', 'error');
+            }
+        }
+
+        async function resendVerificationCode() {
+            try {
+                const response = await window.cicdApp.makeAPICall('/auth/request-email-verification', {}, 'POST');
+                if (response.success) {
+                    window.cicdApp.showNotification('Verification code sent to your email', 'success');
+                } else {
+                    window.cicdApp.showNotification(response.error, 'error');
+                }
+            } catch (error) {
+                console.error('Error resending verification:', error);
+                window.cicdApp.showNotification('Error sending verification code', 'error');
+            }
+        }
+
+        async function updateProfile() {
+            const firstName = document.getElementById('profile-first-name').value.trim();
+            const lastName = document.getElementById('profile-last-name').value.trim();
+
+            if (!firstName || !lastName) {
+                window.cicdApp.showNotification('Please fill in all fields', 'warning');
+                return;
+            }
+
+            try {
+                const response = await window.cicdApp.makeAPICall('/auth/profile', {
+                    first_name: firstName,
+                    last_name: lastName
+                }, 'PUT');
+
+                if (response.success) {
+                    window.cicdApp.showNotification('Profile updated successfully', 'success');
+                    // Update current user data
+                    window.cicdApp.currentUser.first_name = firstName;
+                    window.cicdApp.currentUser.last_name = lastName;
+                    window.cicdApp.updateUserUI();
+                    closeProfileModal();
+                } else {
+                    window.cicdApp.showNotification(response.error, 'error');
+                }
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                window.cicdApp.showNotification('Error updating profile', 'error');
+            }
+        }
+
+        async function changePassword() {
+            const currentPassword = document.getElementById('current-password').value;
+            const newPassword = document.getElementById('new-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                window.cicdApp.showNotification('Please fill in all password fields', 'warning');
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                window.cicdApp.showNotification('New passwords do not match', 'warning');
+                return;
+            }
+
+            try {
+                const response = await window.cicdApp.makeAPICall('/auth/change-password', {
+                    current_password: currentPassword,
+                    new_password: newPassword
+                }, 'POST');
+
+                if (response.success) {
+                    window.cicdApp.showNotification('Password changed successfully', 'success');
+                    // Clear password fields
+                    document.getElementById('current-password').value = '';
+                    document.getElementById('new-password').value = '';
+                    document.getElementById('confirm-password').value = '';
+                } else {
+                    window.cicdApp.showNotification(response.error, 'error');
+                }
+            } catch (error) {
+                console.error('Error changing password:', error);
+                window.cicdApp.showNotification('Error changing password', 'error');
+            }
+        }
+
+        // Initialize profile modal events
+        document.addEventListener('DOMContentLoaded', function() {
+            // Profile modal events
+            document.getElementById('profile-modal-close').addEventListener('click', closeProfileModal);
+            document.getElementById('profile-cancel-btn').addEventListener('click', closeProfileModal);
+            document.getElementById('profile-save-btn').addEventListener('click', updateProfile);
+            document.getElementById('verify-email-btn').addEventListener('click', verifyEmail);
+            document.getElementById('resend-verification-btn').addEventListener('click', resendVerificationCode);
+            document.getElementById('change-password-btn').addEventListener('click', changePassword);
+            
+            // Close modal when clicking outside
+            document.getElementById('profile-modal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('profile-modal')) {
+                    closeProfileModal();
+                }
+            });
+
+            // Usage limit modal events
+            document.getElementById('usage-limit-modal-close').addEventListener('click', closeUsageLimitModal);
+            document.getElementById('wait-btn').addEventListener('click', closeUsageLimitModal);
+            document.getElementById('usage-limit-modal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('usage-limit-modal')) {
+                    closeUsageLimitModal();
+                }
+            });
         });
 
         class CICDHelper {
@@ -1271,6 +1698,7 @@
                 this.userInfo = document.getElementById('user-info');
                 this.userAvatar = document.getElementById('user-avatar');
                 this.userName = document.getElementById('user-name');
+                this.profileBtn = document.getElementById('profile-btn');
                 this.logoutBtn = document.getElementById('logout-btn');
                 this.renameModal = document.getElementById('rename-modal');
                 this.renameModalClose = document.getElementById('rename-modal-close');
@@ -1307,7 +1735,8 @@
                     this.inputField.style.height = Math.min(this.inputField.scrollHeight, 120) + 'px';
                 });
 
-                // Logout
+                // Profile and logout
+                this.profileBtn.addEventListener('click', () => showProfileModal());
                 this.logoutBtn.addEventListener('click', () => this.logout());
 
                 // Rename modal
@@ -1475,7 +1904,7 @@
                     
                     // Redirect to home page to ensure clean state
                     setTimeout(() => {
-                        window.location.href = '/';
+                        window.location.href = '/index';
                     }, 1000);
                     
                 } catch (error) {
@@ -1506,6 +1935,25 @@
                     this.userInfo.style.display = 'flex';
                     this.userAvatar.textContent = this.currentUser.first_name ? this.currentUser.first_name.charAt(0).toUpperCase() : 'U';
                     this.userName.textContent = this.currentUser.first_name || 'User';
+                    
+                    // Show verification badge if email not verified
+                    const existingBadge = document.getElementById('user-verification-badge');
+                    if (this.currentUser.email_verified) {
+                        if (existingBadge) {
+                            existingBadge.remove();
+                        }
+                    } else {
+                        if (!existingBadge) {
+                            const badge = document.createElement('span');
+                            badge.id = 'user-verification-badge';
+                            badge.className = 'verification-badge unverified';
+                            badge.textContent = 'Unverified';
+                            badge.style.marginLeft = '0.5rem';
+                            badge.style.fontSize = '0.7rem';
+                            badge.style.padding = '0.1rem 0.4rem';
+                            this.userInfo.appendChild(badge);
+                        }
+                    }
                 } else {
                     this.authButtons.style.display = 'flex';
                     this.userInfo.style.display = 'none';
@@ -1954,13 +2402,30 @@
                     }
                     this.addMessage(`Error: ${error.message}`, 'assistant');
                     this.updateBackendStatus(false);
-                } finally {
-                    // === ALWAYS UNLOCK UI ===
+                    
+                    // Re-enable on error
                     this.isGenerating = false;
                     this.sendBtn.disabled = false;
+                    this.sendBtn.style.opacity = '1';
+                    this.sendBtn.style.cursor = 'pointer';
                     this.inputField.disabled = false;
                     this.inputField.style.opacity = '1';
                     this.inputField.placeholder = 'Ask me to generate CI/CD code...';
+                } finally {
+                    // Only unlock if not streaming (streaming will unlock when done)
+                    if (!this.currentStreamingMessageId) {
+                        this.isGenerating = false;
+                        this.sendBtn.disabled = false;
+                        this.sendBtn.style.opacity = '1';
+                        this.sendBtn.style.cursor = 'pointer';
+                        this.inputField.disabled = false;
+                        this.inputField.style.opacity = '1';
+                        this.inputField.placeholder = 'Ask me to generate CI/CD code...';
+                    } else {
+                        // Keep button disabled with visual feedback during streaming
+                        this.sendBtn.style.opacity = '0.5';
+                        this.sendBtn.style.cursor = 'not-allowed';
+                    }
                     
                     // Final usage check
                     await this.checkUsage();
@@ -2025,6 +2490,41 @@
                 }
                 
                 messageDiv.appendChild(contentDiv);
+                
+                // Add action buttons
+                if (!isLoading) {
+                    const actionsDiv = document.createElement('div');
+                    actionsDiv.className = 'message-actions';
+                    
+                    if (type === 'assistant') {
+                        // Regenerate button
+                        const regenerateBtn = document.createElement('button');
+                        regenerateBtn.className = 'action-btn regenerate-btn';
+                        regenerateBtn.innerHTML = '<i class="fas fa-redo"></i> Regenerate';
+                        regenerateBtn.title = 'Regenerate response';
+                        regenerateBtn.onclick = () => this.regenerateResponse(messageId);
+                        actionsDiv.appendChild(regenerateBtn);
+                        
+                        // Copy answer button
+                        const copyBtn = document.createElement('button');
+                        copyBtn.className = 'action-btn copy-answer-btn';
+                        copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy Answer';
+                        copyBtn.title = 'Copy entire answer';
+                        copyBtn.onclick = () => this.copyAnswer(content);
+                        actionsDiv.appendChild(copyBtn);
+                    } else if (type === 'user') {
+                        // Edit button for user messages
+                        const editBtn = document.createElement('button');
+                        editBtn.className = 'action-btn edit-btn';
+                        editBtn.innerHTML = '<i class="fas fa-edit"></i> Edit';
+                        editBtn.title = 'Edit message';
+                        editBtn.onclick = () => this.editMessage(messageId, content);
+                        actionsDiv.appendChild(editBtn);
+                    }
+                    
+                    messageDiv.appendChild(actionsDiv);
+                }
+                
                 this.messagesContent.appendChild(messageDiv);
                 
                 // Scroll to bottom
@@ -2062,6 +2562,7 @@
 
             streamContent(content, messageId) {
                 const contentDiv = document.getElementById(`content-${messageId}`);
+                const messageDiv = document.getElementById(messageId);
                 let index = 0;
                 const speed = 10; // Adjust speed as needed
                 
@@ -2076,6 +2577,35 @@
                         // Remove typewriter cursor when done
                         contentDiv.classList.remove('typewriter');
                         this.currentStreamingMessageId = null;
+                        
+                        // Add action buttons after streaming completes
+                        if (!messageDiv.querySelector('.message-actions')) {
+                            const actionsDiv = document.createElement('div');
+                            actionsDiv.className = 'message-actions';
+                            
+                            // Regenerate button
+                            const regenerateBtn = document.createElement('button');
+                            regenerateBtn.className = 'action-btn regenerate-btn';
+                            regenerateBtn.innerHTML = '<i class="fas fa-redo"></i> Regenerate';
+                            regenerateBtn.title = 'Regenerate response';
+                            regenerateBtn.onclick = () => this.regenerateResponse(messageId);
+                            actionsDiv.appendChild(regenerateBtn);
+                            
+                            // Copy answer button
+                            const copyBtn = document.createElement('button');
+                            copyBtn.className = 'action-btn copy-answer-btn';
+                            copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy Answer';
+                            copyBtn.title = 'Copy entire answer';
+                            copyBtn.onclick = () => this.copyAnswer(content);
+                            actionsDiv.appendChild(copyBtn);
+                            
+                            messageDiv.appendChild(actionsDiv);
+                        }
+                        
+                        // Re-enable send button
+                        this.sendBtn.disabled = false;
+                        this.sendBtn.style.opacity = '1';
+                        this.sendBtn.style.cursor = 'pointer';
                     }
                 };
                 
@@ -2089,16 +2619,28 @@
                     return this.escapeHtml(content);
                 }
 
-                // Format code blocks with enhanced syntax highlighting
+                // Format code blocks with enhanced handling
                 content = content.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
                     const language = lang || 'plaintext';
-                    const highlightedCode = this.highlightCode(code.trim(), language);
+                    let trimmedCode = code.trim();
+                    
+                    // Always clean malformed HTML from code blocks
+                    trimmedCode = this.cleanMalformedHtml(trimmedCode);
+                    
+                    const highlightedCode = this.highlightCode(trimmedCode, language);
+                    const escapedCode = this.escapeHtml(trimmedCode);
+                    
                     return `
                         <div class="code-block">
-                            <button class="copy-code-btn" data-code="${this.escapeHtml(code.trim()).replace(/"/g, '&quot;')}">
-                                <i class="fas fa-copy"></i> Copy
-                            </button>
-                            <pre>${highlightedCode}</pre>
+                            <div class="code-header">
+                                <span class="code-language">${language}</span>
+                                <button class="copy-code-btn" data-code="${escapedCode}">
+                                    <i class="fas fa-copy"></i> Copy
+                                </button>
+                            </div>
+                            <div class="code-content">
+                                <pre>${highlightedCode}</pre>
+                            </div>
                         </div>
                     `;
                 });
@@ -2118,35 +2660,103 @@
             }
 
             highlightCode(code, language) {
-                // Enhanced VS Code-like syntax highlighting
+                // Enhanced VS Code-like syntax highlighting with language-specific support
                 let highlighted = this.escapeHtml(code);
                 
-                // Apply syntax highlighting classes
-                highlighted = highlighted
-                    // Comments
-                    .replace(/(\/\/.*)/g, '<span class="comment">$1</span>')
-                    .replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="comment">$1</span>')
-                    // Strings
-                    .replace(/("([^"\\]|\\.)*")/g, '<span class="string">$1</span>')
-                    .replace(/('([^'\\]|\\.)*')/g, '<span class="string">$1</span>')
-                    // Numbers
-                    .replace(/\b(\d+\.?\d*|\.\d+)\b/g, '<span class="number">$1</span>')
-                    // Keywords
-                    .replace(/\b(function|if|else|for|while|return|class|import|from|export|default|const|let|var|async|await|try|catch|finally|throw|new|this|super|extends|implements|interface|package|private|protected|public|static|yield|with|debugger|enum|typeof|instanceof|delete|void|in|of)\b/g, '<span class="keyword">$1</span>')
-                    // Built-in types and values
-                    .replace(/\b(true|false|null|undefined|NaN|Infinity)\b/g, '<span class="constant">$1</span>')
-                    // Functions
-                    .replace(/\b([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/g, '<span class="function">$1</span>(')
-                    // Classes
-                    .replace(/\b(class|interface)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/g, '$1 <span class="class-name">$2</span>')
-                    // HTML/XML tags
-                    .replace(/&lt;(\/?)([a-zA-Z][a-zA-Z0-9]*)/g, '&lt;$1<span class="tag">$2</span>')
-                    // HTML/XML attributes
-                    .replace(/\s([a-zA-Z-]+)=/g, ' <span class="attribute">$1</span>=')
-                    // Operators
-                    .replace(/([=+\-*/%&|^~!<>?]+)/g, '<span class="operator">$1</span>')
-                    // Punctuation
-                    .replace(/([{}()\[\],;:])/g, '<span class="punctuation">$1</span>');
+                // Language-specific highlighting
+                if (language === 'yaml' || language === 'yml') {
+                    highlighted = highlighted
+                        // YAML comments (# to end of line) - must come first to avoid highlighting within comments
+                        .replace(/(#.*)/g, '<span class="comment">$1</span>')
+                        // YAML strings in quotes (must come before keys to avoid matching keys in strings)
+                        .replace(/:\s*("(?:[^"\\]|\\.)*")/g, ': <span class="string">$1</span>')
+                        .replace(/:\s*('(?:[^'\\]|\\.)*')/g, ': <span class="string">$1</span>')
+                        // YAML keys (word followed by colon at start or after whitespace)
+                        .replace(/^(\s*)([a-zA-Z_][a-zA-Z0-9_-]*)\s*:/gm, '$1<span class="property">$2</span><span class="punctuation">:</span>')
+                        // YAML boolean values
+                        .replace(/:\s*(true|false|yes|no|on|off|True|False|Yes|No|On|Off)\s*$/gm, ': <span class="constant">$1</span>')
+                        // YAML null values
+                        .replace(/:\s*(null|Null|NULL|~)\s*$/gm, ': <span class="constant">$1</span>')
+                        // Numbers (integers and floats)
+                        .replace(/:\s*(-?\d+\.?\d*)\s*$/gm, ': <span class="number">$1</span>')
+                        // List markers (dash at start of line)
+                        .replace(/^(\s*)(-)(\s)/gm, '$1<span class="punctuation">-</span>$3')
+                        // Azure DevOps task references like Task@version
+                        .replace(/([a-zA-Z][a-zA-Z0-9]*@\d+)/g, '<span class="function">$1</span>')
+                        // Variables/placeholders like $(var) or ${var}
+                        .replace(/(\$\([^)]+\)|\$\{[^}]+\})/g, '<span class="variable">$1</span>')
+                        // Pipe character for multi-line strings
+                        .replace(/:\s*(\|)\s*$/gm, ': <span class="operator">$1</span>');
+                } else if (language === 'json') {
+                    highlighted = highlighted
+                        // JSON strings (keys and values)
+                        .replace(/("(?:[^"\\]|\\.)*")(\s*:)/g, '<span class="property">$1</span>$2')
+                        .replace(/:\s*("(?:[^"\\]|\\.)*")/g, ': <span class="string">$1</span>')
+                        // JSON booleans and null
+                        .replace(/\b(true|false|null)\b/g, '<span class="constant">$1</span>')
+                        // JSON numbers
+                        .replace(/:\s*(-?\d+\.?\d*)\b/g, ': <span class="number">$1</span>')
+                        // Punctuation
+                        .replace(/([{}[\],:])/g, '<span class="punctuation">$1</span>');
+                } else if (language === 'python' || language === 'py') {
+                    highlighted = highlighted
+                        // Python comments
+                        .replace(/(#.*)/g, '<span class="comment">$1</span>')
+                        // Python strings (triple-quoted first, then single/double)
+                        .replace(/("""[\s\S]*?""")/g, '<span class="string">$1</span>')
+                        .replace(/('''[\s\S]*?''')/g, '<span class="string">$1</span>')
+                        .replace(/("(?:[^"\\]|\\.)*")/g, '<span class="string">$1</span>')
+                        .replace(/('(?:[^'\\]|\\.)*')/g, '<span class="string">$1</span>')
+                        // Python keywords
+                        .replace(/\b(def|class|if|elif|else|for|while|return|import|from|as|try|except|finally|with|raise|assert|break|continue|pass|lambda|yield|global|nonlocal|async|await|in|is|not|and|or)\b/g, '<span class="keyword">$1</span>')
+                        // Python built-in constants
+                        .replace(/\b(True|False|None)\b/g, '<span class="constant">$1</span>')
+                        // Python decorators
+                        .replace(/(@[a-zA-Z_][a-zA-Z0-9_]*)/g, '<span class="function">$1</span>')
+                        // Python function definitions
+                        .replace(/\b(def)\s+([a-zA-Z_][a-zA-Z0-9_]*)/g, '<span class="keyword">$1</span> <span class="function">$2</span>')
+                        // Python class definitions
+                        .replace(/\b(class)\s+([a-zA-Z_][a-zA-Z0-9_]*)/g, '<span class="keyword">$1</span> <span class="class-name">$2</span>')
+                        // Python function calls
+                        .replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/g, '<span class="function">$1</span>(')
+                        // Python numbers
+                        .replace(/\b(\d+\.?\d*|\.\d+)\b/g, '<span class="number">$1</span>')
+                        // Python operators
+                        .replace(/([+\-*/%=<>!&|^~]+)/g, '<span class="operator">$1</span>')
+                        // Python type hints arrow
+                        .replace(/(-&gt;)/g, '<span class="operator">$1</span>')
+                        // Python punctuation
+                        .replace(/([{}()\[\],.;:])/g, '<span class="punctuation">$1</span>');
+                } else {
+                    // General syntax highlighting for other languages
+                    highlighted = highlighted
+                        // Comments (must come before strings to avoid highlighting in strings)
+                        .replace(/(\/\/.*)/g, '<span class="comment">$1</span>')
+                        .replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="comment">$1</span>')
+                        .replace(/(#.*)/g, '<span class="comment">$1</span>')
+                        // Strings (must come before keywords)
+                        .replace(/("(?:[^"\\]|\\.)*")/g, '<span class="string">$1</span>')
+                        .replace(/('(?:[^'\\]|\\.)*')/g, '<span class="string">$1</span>')
+                        .replace(/(`(?:[^`\\]|\\.)*`)/g, '<span class="string">$1</span>')
+                        // Numbers
+                        .replace(/\b(\d+\.?\d*|\.\d+)\b/g, '<span class="number">$1</span>')
+                        // Keywords (common across many languages)
+                        .replace(/\b(function|if|else|for|while|return|class|import|from|export|default|const|let|var|async|await|try|catch|finally|throw|new|this|super|extends|implements|interface|package|private|protected|public|static|yield|with|debugger|enum|typeof|instanceof|delete|void|in|of|def|lambda|pass|break|continue|as|assert|raise|except|finally|with|global|nonlocal)\b/g, '<span class="keyword">$1</span>')
+                        // Built-in types and values
+                        .replace(/\b(true|false|null|undefined|NaN|Infinity|None|True|False)\b/g, '<span class="constant">$1</span>')
+                        // Functions (word followed by opening parenthesis)
+                        .replace(/\b([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/g, '<span class="function">$1</span>(')
+                        // Classes (after class keyword)
+                        .replace(/\b(class|interface)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/g, '$1 <span class="class-name">$2</span>')
+                        // HTML/XML tags
+                        .replace(/&lt;(\/?)([a-zA-Z][a-zA-Z0-9]*)/g, '&lt;$1<span class="tag">$2</span>')
+                        // HTML/XML attributes
+                        .replace(/\s([a-zA-Z-]+)=/g, ' <span class="attribute">$1</span>=')
+                        // Operators
+                        .replace(/([=+\-*/%&|^~!<>?]+)/g, '<span class="operator">$1</span>')
+                        // Punctuation
+                        .replace(/([{}()\[\],;:])/g, '<span class="punctuation">$1</span>');
+                }
                 
                 return highlighted;
             }
@@ -2154,15 +2764,68 @@
             addCopyButtons(container) {
                 const copyButtons = container.querySelectorAll('.copy-code-btn');
                 copyButtons.forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        const code = btn.getAttribute('data-code').replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
-                        navigator.clipboard.writeText(code).then(() => {
-                            const originalText = btn.innerHTML;
-                            btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                    // Remove any existing event listeners
+                    const newBtn = btn.cloneNode(true);
+                    btn.parentNode.replaceChild(newBtn, btn);
+                    
+                    newBtn.addEventListener('click', async (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        let code = newBtn.getAttribute('data-code');
+                        
+                        if (!code) {
+                            console.error('No code found in data-code attribute');
+                            this.showNotification('No code to copy', 'error');
+                            return;
+                        }
+                        
+                        // Decode HTML entities
+                        code = code
+                            .replace(/&quot;/g, '"')
+                            .replace(/&lt;/g, '<')
+                            .replace(/&gt;/g, '>')
+                            .replace(/&amp;/g, '&')
+                            .replace(/&apos;/g, "'")
+                            .replace(/&#039;/g, "'")
+                            .replace(/&#39;/g, "'")
+                            .replace(/&#34;/g, '"')
+                            .replace(/&#60;/g, '<')
+                            .replace(/&#62;/g, '>');
+                        
+                        // Decode numeric entities
+                        code = code.replace(/&#(\d+);/g, (match, dec) => String.fromCharCode(dec));
+                        code = code.replace(/&#x([0-9a-fA-F]+);/g, (match, hex) => String.fromCharCode(parseInt(hex, 16)));
+                        
+                        try {
+                            await navigator.clipboard.writeText(code);
+                            const originalHTML = newBtn.innerHTML;
+                            newBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                            newBtn.classList.add('copied');
+                            
                             setTimeout(() => {
-                                btn.innerHTML = originalText;
+                                newBtn.innerHTML = originalHTML;
+                                newBtn.classList.remove('copied');
                             }, 2000);
-                        });
+                            
+                            this.showNotification('Code copied to clipboard!', 'success');
+                        } catch (err) {
+                            console.error('Failed to copy text: ', err);
+                            
+                            // Fallback method for older browsers
+                            const textArea = document.createElement('textarea');
+                            textArea.value = code;
+                            document.body.appendChild(textArea);
+                            textArea.select();
+                            try {
+                                document.execCommand('copy');
+                                this.showNotification('Code copied to clipboard!', 'success');
+                            } catch (fallbackErr) {
+                                console.error('Fallback copy failed: ', fallbackErr);
+                                this.showNotification('Failed to copy code', 'error');
+                            }
+                            document.body.removeChild(textArea);
+                        }
                     });
                 });
             }
@@ -2176,6 +2839,58 @@
                     "'": '&#039;'
                 };
                 return text.replace(/[&<>"']/g, m => map[m]);
+            }
+
+            cleanMalformedHtml(text) {
+                let cleaned = text;
+                
+                console.log('Original text:', text); // Debug log
+                
+                // SPECIAL CASE: Handle the specific pattern you're seeing
+                // Pattern: <span <span class="attribute">classspan>="keyword">importspan>
+                if (cleaned.includes('classspan>') || cleaned.includes('<span <span')) {
+                    console.log('Detected malformed span pattern, cleaning...');
+                    
+                    // Remove the malformed nested span structure
+                    cleaned = cleaned.replace(/<span <span class="attribute">classspan>="/g, '<span class="');
+                    cleaned = cleaned.replace(/<span <span class="attribute">classspan>=/g, '<span class=');
+                    
+                    // Fix the closing spans
+                    cleaned = cleaned.replace(/span>">/g, '">');
+                    cleaned = cleaned.replace(/span>'>/g, "'>");
+                }
+                
+                // Remove ALL HTML tags completely for code blocks
+                cleaned = cleaned.replace(/<[^>]*>/g, '');
+                
+                // Fix HTML entities
+                const entityMap = {
+                    '&quot;': '"',
+                    '&#34;': '"',
+                    '&apos;': "'",
+                    '&#39;': "'",
+                    '&#039;': "'",
+                    '&lt;': '<',
+                    '&#60;': '<',
+                    '&gt;': '>',
+                    '&#62;': '>',
+                    '&amp;': '&',
+                    '&#38;': '&',
+                    '&nbsp;': ' ',
+                    '&#160;': ' '
+                };
+                
+                Object.keys(entityMap).forEach(entity => {
+                    const regex = new RegExp(entity.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+                    cleaned = cleaned.replace(regex, entityMap[entity]);
+                });
+                
+                // Decode numeric entities
+                cleaned = cleaned.replace(/&#(\d+);/g, (match, dec) => String.fromCharCode(dec));
+                cleaned = cleaned.replace(/&#x([0-9a-fA-F]+);/g, (match, hex) => String.fromCharCode(parseInt(hex, 16)));
+                
+                console.log('Cleaned text:', cleaned); // Debug log
+                return cleaned;
             }
 
             async makeAPICall(endpoint, data, method = 'POST') {
@@ -2203,7 +2918,7 @@
                     console.error('API call failed:', error);
                     return { 
                         success: false, 
-                        error: 'Network error - make sure the backend is running' 
+                        error: 'Error, try again' 
                     };
                 }
             }
@@ -2211,10 +2926,10 @@
             updateBackendStatus(isOnline) {
                 if (isOnline) {
                     this.backendStatus.className = 'status-indicator status-online';
-                    this.backendStatus.innerHTML = '<span class="status-dot"></span><span>Online</span>';
+                    this.backendStatus.innerHTML = '<span class="status-dot"></span>';
                 } else {
                     this.backendStatus.className = 'status-indicator status-offline';
-                    this.backendStatus.innerHTML = '<span class="status-dot"></span><span>Offline</span>';
+                    this.backendStatus.innerHTML = '<span class="status-dot"></span>';
                 }
             }
 
@@ -2334,6 +3049,179 @@
                 notification.querySelector('.notification-close').addEventListener('click', () => {
                     notification.remove();
                 });
+            }
+
+            async regenerateResponse(messageId) {
+                // Find the message and get the previous user message
+                const messageDiv = document.getElementById(messageId);
+                if (!messageDiv) return;
+                
+                const currentConversation = this.conversations[this.currentConversationId];
+                if (!currentConversation) return;
+                
+                // Find the index of this assistant message
+                const messages = Array.from(this.messagesContent.children);
+                const messageIndex = messages.indexOf(messageDiv);
+                
+                if (messageIndex <= 0) return;
+                
+                // Get the previous user message
+                const previousMessage = messages[messageIndex - 1];
+                const userContent = previousMessage.querySelector('.message-content').textContent;
+                
+                // Remove this assistant message from UI and conversation
+                messageDiv.remove();
+                
+                // Find and remove from conversation history
+                const msgIndex = currentConversation.messages.findIndex(m => 
+                    m.role === 'assistant' && m.content === messageDiv.querySelector('.message-content').textContent
+                );
+                if (msgIndex !== -1) {
+                    currentConversation.messages.splice(msgIndex, 1);
+                }
+                
+                // Disable send button during regeneration
+                this.isGenerating = true;
+                this.sendBtn.disabled = true;
+                this.sendBtn.style.opacity = '0.5';
+                this.sendBtn.style.cursor = 'not-allowed';
+                
+                // Add loading message
+                const loadingId = this.addMessage('<div class="loading-dots"><span></span><span></span><span></span></div>', 'assistant', true);
+                
+                try {
+                    // Get conversation history up to this point
+                    const conversationHistory = currentConversation.messages
+                        .filter(msg => msg.role === 'user' || msg.role === 'assistant')
+                        .map(msg => ({
+                            role: msg.role,
+                            content: msg.content
+                        }));
+                    
+                    const result = await this.generateResponse(userContent, conversationHistory);
+                    
+                    // Remove loading message
+                    const loadingElement = document.getElementById(loadingId);
+                    if (loadingElement) {
+                        loadingElement.remove();
+                    }
+                    
+                    if (result.success) {
+                        // Add new assistant response
+                        this.addStreamingMessage(result.content);
+                        
+                        // Add to conversation
+                        setTimeout(() => {
+                            const assistantMessage = {
+                                role: 'assistant',
+                                content: result.content,
+                                timestamp: new Date().toLocaleString()
+                            };
+                            currentConversation.messages.push(assistantMessage);
+                            this.saveUserConversations();
+                        }, 100);
+                    } else {
+                        this.addMessage(`Error: ${result.error}`, 'assistant');
+                        // Re-enable button on error
+                        this.isGenerating = false;
+                        this.sendBtn.disabled = false;
+                        this.sendBtn.style.opacity = '1';
+                        this.sendBtn.style.cursor = 'pointer';
+                    }
+                } catch (error) {
+                    console.error('Regeneration error:', error);
+                    const loadingElement = document.getElementById(loadingId);
+                    if (loadingElement) {
+                        loadingElement.remove();
+                    }
+                    this.addMessage(`Error: ${error.message}`, 'assistant');
+                    
+                    // Re-enable button on error
+                    this.isGenerating = false;
+                    this.sendBtn.disabled = false;
+                    this.sendBtn.style.opacity = '1';
+                    this.sendBtn.style.cursor = 'pointer';
+                }
+            }
+
+            async copyAnswer(content) {
+                try {
+                    // Create a temporary div to parse HTML and get text
+                    const temp = document.createElement('div');
+                    temp.innerHTML = content;
+                    
+                    // Remove code block copy buttons from the content
+                    const copyButtons = temp.querySelectorAll('.copy-code-btn');
+                    copyButtons.forEach(btn => btn.remove());
+                    
+                    let plainText = temp.textContent || temp.innerText || '';
+                    
+                    // Clean up extra whitespace
+                    plainText = plainText.replace(/\n\s*\n/g, '\n\n').trim();
+                    
+                    if (!plainText) {
+                        this.showNotification('No content to copy', 'warning');
+                        return;
+                    }
+                    
+                    await navigator.clipboard.writeText(plainText);
+                    this.showNotification('Answer copied to clipboard!', 'success');
+                } catch (err) {
+                    console.error('Failed to copy answer:', err);
+                    
+                    // Fallback method
+                    const textArea = document.createElement('textarea');
+                    textArea.value = plainText;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        this.showNotification('Answer copied to clipboard!', 'success');
+                    } catch (fallbackErr) {
+                        console.error('Fallback copy failed: ', fallbackErr);
+                        this.showNotification('Failed to copy answer', 'error');
+                    }
+                    document.body.removeChild(textArea);
+                }
+            }
+
+            editMessage(messageId, content) {
+                // Find the message
+                const messageDiv = document.getElementById(messageId);
+                if (!messageDiv) return;
+                
+                // Set input field to the message content
+                this.inputField.value = content;
+                this.inputField.focus();
+                
+                // Auto-resize textarea
+                this.inputField.style.height = 'auto';
+                this.inputField.style.height = this.inputField.scrollHeight + 'px';
+                
+                // Find all messages after this one and remove them
+                const messages = Array.from(this.messagesContent.children);
+                const messageIndex = messages.indexOf(messageDiv);
+                
+                // Remove all messages from this one onwards
+                for (let i = messageIndex; i < messages.length; i++) {
+                    messages[i].remove();
+                }
+                
+                // Update conversation history
+                const currentConversation = this.conversations[this.currentConversationId];
+                if (currentConversation) {
+                    // Find the message in conversation history
+                    const msgIndex = currentConversation.messages.findIndex(m => 
+                        m.role === 'user' && m.content === content
+                    );
+                    if (msgIndex !== -1) {
+                        // Remove this message and all after it
+                        currentConversation.messages.splice(msgIndex);
+                        this.saveUserConversations();
+                    }
+                }
+                
+                this.showNotification('Message loaded for editing. Modify and send.', 'info');
             }
 
             // Cleanup on destroy
