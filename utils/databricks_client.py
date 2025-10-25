@@ -17,6 +17,7 @@ class DatabricksClient:
         
         # Model mapping
         self.model_mapping = {
+            "claude-4-1-opus": "atabricks-claude-opus-4-1/invocations",
             "meta-llama-3-3-70b-instruct": "databricks-meta-llama-3-3-70b-instruct",
             "llama-4-maverick": "databricks-llama-4-maverick", 
             "meta-llama-3-1-405b-instruct": "databricks-meta-llama-3-1-405b-instruct"
