@@ -1,22 +1,40 @@
-__pycache__
-*.pyc
-*.pyo
-*.pyd
-.Python
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
 *.so
-*.egg
-*.egg-info
-dist
-build
-.env
-.venv
+.Python
+
+# Virtual environments
 venv/
+env/
 ENV/
-.git
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git
+.git/
 .gitignore
-.github
+
+# Documentation
 README.md
-.vscode
-.idea
+docs/
+
+# Data directories (will be created at runtime)
+data/
+*.db
+*.sqlite
+
+# Logs
 *.log
+
+# OS files
 .DS_Store
+Thumbs.db
+
+# CI/CD
+.github/
