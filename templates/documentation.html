@@ -3,18 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CI/CD Documentation Library</title>
-    <meta name="description" content="Simple CI/CD documentation library with essential resources and guides.">
+    <title>CI/CD Documentation Library - Comprehensive Resource Hub</title>
+    <meta name="description" content="Comprehensive CI/CD documentation library with resources for all major platforms including GitHub Actions, GitLab CI, Jenkins, CircleCI, and more.">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%233a86ff;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%238338ec;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='20' fill='url(%23grad)'/%3E%3Cpath d='M30 35 L45 50 L30 65' stroke='white' stroke-width='6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M55 55 L70 55' stroke='white' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #3a86ff;
-            --secondary-color: #8338ec;
-            --light-color: #f8f9fa;
-            --dark-color: #212529;
-            --gray-color: #6c757d;
-            --border-radius: 8px;
-            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --primary: #3a86ff;
+            --secondary: #8338ec;
+            --success: #38b000;
+            --danger: #d00000;
+            --warning: #ff9e00;
+            --dark: #1a1a2e;
+            --light: #f8f9fa;
+            --border: #e5e7eb;
+            --text-secondary: #6c757d;
+            --radius: 12px;
             --transition: all 0.3s ease;
         }
 
@@ -22,31 +27,29 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            background-color: #f5f7fb;
-            color: var(--dark-color);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #fafbfc;
+            color: #1a1a2e;
             line-height: 1.6;
         }
 
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        /* Header Styles */
+        /* Header */
         header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
-            padding: 1.5rem 0;
-            box-shadow: var(--box-shadow);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
         .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -55,13 +58,15 @@
         .logo {
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 1.8rem;
-            font-weight: 700;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: white;
+            text-decoration: none;
         }
 
         .logo i {
-            font-size: 2.2rem;
+            font-size: 1.8rem;
         }
 
         nav ul {
@@ -75,69 +80,182 @@
             text-decoration: none;
             font-weight: 500;
             transition: var(--transition);
-            padding: 5px 10px;
-            border-radius: var(--border-radius);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
         }
 
-        nav a:hover {
-            background-color: rgba(255, 255, 255, 0.2);
+        nav a:hover, nav a.active {
+            background: rgba(255, 255, 255, 0.2);
         }
 
-        /* Hero Section */
+        /* User Status Badge */
+        .user-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .admin-badge {
+            background: var(--success);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+
+        /* Hero */
         .hero {
-            padding: 3rem 0;
+            background: white;
+            padding: 3rem 2rem;
             text-align: center;
-            background-color: white;
-            margin-bottom: 2rem;
-            border-radius: 0 0 20px 20px;
-            box-shadow: var(--box-shadow);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .hero-content {
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
         .hero h1 {
             font-size: 2.5rem;
+            font-weight: 800;
             margin-bottom: 1rem;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
+            -webkit-text-fill-color: transparent;
         }
 
         .hero p {
             font-size: 1.1rem;
-            color: var(--gray-color);
-            max-width: 800px;
-            margin: 0 auto 2rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Admin Panel */
+        .admin-panel {
+            background: white;
+            border: 2px solid var(--success);
+            border-radius: var(--radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .admin-panel h2 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--success);
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .tags-input-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            min-height: 50px;
+        }
+
+        .tag-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 0.25rem 0.75rem;
+            background: var(--primary);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        .tag-item button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 0;
+            margin: 0;
+            font-size: 1.1rem;
+            line-height: 1;
+        }
+
+        .tag-input {
+            border: none;
+            outline: none;
+            padding: 0.5rem;
+            flex: 1;
+            min-width: 150px;
         }
 
         /* Search Section */
         .search-section {
+            padding: 2rem;
             background: white;
-            padding: 2rem 0;
-            margin-bottom: 2rem;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 73px;
+            z-index: 999;
         }
 
         .search-container {
-            max-width: 700px;
+            max-width: 1400px;
             margin: 0 auto;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .search-box {
             position: relative;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 1rem 1.5rem 1rem 3rem;
-            border: 2px solid #e5e5e5;
-            border-radius: 50px;
-            font-size: 1.1rem;
-            transition: var(--transition);
-            background-color: var(--light-color);
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.2);
+            flex: 1;
         }
 
         .search-icon {
@@ -145,197 +263,427 @@
             left: 1.2rem;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--gray-color);
-            font-size: 1.2rem;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
         }
 
-        /* User Status */
-        .user-status {
-            text-align: center;
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
-            padding: 0.5rem;
-            border-radius: var(--border-radius);
-            background-color: rgba(0, 0, 0, 0.05);
-        }
-
-        .user-status.admin {
-            background-color: rgba(56, 176, 0, 0.1);
-            color: #2e7d32;
-        }
-
-        .user-status.regular {
-            background-color: rgba(108, 117, 125, 0.1);
-            color: var(--gray-color);
-        }
-
-        /* Results Count */
-        .results-count {
-            text-align: center;
-            margin-bottom: 1.5rem;
-            color: var(--gray-color);
+        .search-input {
+            width: 100%;
+            padding: 1rem 1.5rem 1rem 3rem;
+            border: 2px solid var(--border);
+            border-radius: 50px;
             font-size: 1rem;
+            transition: var(--transition);
+            background: var(--light);
         }
 
-        /* Library Content */
-        .doc-grid {
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.1);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 1rem 1.5rem;
+            border: 2px solid var(--border);
+            background: white;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Content Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .results-count {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        /* Category Sections */
+        .category-section {
+            margin-bottom: 4rem;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 3px solid var(--border);
+        }
+
+        .category-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .category-header h2 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--dark);
+        }
+
+        /* Resource Grid */
+        .resource-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             gap: 1.5rem;
-            margin-bottom: 3rem;
         }
 
-        .doc-card {
-            background-color: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
+        .resource-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
             padding: 1.5rem;
             transition: var(--transition);
             display: flex;
             flex-direction: column;
-            height: 100%;
+            position: relative;
         }
 
-        .doc-card:hover {
+        .resource-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary);
         }
 
-        .doc-icon {
-            font-size: 2.5rem;
-            color: var(--primary-color);
+        .admin-controls {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .admin-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+
+        .edit-btn {
+            background: var(--warning);
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background: #e68a00;
+            transform: scale(1.1);
+        }
+
+        .delete-btn {
+            background: var(--danger);
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background: #b00000;
+            transform: scale(1.1);
+        }
+
+        .resource-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
             margin-bottom: 1rem;
         }
 
-        .doc-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
+        .resource-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
         }
 
-        .doc-description {
-            color: var(--gray-color);
+        .icon-github { background: #24292e; color: white; }
+        .icon-gitlab { background: #fc6d26; color: white; }
+        .icon-jenkins { background: #d24939; color: white; }
+        .icon-circleci { background: #343434; color: white; }
+        .icon-travis { background: #3eaaaf; color: white; }
+        .icon-azure { background: #0078d4; color: white; }
+        .icon-aws { background: #ff9900; color: white; }
+        .icon-bitbucket { background: #0052cc; color: white; }
+        .icon-docker { background: #2496ed; color: white; }
+        .icon-kubernetes { background: #326ce5; color: white; }
+        .icon-terraform { background: #623ce4; color: white; }
+        .icon-default { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; }
+
+        .resource-info {
+            flex: 1;
+        }
+
+        .resource-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding-right: 70px;
+        }
+
+        .official-badge {
+            background: var(--success);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .resource-source {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+        }
+
+        .resource-description {
+            color: #4a5568;
+            line-height: 1.6;
             margin-bottom: 1rem;
             flex-grow: 1;
         }
 
-        .doc-meta {
-            font-size: 0.8rem;
-            color: var(--gray-color);
+        .resource-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
             margin-bottom: 1rem;
         }
 
-        .doc-actions {
+        .tag {
+            padding: 0.25rem 0.75rem;
+            background: var(--light);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .resource-actions {
             display: flex;
             gap: 0.5rem;
         }
 
         .btn {
-            padding: 0.5rem 1rem;
+            padding: 0.6rem 1.2rem;
             border: none;
-            border-radius: var(--border-radius);
+            border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
             transition: var(--transition);
+            text-decoration: none;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(58, 134, 255, 0.3);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #2e8b00;
+            transform: translateY(-2px);
         }
 
         .btn-outline {
-            background-color: transparent;
-            color: var(--dark-color);
-            border: 2px solid var(--dark-color);
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        /* Admin Section */
-        .admin-section {
             background: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            padding: 2rem;
-            margin-bottom: 3rem;
+            color: var(--dark);
+            border: 2px solid var(--border);
         }
 
-        .upload-area {
-            border: 2px dashed #dee2e6;
-            border-radius: var(--border-radius);
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--radius);
             padding: 2rem;
-            text-align: center;
-            transition: var(--transition);
-            cursor: pointer;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 1.5rem;
         }
 
-        .upload-area:hover {
-            border-color: var(--primary-color);
-            background-color: rgba(58, 134, 255, 0.05);
+        .modal-header h2 {
+            color: var(--dark);
         }
 
-        .upload-area i {
-            font-size: 3rem;
-            color: var(--primary-color);
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .modal-close:hover {
+            color: var(--danger);
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            max-width: 400px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .notification.success { border-left: 4px solid var(--success); }
+        .notification.error { border-left: 4px solid var(--danger); }
+        .notification.warning { border-left: 4px solid var(--warning); }
+        .notification.info { border-left: 4px solid var(--primary); }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--border);
             margin-bottom: 1rem;
         }
 
-        .upload-area h3 {
+        .empty-state h3 {
+            font-size: 1.5rem;
             margin-bottom: 0.5rem;
+            color: var(--dark);
         }
 
-        .upload-area p {
-            color: var(--gray-color);
-            margin-bottom: 1rem;
+        .empty-state p {
+            color: var(--text-secondary);
         }
 
         /* Footer */
         footer {
-            background-color: var(--dark-color);
+            background: var(--dark);
             color: white;
-            padding: 3rem 0 1.5rem;
-            margin-top: 3rem;
+            padding: 3rem 2rem 1.5rem;
+            margin-top: 4rem;
         }
 
         .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 2rem;
             margin-bottom: 2rem;
         }
 
         .footer-column h3 {
-            font-size: 1.2rem;
-            margin-bottom: 1.5rem;
-            position: relative;
-            padding-bottom: 0.5rem;
-        }
-
-        .footer-column h3::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            bottom: 0;
-            width: 40px;
-            height: 3px;
-            background-color: var(--primary-color);
-        }
-
-        .footer-column ul {
-            list-style: none;
-        }
-
-        .footer-column ul li {
-            margin-bottom: 0.8rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
         }
 
         .footer-column a {
-            color: #adb5bd;
+            color: rgba(255, 255, 255, 0.7);
             text-decoration: none;
             transition: var(--transition);
+            display: block;
+            margin-bottom: 0.5rem;
         }
 
         .footer-column a:hover {
@@ -349,123 +697,72 @@
         }
 
         .social-links a {
-            display: inline-flex;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
             align-items: center;
             justify-content: center;
-            width: 36px;
-            height: 36px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            transition: var(--transition);
         }
 
         .social-links a:hover {
-            background-color: var(--primary-color);
-            transform: translateY(-3px);
+            background: var(--primary);
         }
 
         .copyright {
+            max-width: 1400px;
+            margin: 0 auto;
             text-align: center;
-            padding-top: 1.5rem;
+            padding-top: 2rem;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
-            color: #adb5bd;
-            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
         }
 
-        /* Responsive Adjustments */
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                gap: 1rem;
-            }
-            
-            nav ul {
-                gap: 1rem;
-            }
-            
-            .hero h1 {
-                font-size: 2rem;
-            }
-        }
-
-        /* Notification Styles */
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-            min-width: 300px;
-            max-width: 500px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            border-left: 4px solid #3a86ff;
-            animation: slideIn 0.3s ease;
-        }
-        .notification-success { border-left-color: #38b000; }
-        .notification-error { border-left-color: #d00000; }
-        .notification-warning { border-left-color: #ff9e00; }
-        .notification-info { border-left-color: var(--primary-color); }
-        .notification-content {
-            padding: 12px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .notification-message {
-            flex: 1;
-            margin-right: 10px;
-        }
-        .notification-close {
-            background: none;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
-            color: #666;
-        }
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        /* Empty State */
-        .empty-state {
+        /* Loading */
+        .loading {
             text-align: center;
             padding: 3rem;
-            color: var(--gray-color);
         }
 
-        .empty-state i {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            color: #dee2e6;
-        }
-
-        /* Badge for official documentation */
-        .official-badge {
-            background: #38b000;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            margin-left: 8px;
-        }
-
-        /* Loading Spinner */
         .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            border-left-color: var(--primary-color);
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--light);
+            border-top-color: var(--primary);
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin: 0 auto 1rem;
         }
 
         @keyframes spin {
-            to {
-                transform: rotate(360deg);
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .resource-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-buttons {
+                width: 100%;
+            }
+
+            .filter-btn {
+                flex: 1;
+            }
+
+            .search-container {
+                flex-direction: column;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -473,509 +770,591 @@
 <body>
     <!-- Header -->
     <header>
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">
-                    <i class="fas fa-rocket"></i>
-                    <span>CI/CD Helper</span>
-                </div>
-                <nav>
-                    <ul>
-                        <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
-                        <li><a href="/documentation" class="active"><i class="fas fa-book"></i> Documentation</a></li>
-                    </ul>
-                </nav>
-            </div>
+        <div class="header-content">
+            <a href="/" class="logo">
+                <i class="fas fa-book"></i>
+                <span>CI/CD Docs</span>
+            </a>
+            <nav>
+                <ul>
+                    <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="/documentation" class="active"><i class="fas fa-book"></i> Documentation</a></li>
+                    <li><a href="/app"><i class="fas fa-rocket"></i> App</a></li>
+                    <li id="user-status-nav"></li>
+                </ul>
+            </nav>
         </div>
     </header>
 
-    <!-- Hero Section -->
+    <!-- Hero -->
     <section class="hero">
-        <div class="container">
+        <div class="hero-content">
             <h1>CI/CD Documentation Library</h1>
-            <p>Search and access essential CI/CD guides, best practices, and tool documentation in one place.</p>
+            <p>Your comprehensive resource hub for all major CI/CD platforms, tools, and best practices. Everything you need to build, deploy, and automate.</p>
         </div>
     </section>
 
     <!-- Search Section -->
     <section class="search-section">
-        <div class="container">
-            <div class="search-container">
+        <div class="search-container">
+            <div class="search-box">
                 <i class="fas fa-search search-icon"></i>
-                <input type="text" class="search-input" id="search-input" placeholder="Search documentation...">
+                <input type="text" class="search-input" id="search-input" placeholder="Search platforms, tools, or topics...">
+            </div>
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-category="all">All</button>
+                <button class="filter-btn" data-category="platforms">Platforms</button>
+                <button class="filter-btn" data-category="tools">Tools</button>
+                <button class="filter-btn" data-category="guides">Guides</button>
             </div>
         </div>
     </section>
 
-    <!-- User Status Indicator -->
-    <div class="container">
-        <div class="user-status" id="user-status" style="display: none;">
-            <i class="fas fa-user"></i>
-            <span id="user-status-text"></span>
-        </div>
-    </div>
-
     <!-- Main Content -->
     <div class="container">
-        <!-- Results Count -->
-        <div class="results-count" id="results-count"></div>
+        <!-- Admin Panel -->
+        <div id="admin-panel" style="display: none;">
+            <div class="admin-panel">
+                <h2>
+                    <i class="fas fa-shield-alt"></i>
+                    Admin Panel - Manage Documentation
+                </h2>
+                <form id="resource-form">
+                    <input type="hidden" id="edit-id">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="resource-title">Title *</label>
+                            <input type="text" id="resource-title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="resource-source">Source *</label>
+                            <input type="text" id="resource-source" placeholder="e.g., GitHub" required>
+                        </div>
+                    </div>
 
-        <!-- Admin Section (only visible to admin) -->
-        <section class="admin-section" id="admin-section" style="display: none;">
-            <h2 style="margin-bottom: 1.5rem;">Add New Documents (Admin Only)</h2>
-            <div class="upload-area" id="upload-area">
-                <i class="fas fa-cloud-upload-alt"></i>
-                <h3>Add to Library</h3>
-                <p>Drag and drop your CI/CD documentation or guides</p>
-                <p style="font-size: 0.9rem; color: var(--gray-color);">Supported formats: PDF, TXT, YAML, MD</p>
-                <button class="btn btn-outline" id="browse-btn" style="margin-top: 1rem;">
-                    <i class="fas fa-folder-open"></i> Browse Files
-                </button>
-                <input type="file" id="file-input" style="display: none;" accept=".pdf,.txt,.md,.yaml,.yml">
+                    <div class="form-group">
+                        <label for="resource-description">Description *</label>
+                        <textarea id="resource-description" required></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="resource-category">Category *</label>
+                            <select id="resource-category" required>
+                                <option value="platforms">CI/CD Platforms</option>
+                                <option value="tools">DevOps Tools</option>
+                                <option value="guides">Guides & Best Practices</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="resource-icon">Icon Class</label>
+                            <select id="resource-icon">
+                                <option value="icon-github">GitHub</option>
+                                <option value="icon-gitlab">GitLab</option>
+                                <option value="icon-jenkins">Jenkins</option>
+                                <option value="icon-circleci">CircleCI</option>
+                                <option value="icon-travis">Travis CI</option>
+                                <option value="icon-azure">Azure</option>
+                                <option value="icon-aws">AWS</option>
+                                <option value="icon-bitbucket">Bitbucket</option>
+                                <option value="icon-docker">Docker</option>
+                                <option value="icon-kubernetes">Kubernetes</option>
+                                <option value="icon-terraform">Terraform</option>
+                                <option value="icon-default">Default</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="resource-url">Documentation URL *</label>
+                            <input type="url" id="resource-url" placeholder="https://..." required>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="resource-official"> Official Documentation
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="resource-tags-input">Tags (press Enter to add)</label>
+                        <div class="tags-input-container" id="tags-container">
+                            <input type="text" id="resource-tags-input" class="tag-input" placeholder="Add tags...">
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem;">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i> <span id="form-submit-text">Add Resource</span>
+                        </button>
+                        <button type="button" id="cancel-edit" class="btn btn-outline" style="display: none;">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+                </form>
             </div>
-        </section>
+        </div>
 
-        <!-- Library Content -->
+        <div class="results-header">
+            <div class="results-count" id="results-count">Loading resources...</div>
+        </div>
+
         <div id="library-content">
-            <!-- Content will be dynamically loaded based on search -->
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Loading comprehensive CI/CD documentation...</p>
+            </div>
         </div>
     </div>
 
     <!-- Footer -->
     <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-column">
-                    <h3>CI/CD Helper</h3>
-                    <p>Simple platform for CI/CD documentation and resources.</p>
-                    <div class="social-links">
-                        <a href="https://github.com/youghourtabouaoune"><i class="fab fa-github"></i></a>
-                        <a href="https://www.linkedin.com/in/youghourta-bouaoune-309797122/"><i class="fab fa-linkedin"></i></a>
-                    </div>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>CI/CD Helper</h3>
+                <p>Comprehensive documentation library for modern CI/CD workflows.</p>
+                <div class="social-links">
+                    <a href="https://github.com/youghourtabouaoune" target="_blank"><i class="fab fa-github"></i></a>
+                    <a href="https://www.linkedin.com/in/youghourta-bouaoune-309797122/" target="_blank"><i class="fab fa-linkedin"></i></a>
                 </div>
             </div>
-            <div class="copyright">
-                <p>&copy; 2025 CI/CD Documentation Library. All rights reserved.</p>
+            <div class="footer-column">
+                <h3>Quick Links</h3>
+                <a href="/">Home</a>
+                <a href="/app">Main App</a>
+                <a href="/documentation">Documentation</a>
             </div>
+            <div class="footer-column">
+                <h3>Resources</h3>
+                <a href="#platforms">Platforms</a>
+                <a href="#tools">Tools</a>
+                <a href="#guides">Best Practices</a>
+            </div>
+            <div class="footer-column">
+                <h3>Support</h3>
+                <a href="/support">Help Center</a>
+                <a href="/privacy">Privacy Policy</a>
+                <a href="/terms">Terms of Service</a>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2025 CI/CD Documentation Library. All rights reserved.</p>
         </div>
     </footer>
 
     <script>
-        // Documentation Library JavaScript
+        // Admin Configuration
+        const ADMIN_EMAIL = 'youghourtabo@outlook.com';
+        let isAdmin = false;
+        let currentUser = null;
+
+        // State
+        let currentCategory = 'all';
+        let searchTerm = '';
+        let allResources = [];
+        let currentTags = [];
+        let editingResourceId = null;
+
+        // Local Storage Keys
+        const STORAGE_KEY = 'cicd_documentation_resources';
+
+        // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            // DOM Elements
-            const adminSection = document.getElementById('admin-section');
-            const uploadArea = document.getElementById('upload-area');
-            const browseBtn = document.getElementById('browse-btn');
-            const fileInput = document.getElementById('file-input');
-            const libraryContent = document.getElementById('library-content');
-            const searchInput = document.getElementById('search-input');
-            const resultsCount = document.getElementById('results-count');
-            const userStatus = document.getElementById('user-status');
-            const userStatusText = document.getElementById('user-status-text');
-
-            // Admin configuration
-            const ADMIN_EMAIL = 'youghourtabo@outlook.com';
-            let isAdmin = false;
-
-            // Current state
-            let allResources = [];
-            let filteredResources = [];
-
-            // Helper functions
-            function showNotification(message, type = 'info') {
-                const existingNotifications = document.querySelectorAll('.notification');
-                existingNotifications.forEach(notif => notif.remove());
-
-                const notification = document.createElement('div');
-                notification.className = `notification notification-${type}`;
-                notification.innerHTML = `
-                    <div class="notification-content">
-                        <span class="notification-message">${message}</span>
-                        <button class="notification-close">&times;</button>
-                    </div>
-                `;
-
-                document.body.appendChild(notification);
-
-                setTimeout(() => {
-                    if (notification.parentNode) {
-                        notification.remove();
-                    }
-                }, 5000);
-
-                notification.querySelector('.notification-close').addEventListener('click', () => {
-                    notification.remove();
-                });
-            }
-
-            // Check if user is admin
-            function checkAdminStatus() {
-                // Check if user is logged in and has the specific admin email
-                const storedUser = localStorage.getItem('cicd_user');
-                
-                if (storedUser) {
-                    try {
-                        const user = JSON.parse(storedUser);
-                        if (user.email === ADMIN_EMAIL) {
-                            isAdmin = true;
-                            adminSection.style.display = 'block';
-                            showNotification('Admin mode enabled - Upload access granted', 'success');
-                        } else {
-                            // Regular user - hide admin section
-                            isAdmin = false;
-                            adminSection.style.display = 'none';
-                        }
-                    } catch (e) {
-                        console.error('Error parsing user data:', e);
-                        isAdmin = false;
-                        adminSection.style.display = 'none';
-                    }
-                } else {
-                    // Not logged in - hide admin section
-                    isAdmin = false;
-                    adminSection.style.display = 'none';
-                }
-            }
-
-            // Update user status display
-            function updateUserStatus() {
-                const storedUser = localStorage.getItem('cicd_user');
-                
-                if (storedUser) {
-                    try {
-                        const user = JSON.parse(storedUser);
-                        userStatus.style.display = 'block';
-                        if (user.email === ADMIN_EMAIL) {
-                            userStatusText.textContent = `Logged in as Admin (${user.email}) - Upload access enabled`;
-                            userStatus.className = 'user-status admin';
-                        } else {
-                            userStatusText.textContent = `Logged in as ${user.email} - Browse only`;
-                            userStatus.className = 'user-status regular';
-                        }
-                    } catch (e) {
-                        userStatus.style.display = 'none';
-                    }
-                } else {
-                    userStatus.style.display = 'block';
-                    userStatusText.textContent = 'Not logged in - Browse only';
-                    userStatus.className = 'user-status regular';
-                }
-            }
-
-            // Search functionality
-            function performSearch(searchTerm) {
-                if (!searchTerm.trim()) {
-                    filteredResources = [...allResources];
-                } else {
-                    const searchLower = searchTerm.toLowerCase();
-                    filteredResources = allResources.filter(resource => 
-                        resource.title.toLowerCase().includes(searchLower) ||
-                        resource.description.toLowerCase().includes(searchLower) ||
-                        resource.source.toLowerCase().includes(searchLower) ||
-                        resource.category.toLowerCase().includes(searchLower)
-                    );
-                }
-                
-                updateResultsCount();
-                renderResources(filteredResources);
-            }
-
-            function updateResultsCount() {
-                const count = filteredResources.length;
-                const searchTerm = searchInput.value.trim();
-                
-                if (searchTerm) {
-                    if (count === 0) {
-                        resultsCount.textContent = `No results found for "${searchTerm}"`;
-                    } else {
-                        resultsCount.textContent = `Found ${count} result${count !== 1 ? 's' : ''} for "${searchTerm}"`;
-                    }
-                } else {
-                    if (count === 0) {
-                        resultsCount.textContent = 'No documents available';
-                    } else {
-                        resultsCount.textContent = `Showing ${count} document${count !== 1 ? 's' : ''}`;
-                    }
-                }
-            }
-
-            function loadLibraryContent() {
-                try {
-                    // Show loading state
-                    libraryContent.innerHTML = `
-                        <div style="text-align: center; padding: 3rem;">
-                            <div class="spinner"></div>
-                            <p>Loading resources...</p>
-                        </div>
-                    `;
-
-                    allResources = getStaticResources();
-                    filteredResources = [...allResources];
-                    
-                    updateResultsCount();
-                    renderResources(filteredResources);
-                } catch (error) {
-                    libraryContent.innerHTML = `
-                        <div class="empty-state">
-                            <i class="fas fa-exclamation-circle"></i>
-                            <h3>Error Loading Resources</h3>
-                            <p>${error.message}</p>
-                        </div>
-                    `;
-                }
-            }
-
-            function getStaticResources() {
-                return [
-                    // Getting Started Guides
-                    {
-                        id: 1,
-                        title: 'GitLab CI/CD Getting Started',
-                        description: 'Official GitLab guide to setting up CI/CD pipelines from scratch with practical examples',
-                        category: 'guides',
-                        type: 'web',
-                        icon: 'fa-gitlab',
-                        url: 'https://docs.gitlab.com/ee/ci/quick_start/',
-                        upload_time: new Date().toISOString(),
-                        official: true,
-                        source: 'GitLab'
-                    },
-                    {
-                        id: 2,
-                        title: 'GitHub Actions Quickstart',
-                        description: 'Official GitHub guide to creating your first workflow with GitHub Actions',
-                        category: 'guides',
-                        type: 'yaml',
-                        icon: 'fa-github',
-                        url: 'https://docs.github.com/en/actions/quickstart',
-                        upload_time: new Date().toISOString(),
-                        official: true,
-                        source: 'GitHub'
-                    },
-                    {
-                        id: 3,
-                        title: 'Jenkins Beginner Tutorial',
-                        description: 'Step-by-step tutorial for creating your first Jenkins pipeline with best practices',
-                        category: 'guides',
-                        type: 'web',
-                        icon: 'fa-server',
-                        url: 'https://www.jenkins.io/doc/tutorials/',
-                        upload_time: new Date().toISOString(),
-                        official: true,
-                        source: 'Jenkins'
-                    },
-
-                    // Best Practices
-                    {
-                        id: 4,
-                        title: 'Google CI/CD Best Practices',
-                        description: 'Comprehensive guide to CI/CD best practices from Google Cloud experts',
-                        category: 'best-practices',
-                        type: 'web',
-                        icon: 'fa-google',
-                        url: 'https://cloud.google.com/architecture/devops/devops-tech-ci-cd',
-                        upload_time: new Date().toISOString(),
-                        official: true,
-                        source: 'Google Cloud'
-                    },
-                    {
-                        id: 5,
-                        title: 'Microsoft DevOps Practices',
-                        description: 'Azure DevOps best practices for building reliable CI/CD pipelines',
-                        category: 'best-practices',
-                        type: 'web',
-                        icon: 'fa-microsoft',
-                        url: 'https://docs.microsoft.com/en-us/azure/devops/learn/what-is-devops',
-                        upload_time: new Date().toISOString(),
-                        official: true,
-                        source: 'Microsoft'
-                    },
-                    {
-                        id: 6,
-                        title: 'Security Best Practices for CI/CD',
-                        description: 'OWASP guide to securing your CI/CD pipeline against common vulnerabilities',
-                        category: 'best-practices',
-                        type: 'pdf',
-                        icon: 'fa-shield-alt',
-                        url: 'https://owasp.org/www-project-devsecops-guideline/',
-                        upload_time: new Date().toISOString(),
-                        official: true,
-                        source: 'OWASP'
-                    },
-
-                    // Tool Guides
-                    {
-                        id: 7,
-                        title: 'GitHub Actions Reference',
-                        description: 'Complete reference for GitHub Actions workflow syntax and features',
-                        category: 'tools',
-                        type: 'yaml',
-                        icon: 'fa-github',
-                        url: 'https://docs.github.com/en/actions/reference',
-                        upload_time: new Date().toISOString(),
-                        official: true,
-                        source: 'GitHub'
-                    },
-                    {
-                        id: 8,
-                        title: 'GitLab CI YAML Reference',
-                        description: 'Official GitLab CI/CD pipeline configuration reference with examples',
-                        category: 'tools',
-                        type: 'yaml',
-                        icon: 'fa-gitlab',
-                        url: 'https://docs.gitlab.com/ee/ci/yaml/',
-                        upload_time: new Date().toISOString(),
-                        official: true,
-                        source: 'GitLab'
-                    },
-                    {
-                        id: 9,
-                        title: 'Jenkins Pipeline Syntax',
-                        description: 'Complete Jenkins Pipeline DSL reference with declarative and scripted syntax',
-                        category: 'tools',
-                        type: 'web',
-                        icon: 'fa-server',
-                        url: 'https://www.jenkins.io/doc/book/pipeline/syntax/',
-                        upload_time: new Date().toISOString(),
-                        official: true,
-                        source: 'Jenkins'
-                    }
-                ];
-            }
-
-            function renderResources(resources) {
-                if (resources.length === 0) {
-                    libraryContent.innerHTML = `
-                        <div class="empty-state">
-                            <i class="fas fa-search"></i>
-                            <h3>No Resources Found</h3>
-                            <p>Try adjusting your search terms.</p>
-                        </div>
-                    `;
-                    return;
-                }
-
-                const resourcesHTML = resources.map(resource => {
-                    const uploadDate = new Date(resource.upload_time).toLocaleDateString();
-
-                    return `
-                        <div class="doc-card">
-                            <div class="doc-icon">
-                                <i class="fas ${resource.icon}"></i>
-                            </div>
-                            <h3 class="doc-title">
-                                ${resource.title}
-                                ${resource.official ? '<span class="official-badge">Official</span>' : ''}
-                            </h3>
-                            <p class="doc-description">${resource.description}</p>
-                            <div class="doc-meta">
-                                ${resource.source ? resource.source : 'Built-in'} • ${resource.type.toUpperCase()} • ${uploadDate}
-                            </div>
-                            <div class="doc-actions">
-                                <a href="${resource.url}" target="_blank" class="btn btn-outline">
-                                    <i class="fas fa-external-link-alt"></i> Visit
-                                </a>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-
-                libraryContent.innerHTML = `
-                    <div class="doc-grid">
-                        ${resourcesHTML}
-                    </div>
-                `;
-            }
-
-            // File upload functionality (admin only)
-            browseBtn.addEventListener('click', function() {
-                if (!isAdmin) {
-                    showNotification('Admin access required to upload files. Only youghourtabo@outlook.com can upload documents.', 'error');
-                    checkAdminStatus(); // Re-check admin status
-                    return;
-                }
-                fileInput.click();
-            });
-
-            fileInput.addEventListener('change', async function(e) {
-                if (!isAdmin) {
-                    showNotification('Admin access required to upload files', 'error');
-                    return;
-                }
-
-                if (e.target.files.length > 0) {
-                    await handleFileUpload(e.target.files[0]);
-                }
-            });
-
-            async function handleFileUpload(file) {
-                if (!isAdmin) {
-                    showNotification('Admin access required to upload files', 'error');
-                    return;
-                }
-
-                if (file.size > 10 * 1024 * 1024) {
-                    showNotification('File too large. Maximum size is 10MB.', 'error');
-                    return;
-                }
-
-                const allowedExtensions = ['pdf', 'txt', 'md', 'yaml', 'yml'];
-                const fileExtension = file.name.split('.').pop().toLowerCase();
-                if (!allowedExtensions.includes(fileExtension)) {
-                    showNotification('File type not allowed. Supported formats: PDF, TXT, MD, YAML, YML', 'error');
-                    return;
-                }
-
-                // In a real app, this would upload to a server
-                // For demo purposes, we'll just show a success message
-                showNotification(`File "${file.name}" uploaded successfully (demo)`, 'success');
-                fileInput.value = '';
-            }
-
-            // Drag and drop for upload area (admin only)
-            uploadArea.addEventListener('dragover', function(e) {
-                e.preventDefault();
-                if (isAdmin) {
-                    uploadArea.style.borderColor = 'var(--primary-color)';
-                    uploadArea.style.backgroundColor = 'rgba(58, 134, 255, 0.1)';
-                }
-            });
-
-            uploadArea.addEventListener('dragleave', function() {
-                uploadArea.style.borderColor = '#dee2e6';
-                uploadArea.style.backgroundColor = 'transparent';
-            });
-
-            uploadArea.addEventListener('drop', function(e) {
-                e.preventDefault();
-                uploadArea.style.borderColor = '#dee2e6';
-                uploadArea.style.backgroundColor = 'transparent';
-                
-                if (e.dataTransfer.files.length > 0) {
-                    if (!isAdmin) {
-                        showNotification('Admin access required to upload files', 'error');
-                        checkAdminStatus();
-                        return;
-                    }
-                    handleFileUpload(e.dataTransfer.files[0]);
-                }
-            });
-
-            // Search input event listener
-            searchInput.addEventListener('input', function() {
-                performSearch(this.value);
-            });
-
-            // Initialize application
-            function initializeApp() {
-                checkAdminStatus();
-                updateUserStatus();
-                loadLibraryContent();
-            }
-
-            initializeApp();
+            checkAdminStatus();
+            loadResourcesFromStorage();
+            setupEventListeners();
+            renderResources();
         });
+
+        function checkAdminStatus() {
+            const storedUser = localStorage.getItem('cicd_user');
+            const userStatusNav = document.getElementById('user-status-nav');
+            
+            if (storedUser) {
+                try {
+                    currentUser = JSON.parse(storedUser);
+                    isAdmin = currentUser.email === ADMIN_EMAIL;
+                    
+                    if (isAdmin) {
+                        document.getElementById('admin-panel').style.display = 'block';
+                        userStatusNav.innerHTML = `
+                            <div class="user-status-badge">
+                                <i class="fas fa-user-shield"></i>
+                                Admin Mode
+                            </div>
+                        `;
+                        showNotification('Admin mode enabled - You can add, edit, and delete resources', 'success');
+                    } else {
+                        userStatusNav.innerHTML = `
+                            <div class="user-status-badge">
+                                <i class="fas fa-user"></i>
+                                ${currentUser.email}
+                            </div>
+                        `;
+                    }
+                } catch (e) {
+                    console.error('Error parsing user data:', e);
+                }
+            }
+        }
+
+        function setupEventListeners() {
+            // Search
+            document.getElementById('search-input').addEventListener('input', (e) => {
+                searchTerm = e.target.value.toLowerCase();
+                renderResources();
+            });
+
+            // Filter buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    currentCategory = e.target.dataset.category;
+                    renderResources();
+                });
+            });
+
+            // Tags input
+            document.getElementById('resource-tags-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const input = e.target;
+                    const tag = input.value.trim();
+                    if (tag && !currentTags.includes(tag)) {
+                        currentTags.push(tag);
+                        renderTagsInput();
+                        input.value = '';
+                    }
+                }
+            });
+
+            // Resource form
+            document.getElementById('resource-form').addEventListener('submit', handleResourceSubmit);
+            
+            // Cancel edit
+            document.getElementById('cancel-edit').addEventListener('click', resetForm);
+        }
+
+        function loadResourcesFromStorage() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                try {
+                    const customResources = JSON.parse(stored);
+                    allResources = [...getDefaultResources(), ...customResources];
+                } catch (e) {
+                    console.error('Error loading resources:', e);
+                    allResources = getDefaultResources();
+                }
+            } else {
+                allResources = getDefaultResources();
+            }
+        }
+
+        function saveResourcesToStorage() {
+            const defaultResources = getDefaultResources();
+            const customResources = allResources.filter(r => 
+                !defaultResources.some(dr => dr.id === r.id)
+            );
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(customResources));
+        }
+
+        function handleResourceSubmit(e) {
+            e.preventDefault();
+
+            const resource = {
+                id: editingResourceId || 'custom-' + Date.now(),
+                title: document.getElementById('resource-title').value,
+                description: document.getElementById('resource-description').value,
+                source: document.getElementById('resource-source').value,
+                category: document.getElementById('resource-category').value,
+                icon: document.getElementById('resource-icon').value,
+                url: document.getElementById('resource-url').value,
+                official: document.getElementById('resource-official').checked,
+                tags: [...currentTags],
+                custom: true
+            };
+
+            if (editingResourceId) {
+                // Update existing
+                const index = allResources.findIndex(r => r.id === editingResourceId);
+                if (index !== -1) {
+                    allResources[index] = resource;
+                    showNotification('Resource updated successfully!', 'success');
+                }
+            } else {
+                // Add new
+                allResources.push(resource);
+                showNotification('Resource added successfully!', 'success');
+            }
+
+            saveResourcesToStorage();
+            renderResources();
+            resetForm();
+        }
+
+        function editResource(id) {
+            const resource = allResources.find(r => r.id === id);
+            if (!resource) return;
+
+            editingResourceId = id;
+            document.getElementById('edit-id').value = id;
+            document.getElementById('resource-title').value = resource.title;
+            document.getElementById('resource-description').value = resource.description;
+            document.getElementById('resource-source').value = resource.source;
+            document.getElementById('resource-category').value = resource.category;
+            document.getElementById('resource-icon').value = resource.icon;
+            document.getElementById('resource-url').value = resource.url;
+            document.getElementById('resource-official').checked = resource.official;
+            currentTags = [...(resource.tags || [])];
+            
+            renderTagsInput();
+            
+            document.getElementById('form-submit-text').textContent = 'Update Resource';
+            document.getElementById('cancel-edit').style.display = 'inline-flex';
+            
+            // Scroll to form
+            document.getElementById('admin-panel').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function deleteResource(id) {
+            if (!confirm('Are you sure you want to delete this resource?')) return;
+
+            allResources = allResources.filter(r => r.id !== id);
+            saveResourcesToStorage();
+            renderResources();
+            showNotification('Resource deleted successfully!', 'success');
+        }
+
+        function resetForm() {
+            editingResourceId = null;
+            document.getElementById('resource-form').reset();
+            currentTags = [];
+            renderTagsInput();
+            document.getElementById('form-submit-text').textContent = 'Add Resource';
+            document.getElementById('cancel-edit').style.display = 'none';
+        }
+
+        function renderTagsInput() {
+            const container = document.getElementById('tags-container');
+            const input = document.getElementById('resource-tags-input');
+            
+            container.innerHTML = '';
+            
+            currentTags.forEach(tag => {
+                const tagEl = document.createElement('div');
+                tagEl.className = 'tag-item';
+                tagEl.innerHTML = `
+                    ${tag}
+                    <button type="button" onclick="removeTag('${tag}')">&times;</button>
+                `;
+                container.appendChild(tagEl);
+            });
+            
+            container.appendChild(input);
+        }
+
+        function removeTag(tag) {
+            currentTags = currentTags.filter(t => t !== tag);
+            renderTagsInput();
+        }
+
+        function filterResources() {
+            let filtered = allResources;
+
+            if (currentCategory !== 'all') {
+                filtered = filtered.filter(r => r.category === currentCategory);
+            }
+
+            if (searchTerm) {
+                filtered = filtered.filter(r => 
+                    r.title.toLowerCase().includes(searchTerm) ||
+                    r.description.toLowerCase().includes(searchTerm) ||
+                    r.source.toLowerCase().includes(searchTerm) ||
+                    (r.tags && r.tags.some(tag => tag.toLowerCase().includes(searchTerm)))
+                );
+            }
+
+            return filtered;
+        }
+
+        function renderResources() {
+            const filtered = filterResources();
+            const content = document.getElementById('library-content');
+            const resultsCount = document.getElementById('results-count');
+
+            if (searchTerm) {
+                resultsCount.textContent = `Found ${filtered.length} result${filtered.length !== 1 ? 's' : ''} for "${searchTerm}"`;
+            } else {
+                resultsCount.textContent = `Showing ${filtered.length} resource${filtered.length !== 1 ? 's' : ''}`;
+            }
+
+            if (filtered.length === 0) {
+                content.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <h3>No results found</h3>
+                        <p>Try adjusting your search or filters</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const grouped = {
+                platforms: filtered.filter(r => r.category === 'platforms'),
+                tools: filtered.filter(r => r.category === 'tools'),
+                guides: filtered.filter(r => r.category === 'guides')
+            };
+
+            let html = '';
+
+            if (grouped.platforms.length > 0) {
+                html += renderCategory('CI/CD Platforms', 'fa-layer-group', grouped.platforms, 'platforms');
+            }
+            if (grouped.tools.length > 0) {
+                html += renderCategory('DevOps Tools', 'fa-tools', grouped.tools, 'tools');
+            }
+            if (grouped.guides.length > 0) {
+                html += renderCategory('Guides & Best Practices', 'fa-lightbulb', grouped.guides, 'guides');
+            }
+
+            content.innerHTML = html;
+        }
+
+        function renderCategory(title, icon, resources, id) {
+            const cardsHtml = resources.map(resource => `
+                <div class="resource-card">
+                    ${isAdmin && resource.custom ? `
+                        <div class="admin-controls">
+                            <button class="admin-btn edit-btn" onclick="editResource('${resource.id}')" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="admin-btn delete-btn" onclick="deleteResource('${resource.id}')" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    ` : ''}
+                    <div class="resource-header">
+                        <div class="resource-icon ${resource.icon}">
+                            <i class="fab ${resource.icon === 'icon-default' ? 'fa-cog' : resource.icon.replace('icon-', 'fa-')}"></i>
+                        </div>
+                        <div class="resource-info">
+                            <div class="resource-title">
+                                ${resource.title}
+                                ${resource.official ? '<span class="official-badge">OFFICIAL</span>' : ''}
+                            </div>
+                            <div class="resource-source">
+                                <i class="fas fa-building"></i> ${resource.source}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="resource-description">${resource.description}</div>
+                    ${resource.tags && resource.tags.length > 0 ? `
+                        <div class="resource-tags">
+                            ${resource.tags.map(tag => `<span class="tag"><i class="fas fa-tag"></i> ${tag}</span>`).join('')}
+                        </div>
+                    ` : ''}
+                    <div class="resource-actions">
+                        <a href="${resource.url}" target="_blank" class="btn btn-primary">
+                            <i class="fas fa-external-link-alt"></i> View Docs
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+
+            return `
+                <section class="category-section" id="${id}">
+                    <div class="category-header">
+                        <div class="category-icon">
+                            <i class="fas ${icon}"></i>
+                        </div>
+                        <h2>${title}</h2>
+                    </div>
+                    <div class="resource-grid">
+                        ${cardsHtml}
+                    </div>
+                </section>
+            `;
+        }
+
+        function showNotification(message, type = 'info') {
+            const existing = document.querySelectorAll('.notification');
+            existing.forEach(n => n.remove());
+
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+
+        function getDefaultResources() {
+            return [
+                // CI/CD Platforms
+                { id: 'github-actions-1', title: 'GitHub Actions Documentation', description: 'Official documentation for GitHub Actions - automate, customize, and execute your software development workflows.', source: 'GitHub', icon: 'icon-github', url: 'https://docs.github.com/en/actions', official: true, tags: ['Git', 'Automation', 'Workflows'], category: 'platforms' },
+                { id: 'github-actions-2', title: 'GitHub Actions Quickstart', description: 'Get started with GitHub Actions in 5 minutes. Create your first workflow and automate your repository.', source: 'GitHub', icon: 'icon-github', url: 'https://docs.github.com/en/actions/quickstart', official: true, tags: ['Beginner', 'Tutorial'], category: 'platforms' },
+                { id: 'gitlab-1', title: 'GitLab CI/CD Documentation', description: 'Complete guide to GitLab CI/CD pipelines, runners, and deployment strategies with .gitlab-ci.yml examples.', source: 'GitLab', icon: 'icon-gitlab', url: 'https://docs.gitlab.com/ee/ci/', official: true, tags: ['DevOps', 'Pipelines', 'Runners'], category: 'platforms' },
+                { id: 'gitlab-2', title: 'GitLab CI Quick Start', description: 'Quick start guide for creating your first GitLab CI/CD pipeline with practical examples.', source: 'GitLab', icon: 'icon-gitlab', url: 'https://docs.gitlab.com/ee/ci/quick_start/', official: true, tags: ['Beginner', 'YAML'], category: 'platforms' },
+                { id: 'jenkins-1', title: 'Jenkins Documentation', description: 'Official Jenkins documentation covering installation, pipeline syntax, plugins, and distributed builds.', source: 'Jenkins', icon: 'icon-jenkins', url: 'https://www.jenkins.io/doc/', official: true, tags: ['Automation Server', 'Plugins'], category: 'platforms' },
+                { id: 'jenkins-2', title: 'Jenkins Pipeline Tutorial', description: 'Learn to create Jenkins pipelines with declarative and scripted syntax, including best practices.', source: 'Jenkins', icon: 'icon-jenkins', url: 'https://www.jenkins.io/doc/tutorials/', official: true, tags: ['Pipeline', 'Tutorial'], category: 'platforms' },
+                { id: 'circleci-1', title: 'CircleCI Documentation', description: 'Comprehensive CircleCI docs for building, testing, and deploying with config.yml workflows.', source: 'CircleCI', icon: 'icon-circleci', url: 'https://circleci.com/docs/', official: true, tags: ['Cloud CI', 'Orbs'], category: 'platforms' },
+                { id: 'circleci-2', title: 'CircleCI Configuration Reference', description: 'Complete reference for CircleCI 2.1 configuration syntax, jobs, workflows, and executors.', source: 'CircleCI', icon: 'icon-circleci', url: 'https://circleci.com/docs/configuration-reference', official: true, tags: ['Configuration', 'Reference'], category: 'platforms' },
+                { id: 'travis-1', title: 'Travis CI Documentation', description: 'Travis CI documentation for continuous integration with .travis.yml configuration.', source: 'Travis CI', icon: 'icon-travis', url: 'https://docs.travis-ci.com/', official: true, tags: ['Open Source', 'Testing'], category: 'platforms' },
+                { id: 'azure-1', title: 'Azure DevOps Pipelines', description: 'Microsoft Azure Pipelines documentation for CI/CD with YAML and classic pipelines.', source: 'Microsoft Azure', icon: 'icon-azure', url: 'https://docs.microsoft.com/en-us/azure/devops/pipelines/', official: true, tags: ['Microsoft', 'Cloud', 'Enterprise'], category: 'platforms' },
+                { id: 'azure-2', title: 'Azure Pipelines YAML Schema', description: 'Complete YAML schema reference for Azure Pipelines with examples and templates.', source: 'Microsoft Azure', icon: 'icon-azure', url: 'https://docs.microsoft.com/en-us/azure/devops/pipelines/yaml-schema', official: true, tags: ['YAML', 'Schema'], category: 'platforms' },
+                { id: 'aws-1', title: 'AWS CodePipeline', description: 'Amazon Web Services CI/CD service documentation for automated release pipelines.', source: 'AWS', icon: 'icon-aws', url: 'https://docs.aws.amazon.com/codepipeline/', official: true, tags: ['AWS', 'Cloud', 'Deployment'], category: 'platforms' },
+                { id: 'aws-2', title: 'AWS CodeBuild', description: 'Fully managed build service documentation for compiling source code and running tests.', source: 'AWS', icon: 'icon-aws', url: 'https://docs.aws.amazon.com/codebuild/', official: true, tags: ['Build', 'Testing'], category: 'platforms' },
+                { id: 'bitbucket-1', title: 'Bitbucket Pipelines', description: 'Atlassian Bitbucket Pipelines documentation for integrated CI/CD with bitbucket-pipelines.yml.', source: 'Bitbucket', icon: 'icon-bitbucket', url: 'https://support.atlassian.com/bitbucket-cloud/docs/get-started-with-bitbucket-pipelines/', official: true, tags: ['Atlassian', 'Git'], category: 'platforms' },
+                { id: 'gcp-1', title: 'Google Cloud Build', description: 'Google Cloud Build documentation for serverless CI/CD platform on Google Cloud.', source: 'Google Cloud', icon: 'icon-default', url: 'https://cloud.google.com/build/docs', official: true, tags: ['GCP', 'Serverless'], category: 'platforms' },
+                { id: 'teamcity-1', title: 'TeamCity Documentation', description: 'JetBrains TeamCity CI/CD server documentation with build configurations and agents.', source: 'JetBrains', icon: 'icon-default', url: 'https://www.jetbrains.com/help/teamcity/', official: true, tags: ['JetBrains', 'Enterprise'], category: 'platforms' },
+                { id: 'bamboo-1', title: 'Bamboo Documentation', description: 'Atlassian Bamboo CI/CD documentation for automated builds, tests, and deployments.', source: 'Atlassian', icon: 'icon-default', url: 'https://confluence.atlassian.com/bamboo/', official: true, tags: ['Atlassian', 'Server'], category: 'platforms' },
+                { id: 'drone-1', title: 'Drone CI Documentation', description: 'Modern CI/CD platform built on Docker with .drone.yml configuration.', source: 'Drone', icon: 'icon-default', url: 'https://docs.drone.io/', official: true, tags: ['Docker', 'Container'], category: 'platforms' },
+                
+                // DevOps Tools
+                { id: 'docker-1', title: 'Docker Documentation', description: 'Complete Docker documentation for containerization, images, networking, and orchestration.', source: 'Docker', icon: 'icon-docker', url: 'https://docs.docker.com/', official: true, tags: ['Containers', 'Images'], category: 'tools' },
+                { id: 'k8s-1', title: 'Kubernetes Documentation', description: 'Official Kubernetes documentation for container orchestration, deployments, and cluster management.', source: 'Kubernetes', icon: 'icon-kubernetes', url: 'https://kubernetes.io/docs/', official: true, tags: ['Orchestration', 'K8s'], category: 'tools' },
+                { id: 'terraform-1', title: 'Terraform Documentation', description: 'Infrastructure as Code (IaC) documentation for provisioning and managing cloud resources.', source: 'HashiCorp', icon: 'icon-terraform', url: 'https://www.terraform.io/docs', official: true, tags: ['IaC', 'Infrastructure'], category: 'tools' },
+                { id: 'ansible-1', title: 'Ansible Documentation', description: 'Automation platform documentation for configuration management and application deployment.', source: 'Red Hat', icon: 'icon-default', url: 'https://docs.ansible.com/', official: true, tags: ['Automation', 'Configuration'], category: 'tools' },
+                { id: 'helm-1', title: 'Helm Documentation', description: 'Kubernetes package manager documentation for deploying and managing applications.', source: 'Helm', icon: 'icon-kubernetes', url: 'https://helm.sh/docs/', official: true, tags: ['Kubernetes', 'Packages'], category: 'tools' },
+                { id: 'argo-1', title: 'ArgoCD Documentation', description: 'GitOps continuous delivery tool for Kubernetes with declarative setup.', source: 'Argo Project', icon: 'icon-kubernetes', url: 'https://argo-cd.readthedocs.io/', official: true, tags: ['GitOps', 'Kubernetes'], category: 'tools' },
+                { id: 'spinnaker-1', title: 'Spinnaker Documentation', description: 'Multi-cloud continuous delivery platform documentation from Netflix.', source: 'Spinnaker', icon: 'icon-default', url: 'https://spinnaker.io/docs/', official: true, tags: ['Multi-cloud', 'Deployment'], category: 'tools' },
+                { id: 'prometheus-1', title: 'Prometheus Documentation', description: 'Monitoring and alerting toolkit documentation for metrics and time-series data.', source: 'Prometheus', icon: 'icon-default', url: 'https://prometheus.io/docs/', official: true, tags: ['Monitoring', 'Metrics'], category: 'tools' },
+                { id: 'grafana-1', title: 'Grafana Documentation', description: 'Observability platform for visualizing metrics, logs, and traces.', source: 'Grafana Labs', icon: 'icon-default', url: 'https://grafana.com/docs/', official: true, tags: ['Visualization', 'Dashboards'], category: 'tools' },
+                { id: 'sonar-1', title: 'SonarQube Documentation', description: 'Code quality and security analysis platform for continuous inspection.', source: 'SonarSource', icon: 'icon-default', url: 'https://docs.sonarqube.org/', official: true, tags: ['Code Quality', 'Security'], category: 'tools' },
+                { id: 'nexus-1', title: 'Nexus Repository', description: 'Artifact repository manager documentation for storing build artifacts.', source: 'Sonatype', icon: 'icon-default', url: 'https://help.sonatype.com/repomanager3', official: true, tags: ['Artifacts', 'Repository'], category: 'tools' },
+                { id: 'jfrog-1', title: 'JFrog Artifactory', description: 'Universal artifact repository manager and DevOps accelerator.', source: 'JFrog', icon: 'icon-default', url: 'https://www.jfrog.com/confluence/display/JFROG/JFrog+Artifactory', official: true, tags: ['Artifacts', 'Binary'], category: 'tools' },
+                
+                // Guides & Best Practices
+                { id: 'guide-1', title: 'CI/CD Best Practices', description: 'Comprehensive guide to CI/CD best practices from Google Cloud covering automation, testing, and deployment.', source: 'Google Cloud', icon: 'icon-default', url: 'https://cloud.google.com/architecture/devops/devops-tech-ci-cd', official: true, tags: ['Best Practices', 'DevOps'], category: 'guides' },
+                { id: 'guide-2', title: 'The DevOps Handbook', description: 'Essential guide to DevOps principles, practices, and cultural transformation.', source: 'IT Revolution', icon: 'icon-default', url: 'https://itrevolution.com/product/the-devops-handbook/', official: true, tags: ['DevOps', 'Culture'], category: 'guides' },
+                { id: 'guide-3', title: 'Continuous Delivery', description: 'Foundational book on continuous delivery by Jez Humble and David Farley.', source: 'Martin Fowler', icon: 'icon-default', url: 'https://martinfowler.com/books/continuousDelivery.html', official: true, tags: ['CD', 'Theory'], category: 'guides' },
+                { id: 'guide-4', title: 'Security in CI/CD', description: 'OWASP guide to securing your CI/CD pipeline against vulnerabilities and attacks.', source: 'OWASP', icon: 'icon-default', url: 'https://owasp.org/www-project-devsecops-guideline/', official: true, tags: ['Security', 'DevSecOps'], category: 'guides' },
+                { id: 'guide-5', title: 'GitOps Principles', description: 'Introduction to GitOps methodology for Kubernetes and cloud-native applications.', source: 'Weaveworks', icon: 'icon-kubernetes', url: 'https://www.weave.works/technologies/gitops/', official: true, tags: ['GitOps', 'Methodology'], category: 'guides' },
+                { id: 'guide-6', title: 'Trunk-Based Development', description: 'Source control branching model guide for continuous integration.', source: 'TrunkBasedDevelopment.com', icon: 'icon-default', url: 'https://trunkbaseddevelopment.com/', official: true, tags: ['Branching', 'Git'], category: 'guides' },
+                { id: 'guide-7', title: '12 Factor App', description: 'Methodology for building modern, scalable, maintainable software-as-a-service apps.', source: 'Heroku', icon: 'icon-default', url: 'https://12factor.net/', official: true, tags: ['Architecture', 'SaaS'], category: 'guides' },
+                { id: 'guide-8', title: 'Testing Strategies in CI/CD', description: 'Comprehensive guide to automated testing in continuous integration pipelines.', source: 'Martin Fowler', icon: 'icon-default', url: 'https://martinfowler.com/articles/practical-test-pyramid.html', official: true, tags: ['Testing', 'Quality'], category: 'guides' },
+                { id: 'guide-9', title: 'Container Security Best Practices', description: 'Security guidelines for containerized applications in CI/CD workflows.', source: 'Docker', icon: 'icon-docker', url: 'https://docs.docker.com/develop/security-best-practices/', official: true, tags: ['Security', 'Docker'], category: 'guides' },
+                { id: 'guide-10', title: 'Infrastructure as Code', description: 'Guide to managing infrastructure through code with version control and automation.', source: 'HashiCorp', icon: 'icon-terraform', url: 'https://www.hashicorp.com/resources/what-is-infrastructure-as-code', official: true, tags: ['IaC', 'Automation'], category: 'guides' },
+                { id: 'guide-11', title: 'Blue-Green Deployment', description: 'Deployment strategy guide for zero-downtime releases.', source: 'Martin Fowler', icon: 'icon-default', url: 'https://martinfowler.com/bliki/BlueGreenDeployment.html', official: true, tags: ['Deployment', 'Strategy'], category: 'guides' },
+                { id: 'guide-12', title: 'Canary Releases', description: 'Progressive deployment technique for gradually rolling out changes.', source: 'Martin Fowler', icon: 'icon-default', url: 'https://martinfowler.com/bliki/CanaryRelease.html', official: true, tags: ['Deployment', 'Testing'], category: 'guides' }
+            ];
+        }
+
+        // Make functions globally accessible for onclick handlers
+        window.editResource = editResource;
+        window.deleteResource = deleteResource;
+        window.removeTag = removeTag;
     </script>
 </body>
 </html>
