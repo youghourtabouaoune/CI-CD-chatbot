@@ -7,12 +7,17 @@ load_dotenv()
 
 class Config:
     # Flask Configuration
+    # SECURITY CRITICAL: These must be set via environment variables in production
+    # Generate secure keys with: python -c "import secrets; print(secrets.token_urlsafe(32))"
     SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
     SESSION_SECRET = os.environ.get('SESSION_SECRET', 'dev-session-secret-change-in-production')
     DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
     
-    # Security
-    CORS_ORIGINS = os.environ.get('CORS_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000').split(',')
+    # Security - CORS Configuration
+    # In production: Set to your actual frontend domain(s)
+    # Example: CORS_ORIGINS=https://yourdomain.com,https://www.yourdomain.com
+    CORS_ORIGINS_RAW = os.environ.get('CORS_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000')
+    CORS_ORIGINS = [origin.strip() for origin in CORS_ORIGINS_RAW.split(',') if origin.strip()]
     
     # Rate Limiting
     RATELIMIT_STORAGE_URI = 'memory://'
@@ -47,6 +52,12 @@ class Config:
     
     # Model Configuration
     MODEL_CONFIGS = {
+        "claude-opus-4-1": {
+            "name": "Claude 4.1 OPUS",
+            "max_tokens": 4096,
+            "temperature": 0.1,
+            "provider": "databricks"
+        },
         "meta-llama-3-3-70b-instruct": {
             "name": "Meta Llama 3 70B",
             "max_tokens": 4096,

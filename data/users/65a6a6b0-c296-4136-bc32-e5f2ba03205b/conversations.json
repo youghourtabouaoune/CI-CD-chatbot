@@ -1,0 +1,21 @@
+{
+  "conv-1761589213475": {
+    "id": "conv-1761589213475",
+    "title": "hi",
+    "messages": [
+      {
+        "role": "user",
+        "content": "hi",
+        "timestamp": "10/27/2025, 2:20:13 PM"
+      },
+      {
+        "role": "assistant",
+        "content": "Hello! I'm here to help you create an optimal CI/CD pipeline for your project. \n\nTo get started and provide you with the best solution, I need to understand your project and requirements. Let me ask you some initial questions:\n\n**Project Basics:**\n1. What type of application are you working with? (e.g., web app, mobile app, microservices, library)\n2. What programming language(s) and frameworks are you using? (e.g., Node.js/React, Python/Django, Java/Spring, .NET, etc.)\n3. Which source control platform are you using? (GitHub, GitLab, Bitbucket, Azure Repos, etc.)\n\n**CI/CD Platform:**\n4. Do you have a preferred CI/CD platform, or are you open to recommendations? \n   - GitHub Actions\n   - GitLab CI\n   - Jenkins\n   - Azure DevOps\n   - CircleCI\n   - Other?\n\n**Current State:**\n5. Are you starting from scratch, or do you have an existing pipeline that needs improvement?\n6. What's your main goal with this CI/CD pipeline? (faster deployments, better testing, automation, etc.)\n\nFeel free to share as much detail as you'd like, and I'll guide you through creating the perfect pipeline for your needs!",
+        "timestamp": "10/27/2025, 2:20:32 PM",
+        "needs_clarification": true
+      }
+    ],
+    "createdAt": "10/27/2025, 2:20:13 PM",
+    "updatedAt": "10/27/2025, 2:20:32 PM"
+  }
+}

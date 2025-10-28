@@ -81,8 +81,7 @@ class EmailService:
             return False
 
     def send_email_verification(self, to_email: str, verification_token: str, first_name: str = None) -> bool:
-        """Send email verification email"""
-        verification_url = f"{self.base_url}/verify-email?token={verification_token}"
+        """Send email verification email with code"""
         
         subject = f"Verify Your Email - {self.app_name}"
         
@@ -97,9 +96,9 @@ class EmailService:
                 .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
                 .header {{ background: linear-gradient(135deg, #3a86ff, #8338ec); color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }}
                 .content {{ background: #f9f9f9; padding: 20px; border-radius: 0 0 8px 8px; }}
-                .button {{ display: inline-block; padding: 12px 24px; background: #3a86ff; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; }}
+                .verification-code {{ background: #f4f4f4; padding: 15px; border-radius: 5px; font-family: monospace; font-size: 24px; font-weight: bold; text-align: center; margin: 20px 0; letter-spacing: 2px; }}
                 .footer {{ text-align: center; margin-top: 20px; font-size: 12px; color: #666; }}
-                .code {{ background: #f4f4f4; padding: 10px; border-radius: 4px; font-family: monospace; margin: 10px 0; }}
+                .instructions {{ background: #e8f2ff; padding: 15px; border-radius: 5px; margin: 15px 0; }}
             </style>
         </head>
         <body>
@@ -110,14 +109,18 @@ class EmailService:
                 <div class="content">
                     <h2>Verify Your Email Address</h2>
                     <p>{greeting}</p>
-                    <p>Thank you for signing up! Please verify your email address to complete your registration and start using {self.app_name}.</p>
+                    <p>Thank you for signing up! Please use the verification code below to complete your registration and start using {self.app_name}.</p>
                     
-                    <a href="{verification_url}" class="button">Verify Email Address</a>
+                    <div class="instructions">
+                        <strong>How to verify your email:</strong><br>
+                        1. Return to the {self.app_name} application<br>
+                        2. Go to your profile settings<br>
+                        3. Enter the verification code below
+                    </div>
                     
-                    <p>If the button doesn't work, copy and paste this link into your browser:</p>
-                    <div class="code">{verification_url}</div>
+                    <div class="verification-code">{verification_token}</div>
                     
-                    <p>This verification link will expire in 24 hours.</p>
+                    <p>This verification code will expire in 24 hours.</p>
                     
                     <p>If you didn't create an account with {self.app_name}, please ignore this email.</p>
                 </div>
@@ -134,11 +137,16 @@ class EmailService:
         
         {greeting}
         
-        Thank you for signing up! Please verify your email address to complete your registration and start using {self.app_name}.
+        Thank you for signing up! Please use the verification code below to complete your registration and start using {self.app_name}.
         
-        Click this link to verify your email: {verification_url}
+        Verification Code: {verification_token}
         
-        This verification link will expire in 24 hours.
+        How to verify your email:
+        1. Return to the {self.app_name} application
+        2. Go to your profile settings  
+        3. Enter the verification code above
+        
+        This verification code will expire in 24 hours.
         
         If you didn't create an account with {self.app_name}, please ignore this email.
         """

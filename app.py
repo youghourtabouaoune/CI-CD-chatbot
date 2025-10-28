@@ -105,22 +105,118 @@ class CrossPlatformFileLock:
 # Load environment variables
 load_dotenv()
 
+def validate_required_config(app):
+    """
+    Validate that all required configuration is present.
+    Raises ValueError if critical config is missing in production.
+    """
+    required_configs = {
+        'SECRET_KEY': 'Application secret key',
+        'SESSION_SECRET': 'Session secret key',
+    }
+    
+    # Required for LLM functionality
+    llm_configs = {
+        'DATABRICKS_ACCESS_TOKEN': 'Databricks API token (for Llama models)',
+        'DEEPSEEK_API_KEY': 'DeepSeek API key (for DeepSeek models)',
+    }
+    
+    # Check if we're in production (not debug mode)
+    is_production = not app.debug
+    
+    # Critical checks for all environments
+    missing_critical = []
+    for key, description in required_configs.items():
+        value = app.config.get(key) or os.environ.get(key)
+        if not value or value.startswith('dev-') or value.startswith('default-'):
+            if is_production:
+                missing_critical.append(f"{key} ({description})")
+            else:
+                print(f"⚠️  WARNING: {key} is using default value. Change this in production!")
+    
+    if missing_critical:
+        raise ValueError(
+            f"Missing or invalid critical configuration in production:\n"
+            f"  - {chr(10).join(missing_critical)}\n"
+            f"Please set these environment variables before starting."
+        )
+    
+    # Warning for LLM configs (not blocking)
+    missing_llm = []
+    for key, description in llm_configs.items():
+        value = os.environ.get(key)
+        if not value:
+            missing_llm.append(f"{key} ({description})")
+    
+    if missing_llm:
+        print(f"\n⚠️  WARNING: Missing LLM provider configuration:")
+        for item in missing_llm:
+            print(f"  - {item}")
+        print("Some AI features may not work without these credentials.\n")
+    
+    # Validation passed
+    if is_production:
+        print("✅ Configuration validation passed - Production mode")
+    else:
+        print("✅ Configuration validation passed - Development mode")
+
 def create_app(config_name='default'):
     app = Flask(__name__, static_folder='static', template_folder='templates')
     app.config.from_object(config[config_name])
     
+    # Validate configuration before proceeding
+    validate_required_config(app)
+    
     # Session configuration - Using Flask's built-in client-side sessions
+    # Security: Use secure cookies in production (HTTPS required)
     app.secret_key = os.environ.get('SESSION_SECRET', 'dev-session-secret-change-in-production')
+    
+    # Determine if we should use secure cookies
+    is_production = not app.debug
+    use_secure_cookies = is_production or os.environ.get('FORCE_SECURE_COOKIES', '').lower() == 'true'
+    
     app.config.update(
         SESSION_COOKIE_NAME='cicd_session',
-        SESSION_COOKIE_HTTPONLY=True,
-        SESSION_COOKIE_SECURE=False,  # Set to True in production with HTTPS
-        SESSION_COOKIE_SAMESITE='Lax',
+        SESSION_COOKIE_HTTPONLY=True,  # Prevent JavaScript access
+        SESSION_COOKIE_SECURE=use_secure_cookies,  # HTTPS only in production
+        SESSION_COOKIE_SAMESITE='Strict' if is_production else 'Lax',  # CSRF protection
         PERMANENT_SESSION_LIFETIME=timedelta(days=7)
     )
     
-    # Initialize extensions
-    CORS(app, origins=['*'], supports_credentials=True)
+    if use_secure_cookies:
+        print("🔒 Secure cookies enabled (HTTPS required)")
+    else:
+        print("⚠️  Secure cookies disabled (Development mode only)")
+    
+    # Initialize CORS with proper configuration
+    # Security: Restrict CORS origins in production
+    cors_origins = app.config.get('CORS_ORIGINS', [])
+    
+    if isinstance(cors_origins, str):
+        cors_origins = [origin.strip() for origin in cors_origins.split(',') if origin.strip()]
+    
+    # Validate CORS configuration
+    if not cors_origins or cors_origins == ['*']:
+        if is_production:
+            raise ValueError(
+                "CORS_ORIGINS must be explicitly configured in production. "
+                "Wildcard ('*') is not allowed. Set CORS_ORIGINS in .env file."
+            )
+        else:
+            print("⚠️  WARNING: CORS allows all origins (Development mode only)")
+            cors_origins = ['*']
+    else:
+        print(f"✅ CORS configured for origins: {', '.join(cors_origins)}")
+    
+    CORS(
+        app,
+        origins=cors_origins,
+        supports_credentials=True,
+        methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allow_headers=['Content-Type', 'Authorization', 'X-API-Key'],
+        expose_headers=['Content-Type', 'X-RateLimit-Limit', 'X-RateLimit-Remaining'],
+        max_age=3600  # Cache preflight requests for 1 hour
+    )
     
     limiter = Limiter(
         app=app,
@@ -200,21 +296,41 @@ def create_app(config_name='default'):
         user_agent = request.headers.get('User-Agent', 'unknown')[:50]
         return hashlib.sha256(f"{ip}_{user_agent}".encode()).hexdigest()
 
-    def can_make_request(user_id=None, increment=False):
-        """Check if user/client can make a request and optionally increment counter"""
+    def can_make_request(user_id=None, is_verified=None, increment=False):
+        """
+        Check if user/client can make a request and optionally increment counter
+        
+        FIXED: Now checks email verification status
+        - Anonymous users: 5 requests per 4 hours
+        - Authenticated but unverified: 5 requests per 4 hours  
+        - Authenticated and verified: 100 requests per 7 hours
+        """
         usage_data = load_usage_data()
         
-        # Use user_id if authenticated, otherwise use client identifier
+        # Determine user verification status if not provided
+        if user_id and is_verified is None:
+            user = user_manager.get_user_by_id(user_id)
+            is_verified = user.get('email_verified', False) if user else False
+        
+        # Set rate limits based on authentication and verification status
         if user_id:
-            identifier = f"user_{user_id}"  # Prefix to avoid conflicts
-            max_requests = 100  # 100 requests per RESET PERIOD for authenticated users
-            is_authenticated = True
-            reset_hours = 7  # 7 hours for logged-in users
+            identifier = f"user_{user_id}"
+            
+            # CRITICAL FIX: Check email verification status
+            if is_verified:
+                max_requests = 100  # Verified users get 100 requests
+                reset_hours = 7     # 7 hours for verified users
+                is_authenticated = True
+            else:
+                max_requests = 5    # Unverified users get only 5 requests
+                reset_hours = 4     # 4 hours for unverified users
+                is_authenticated = True  # Still authenticated, just not verified
         else:
             identifier = get_client_identifier()
-            max_requests = 5  # 5 requests per RESET PERIOD for unauthenticated users
+            max_requests = 5        # Anonymous users get 5 requests
+            reset_hours = 4         # 4 hours for anonymous users
             is_authenticated = False
-            reset_hours = 4  # 4 hours for non-logged-in users
+            is_verified = False
         
         now = datetime.utcnow()
         
@@ -225,8 +341,9 @@ def create_app(config_name='default'):
                 'first_request': now,
                 'last_request': now,
                 'is_authenticated': is_authenticated,
+                'is_verified': is_verified,  # NEW: Track verification status
                 'user_id': user_id if user_id else None,
-                'reset_hours': reset_hours  # Store the reset period
+                'reset_hours': reset_hours
             }
     
         client_data = usage_data[identifier]
@@ -235,7 +352,18 @@ def create_app(config_name='default'):
         if isinstance(client_data['first_request'], str):
             client_data['first_request'] = datetime.fromisoformat(client_data['first_request'])
         
-        # Get the reset period for this client (handle legacy data)
+        # CRITICAL FIX: Update verification status in case it changed
+        if user_id:
+            old_verified = client_data.get('is_verified', False)
+            if old_verified != is_verified:
+                print(f"Verification status changed for {identifier}: {old_verified} -> {is_verified}")
+                # Reset usage counter when verification status changes
+                client_data['request_count'] = 0
+                client_data['first_request'] = now
+                client_data['is_verified'] = is_verified
+                client_data['reset_hours'] = reset_hours
+        
+        # Get the reset period for this client
         client_reset_hours = client_data.get('reset_hours', reset_hours)
         
         # Reset counter if it's been more than the reset period since first request
@@ -244,10 +372,12 @@ def create_app(config_name='default'):
             print(f"Resetting usage counter for {identifier}. Time since first request: {time_since_first_request}")
             client_data['request_count'] = 0
             client_data['first_request'] = now
-            client_data['reset_hours'] = reset_hours  # Update reset hours in case it changed
+            client_data['reset_hours'] = reset_hours
+            client_data['is_verified'] = is_verified  # Update verification status
         
         current_count = client_data['request_count']
-        print(f"Current usage for {identifier}: {current_count}/{max_requests} (resets every {client_reset_hours} hours)")
+        status = "verified" if is_verified else ("authenticated" if is_authenticated else "anonymous")
+        print(f"Current usage for {identifier} ({status}): {current_count}/{max_requests} (resets every {client_reset_hours} hours)")
         
         # Check if limit exceeded
         if current_count >= max_requests:
@@ -267,8 +397,9 @@ def create_app(config_name='default'):
             client_data['request_count'] = current_count + 1
             client_data['last_request'] = now
             client_data['is_authenticated'] = is_authenticated
+            client_data['is_verified'] = is_verified  # NEW: Store verification status
             client_data['user_id'] = user_id if user_id else None
-            client_data['reset_hours'] = reset_hours  # Ensure reset hours is saved
+            client_data['reset_hours'] = reset_hours
             
             save_usage_data(usage_data)
             print(f"Request allowed and incremented for {identifier}. New count: {client_data['request_count']}/{max_requests}")
@@ -284,20 +415,29 @@ def create_app(config_name='default'):
         return can_make_request(user_id, increment=True)
 
     def get_usage_info(user_id=None):
-        """Get usage information for a user/client"""
-        """Get usage information for a user/client"""
+        """Get usage information for a user/client with verification status"""
         usage_data = load_usage_data()
         
+        # Determine verification status
+        is_verified = False
         if user_id:
+            user = user_manager.get_user_by_id(user_id)
+            is_verified = user.get('email_verified', False) if user else False
+            
             identifier = f"user_{user_id}"
-            max_requests = 100
+            # CRITICAL FIX: Different limits based on verification
+            if is_verified:
+                max_requests = 100
+                reset_hours = 7
+            else:
+                max_requests = 5
+                reset_hours = 4
             is_authenticated = True
-            reset_hours = 7  # 7 hours for logged-in users
         else:
             identifier = get_client_identifier()
             max_requests = 5
             is_authenticated = False
-            reset_hours = 4  # 4 hours for non-logged-in users
+            reset_hours = 4
         
         client_data = usage_data.get(identifier, {})
         request_count = client_data.get('request_count', 0)
@@ -333,6 +473,7 @@ def create_app(config_name='default'):
         
         return {
             'is_authenticated': is_authenticated,
+            'is_verified': is_verified,  # NEW: Include verification status
             'request_count': request_count,
             'max_requests': max_requests,
             'remaining_requests': remaining_requests,
@@ -505,7 +646,7 @@ def create_app(config_name='default'):
                 # Log error but don't fail the signup
                 print(f"Failed to send welcome email: {e}")
             
-            # Initialize user usage tracking with 100 requests
+            # CRITICAL FIX: Initialize with 5 requests for unverified users
             try:
                 usage_data = load_usage_data()
                 user_identifier = f"user_{user['id']}"
@@ -515,8 +656,9 @@ def create_app(config_name='default'):
                     'first_request': datetime.utcnow(),
                     'last_request': datetime.utcnow(),
                     'is_authenticated': True,
+                    'is_verified': False,  # NEW: Unverified at signup
                     'user_id': user['id'],
-                    'reset_hours': 7
+                    'reset_hours': 4  # 4 hours for unverified
                 }
                 
                 save_usage_data(usage_data)
@@ -529,7 +671,7 @@ def create_app(config_name='default'):
             
             return jsonify({
                 'success': True,
-                'message': 'User created successfully. Please check your email to verify your account.',
+                'message': 'Account created successfully! Please check your email to verify your account and get full access.',
                 'user': {
                     'id': user['id'],
                     'email': user['email'],
@@ -539,7 +681,8 @@ def create_app(config_name='default'):
                 },
                 'api_key': api_key,
                 'current_usage': current_usage,
-                'requires_verification': not user.get('email_verified', False)
+                'requires_verification': True,  # NEW: Always true for new signups
+                'verification_instructions': 'Check your email for the verification code. Verify your email to upgrade from 5 to 100 requests.'
             }), 201
             
         except Exception as e:
@@ -596,13 +739,9 @@ def create_app(config_name='default'):
                     'error': 'Invalid email or password'
                 }), 401
             
-            # Check if email is verified
-            if not user.get('email_verified', False):
-                return jsonify({
-                    'success': False,
-                    'error': 'Please verify your email address before logging in',
-                    'requires_verification': True
-                }), 401
+            # CRITICAL FIX: Allow login even if email is not verified
+            # Users will get limited requests (5/5) until they verify
+            is_verified = user.get('email_verified', False)
             
             # Check if account is active
             if not user.get('is_active', True):
@@ -615,7 +754,7 @@ def create_app(config_name='default'):
             api_key = generate_api_key(user['id'])
             user_manager.update_user_api_key(user['id'], api_key)
             
-            # CRITICAL FIX: Get fresh user data after API key update
+            # Get fresh user data after API key update
             user = user_manager.get_user_by_id(user['id'])
             
             # Store user session
@@ -628,12 +767,19 @@ def create_app(config_name='default'):
             # Update last login
             if hasattr(user_manager, 'update_last_login'):
                 user_manager.update_last_login(user['id'])
-                # Get fresh user data after login time update
                 user = user_manager.get_user_by_id(user['id'])
             
             # Load existing usage data
             usage_data = load_usage_data()
             user_identifier = f"user_{user['id']}"
+            
+            # CRITICAL FIX: Initialize usage with correct limits based on verification
+            if is_verified:
+                max_requests = 100
+                reset_hours = 7
+            else:
+                max_requests = 5
+                reset_hours = 4
             
             if user_identifier not in usage_data:
                 usage_data[user_identifier] = {
@@ -641,19 +787,24 @@ def create_app(config_name='default'):
                     'first_request': datetime.utcnow(),
                     'last_request': datetime.utcnow(),
                     'is_authenticated': True,
+                    'is_verified': is_verified,  # NEW: Store verification status
                     'user_id': user['id'],
-                    'reset_hours': 7
+                    'reset_hours': reset_hours
                 }
             else:
+                # Update existing data
                 usage_data[user_identifier]['is_authenticated'] = True
+                usage_data[user_identifier]['is_verified'] = is_verified  # NEW: Update verification status
                 usage_data[user_identifier]['user_id'] = user['id']
+                usage_data[user_identifier]['reset_hours'] = reset_hours
+                
                 now = datetime.utcnow()
                 first_request = usage_data[user_identifier]['first_request']
                 if isinstance(first_request, str):
                     first_request = datetime.fromisoformat(first_request)
                 
                 time_since_first_request = now - first_request
-                if time_since_first_request > timedelta(hours=7):
+                if time_since_first_request > timedelta(hours=reset_hours):
                     usage_data[user_identifier]['request_count'] = 0
                     usage_data[user_identifier]['first_request'] = now
             
@@ -665,20 +816,27 @@ def create_app(config_name='default'):
             # Load user session data
             user_session_data = get_user_session_data(user['id'])
             
+            # Prepare response message based on verification status
+            if is_verified:
+                message = 'Login successful'
+            else:
+                message = 'Login successful. Please verify your email to get full access (100 requests instead of 5).'
+            
             return jsonify({
                 'success': True,
-                'message': 'Login successful',
+                'message': message,
                 'user': {
                     'id': user['id'],
                     'email': user['email'],
                     'first_name': user['first_name'],
                     'last_name': user['last_name'],
-                    'email_verified': user.get('email_verified', False)
+                    'email_verified': is_verified
                 },
                 'api_key': api_key,
                 'session_data': user_session_data,
                 'current_usage': current_usage,
-                'csrf_token': session['csrf_token']
+                'csrf_token': session['csrf_token'],
+                'requires_verification': not is_verified  # NEW: Inform frontend
             }), 200
             
         except Exception as e:
@@ -692,20 +850,77 @@ def create_app(config_name='default'):
 
     @app.route('/api/auth/verify-email', methods=['POST', 'OPTIONS'])
     @limiter.limit("5 per minute")
-    def request_verification_email():
-        """Request email verification"""
+    def verify_email():
+        """Verify email address and UPDATE RATE LIMITS"""
         if request.method == 'OPTIONS':
             return '', 200
             
         try:
             data = request.get_json()
-            if not data or not data.get('email'):
+            if not data or not data.get('token'):
                 return jsonify({
                     'success': False,
-                    'error': 'Email address is required'
+                    'error': 'Verification token is required'
                 }), 400
                 
-            user = user_manager.get_user_by_email(data['email'])
+            success = user_manager.verify_email(data['token'])
+            if success:
+                # CRITICAL FIX: Update usage tracking after verification
+                # Extract user_id from token to update their limits
+                from utils.security import verify_email_verification_token
+                payload = verify_email_verification_token(data['token'])
+                
+                if payload and payload.get('user_id'):
+                    user_id = payload['user_id']
+                    usage_data = load_usage_data()
+                    user_identifier = f"user_{user_id}"
+                    
+                    # Reset usage counter and update to verified status
+                    if user_identifier in usage_data:
+                        usage_data[user_identifier]['request_count'] = 0
+                        usage_data[user_identifier]['first_request'] = datetime.utcnow()
+                        usage_data[user_identifier]['is_verified'] = True
+                        usage_data[user_identifier]['reset_hours'] = 7
+                        save_usage_data(usage_data)
+                        print(f"Updated rate limits for user {user_id} after email verification")
+                
+                return jsonify({
+                    'success': True,
+                    'message': 'Email verified successfully! You now have access to 100 requests per 7 hours.',
+                    'upgraded_limits': True  # NEW: Inform frontend of upgrade
+                }), 200
+            else:
+                return jsonify({
+                    'success': False,
+                    'error': 'Invalid or expired verification token'
+                }), 400
+                
+        except Exception as e:
+            print(f"Verification error: {e}")
+            import traceback
+            traceback.print_exc()
+            return jsonify({
+                'success': False,
+                'error': f'Verification error: {str(e)}'
+            }), 500
+
+    @app.route('/api/auth/request-email-verification', methods=['POST', 'OPTIONS'])
+    @api_key_required
+    @limiter.limit("3 per minute")
+    def request_email_verification():
+        """Request email verification for authenticated user"""
+        if request.method == 'OPTIONS':
+            return '', 200
+            
+        try:
+            user_id = getattr(request, 'user_id', None)
+            if not user_id:
+                return jsonify({
+                    'success': False,
+                    'error': 'User not authenticated'
+                }), 401
+                
+            user = user_manager.get_user_by_id(user_id)
             if not user:
                 return jsonify({
                     'success': False,
@@ -719,7 +934,7 @@ def create_app(config_name='default'):
                 }), 400
                 
             # Generate new verification token
-            verification_token = user_manager.generate_verification_token(user['id'])
+            verification_token = user_manager.generate_verification_token(user_id)
             success = email_service.send_email_verification(
                 user['email'], 
                 verification_token, 
@@ -741,31 +956,6 @@ def create_app(config_name='default'):
             return jsonify({
                 'success': False,
                 'error': f'Error sending verification email: {str(e)}'
-            }), 500
-
-    @app.route('/api/auth/verify-email/<token>', methods=['GET', 'POST', 'OPTIONS'])
-    def verify_email(token):
-        """Verify email address using token"""
-        if request.method == 'OPTIONS':
-            return '', 200
-            
-        try:
-            success = user_manager.verify_email(token)
-            if success:
-                return jsonify({
-                    'success': True,
-                    'message': 'Email verified successfully'
-                }), 200
-            else:
-                return jsonify({
-                    'success': False,
-                    'error': 'Invalid or expired verification token'
-                }), 400
-                
-        except Exception as e:
-            return jsonify({
-                'success': False,
-                'error': f'Verification error: {str(e)}'
             }), 500
 
     @app.route('/api/auth/forgot-password', methods=['POST', 'OPTIONS'])
@@ -1014,7 +1204,7 @@ def create_app(config_name='default'):
             if hasattr(user_manager, 'update_last_login'):
                 user_manager.update_last_login(user['id'])
             
-            # Initialize usage tracking if needed
+            # Initialize usage tracking - OAuth users get full access
             usage_data = load_usage_data()
             user_identifier = f"user_{user['id']}"
             
@@ -1024,8 +1214,9 @@ def create_app(config_name='default'):
                     'first_request': datetime.utcnow(),
                     'last_request': datetime.utcnow(),
                     'is_authenticated': True,
+                    'is_verified': True,  # OAuth users are auto-verified
                     'user_id': user['id'],
-                    'reset_hours': 7
+                    'reset_hours': 7  # Full 7 hour reset for OAuth users
                 }
                 save_usage_data(usage_data)
             
@@ -1043,12 +1234,13 @@ def create_app(config_name='default'):
                     'email': user['email'],
                     'first_name': user['first_name'],
                     'last_name': user['last_name'],
-                    'email_verified': user.get('email_verified', True)
+                    'email_verified': True  # OAuth users are always verified
                 },
                 'api_key': api_key,
                 'session_data': user_session_data,
                 'current_usage': current_usage,
-                'csrf_token': session['csrf_token']
+                'csrf_token': session['csrf_token'],
+                'requires_verification': False  # OAuth users don't need verification
             }), 200
             
         except Exception as e:
@@ -1408,12 +1600,13 @@ def create_app(config_name='default'):
             api_key = request.headers.get('X-API-Key')
             user_id = None
             
-            if api_key:
+            # Only verify API key if it's not empty
+            if api_key and api_key.strip():
                 payload = verify_api_key(api_key)
                 if payload:
                     user_id = payload['user_id']
             
-            # If no API key, check session (web login)
+            # If no API key or invalid API key, check session (web login)
             if not user_id:
                 user_id = session.get('user_id')
             
@@ -1450,12 +1643,13 @@ def create_app(config_name='default'):
             user_id = None
             api_key = request.headers.get('X-API-Key')
             
-            if api_key:
+            # Only verify API key if it's not empty
+            if api_key and api_key.strip():
                 payload = verify_api_key(api_key)
                 if payload:
                     user_id = payload['user_id']
             
-            # If no API key, check session
+            # If no API key or invalid API key, check session
             if not user_id:
                 user_id = session.get('user_id')
             
@@ -1624,10 +1818,20 @@ def create_app(config_name='default'):
     def support():
         """Serve the support page"""
         return send_from_directory('templates', 'support.html')
+    @app.route('/welcome')
+    def welcome_page():
+        """Serve the welcome page"""
+        return send_from_directory('templates', 'welcome.html')
     
     @app.route('/')
     def serve_frontend():
         """Serve the frontend application"""
+        return send_from_directory('templates', 'welcome.html')
+    
+    @app.route('/index')
+    @app.route('/app')
+    def main_app():
+        """Serve the main application (chat interface)"""
         return send_from_directory('templates', 'index.html')
     
     @app.route('/static/<path:path>')
@@ -1948,7 +2152,7 @@ if __name__ == '__main__':
     app = create_app('development' if os.environ.get('DEBUG', 'False').lower() == 'true' else 'production')
     
     # Get configuration
-    port = int(os.environ.get('PORT', 5000))
+    port = int(os.environ.get('PORT', 8000))
     debug = os.environ.get('DEBUG', 'False').lower() == 'true'
     
     print(f"Starting Flask app on port {port}...")
@@ -1964,7 +2168,7 @@ if __name__ == '__main__':
     print(f"  - Email/Password with bcrypt hashing")
     print(f"  - OAuth 2.0 (Google, GitHub)")
     print(f"  - Password recovery with secure tokens")
-    print(f"  - Email verification")
+    print(f"  - Email verification with code system")
     print(f"  - Account lockout protection")
     print(f"  - Rate limiting on auth endpoints")
     print(f"Usage limits:")

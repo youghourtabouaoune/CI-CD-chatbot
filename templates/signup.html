@@ -593,6 +593,35 @@
             background-color: #2e6fdb;
         }
 
+        .verification-code {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 1.5rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin: 1.5rem 0;
+            border: 2px dashed var(--primary-color);
+        }
+
+        .verification-instructions {
+            background: var(--bg-tertiary);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            text-align: left;
+        }
+
+        .verification-instructions ol {
+            margin-left: 1.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .verification-instructions li {
+            margin-bottom: 0.5rem;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .header-content {
@@ -788,20 +817,34 @@
             <div class="modal-body">
                 <div style="text-align: center; padding: 1rem;">
                     <i class="fas fa-envelope-circle-check" style="font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
-                    <h3 style="margin-bottom: 1rem; color: var(--text-primary);">Verification Email Sent</h3>
+                    <h3 style="margin-bottom: 1rem; color: var(--text-primary);">Verification Code Sent</h3>
                     <p style="color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.6;">
-                        We've sent a verification link to <strong id="user-email"></strong>. 
-                        Please check your email and click the verification link to activate your account.
+                        We've sent a verification code to <strong id="user-email"></strong>. 
+                        Please check your email and use the code below to verify your account.
                     </p>
+                    
+                    <div class="verification-code" id="verification-code-display">
+                        <!-- Verification code will be inserted here -->
+                    </div>
+
+                    <div class="verification-instructions">
+                        <strong>How to verify your email:</strong>
+                        <ol>
+                            <li>Go to your profile settings after logging in</li>
+                            <li>Enter the verification code shown above</li>
+                            <li>Click "Verify" to complete the process</li>
+                        </ol>
+                    </div>
+
                     <p style="color: var(--text-tertiary); font-size: 0.9rem; margin-bottom: 1.5rem;">
-                        Didn't receive the email? Check your spam folder or 
-                        <a href="#" id="resend-verification" style="color: var(--primary-color);">click here to resend</a>.
+                        The code will expire in 24 hours. Didn't receive the email? 
+                        <a href="#" id="resend-verification" style="color: var(--primary-color);">Click here to resend</a>.
                     </p>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn-primary" onclick="window.location.href='/login'">
-                    <i class="fas fa-sign-in-alt"></i> Go to Login
+                <button class="btn-primary" onclick="window.location.href='/index'">
+                    <i class="fas fa-sign-in-alt"></i> Go to complete profile
                 </button>
                 <button class="btn-primary" onclick="window.location.href='/'" style="background: var(--secondary-color);">
                     <i class="fas fa-home"></i> Return Home
@@ -843,6 +886,7 @@
             const verificationModal = document.getElementById('verification-modal');
             const verificationModalClose = document.getElementById('verification-modal-close');
             const userEmailSpan = document.getElementById('user-email');
+            const verificationCodeDisplay = document.getElementById('verification-code-display');
             const resendVerificationLink = document.getElementById('resend-verification');
             
             // Password requirement elements
@@ -993,8 +1037,9 @@
                 });
             }
         
-            function showVerificationModal(email) {
+            function showVerificationModal(email, verificationCode) {
                 userEmailSpan.textContent = email;
+                verificationCodeDisplay.textContent = verificationCode || 'Check your email for the code';
                 verificationModal.style.display = 'flex';
             }
         
@@ -1013,19 +1058,29 @@
                 e.preventDefault();
                 const email = userEmailSpan.textContent;
                 
-                fetch('/api/auth/verify-email', {
+                fetch('/api/auth/request-email-verification', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                    'X-API-Key': localStorage.getItem('cicd_api_key') || ''
                     },
                     body: JSON.stringify({ email: email })
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        showNotification('Verification email resent successfully!', 'success');
+                        showNotification('Verification code resent successfully!', 'success');
+                    // We don't show the code again for security
+                    verificationCodeDisplay.textContent = 'Check your email for the new code';
+                    verificationCodeDisplay.style.fontStyle = 'italic';
+                    verificationCodeDisplay.style.color = 'var(--text-secondary)';
+                    verificationCodeDisplay.style.fontSize = '1rem';
+                    verificationCodeDisplay.style.fontWeight = 'normal';
+                    verificationCodeDisplay.style.letterSpacing = 'normal';
+                    verificationCodeDisplay.style.border = '1px solid var(--border-color)';
+                    verificationCodeDisplay.style.background = 'var(--bg-primary)';
                     } else {
-                        showNotification(data.error || 'Failed to resend verification email', 'error');
+                        showNotification(data.error || 'Failed to resend verification code', 'error');
                     }
                 })
                 .catch(error => {

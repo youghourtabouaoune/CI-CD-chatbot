@@ -3,6 +3,7 @@ from pydantic import BaseModel, EmailStr
 from enum import Enum
 
 class ModelType(str, Enum):
+    CLAUDE_4_1_OPUC = "claude-opus-4-1"
     LLAMA_3_70B = "meta-llama-3-3-70b-instruct"
     LLAMA_4_MAVERICK = "llama-4-maverick"
     LLAMA_3_1_405B = "meta-llama-3-1-405b-instruct"

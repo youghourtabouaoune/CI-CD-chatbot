@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CI/CD Code Generation Tool</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%233a86ff;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%238338ec;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='20' fill='url(%23grad)'/%3E%3Cpath d='M30 35 L45 50 L30 65' stroke='white' stroke-width='6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M55 55 L70 55' stroke='white' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -1296,7 +1297,7 @@
                                 rows="1"></textarea>
                             <div class="input-controls">
                                 <select class="model-selector" id="model-selector">
-                                    <option value="claude-4-1-opus">Claude 4.1 OPUS</option>
+                                    <option value="claude-opus-4-1">Claude 4.1 OPUS</option>
                                     <option value="meta-llama-3-3-70b-instruct">Llama 3 70B</option>
                                     <option value="llama-4-maverick">Llama 4 Maverick</option>
                                     <option value="meta-llama-3-1-405b-instruct">Llama 3.1 405B</option>
@@ -1708,6 +1709,9 @@
                 this.themeToggle = document.getElementById('theme-toggle');
                 this.themeIcon = document.getElementById('theme-icon');
                 this.usageIndicator = document.getElementById('usage-indicator');
+                
+                // Update usage indicator immediately with default 5/5 for non-logged-in users
+                this.updateUsageIndicator();
             }
 
             initializeEventListeners() {
@@ -1798,11 +1802,33 @@
                         localStorage.removeItem('cicd_api_key');
                         localStorage.removeItem('cicd_user');
                         localStorage.removeItem('cicd_conversations');
+                        
+                        // Reset usage info to default 5/5 for non-logged-in users
+                        this.usageInfo = {
+                            is_authenticated: false,
+                            request_count: 0,
+                            max_requests: 5,
+                            remaining_requests: 5,
+                            minutes_until_reset: 0
+                        };
+                        this.updateUsageIndicator();
                     }
                 }
                 
                 // 4. Update UI based on validated auth state
                 this.updateUserUI();
+                
+                // 4.5. If not authenticated, ensure usageInfo shows 5/5 defaults
+                if (!this.API_KEY || !this.currentUser) {
+                    this.usageInfo = {
+                        is_authenticated: false,
+                        request_count: 0,
+                        max_requests: 5,
+                        remaining_requests: 5,
+                        minutes_until_reset: 0
+                    };
+                    this.updateUsageIndicator();
+                }
                 
                 // 5. Fetch FRESH usage from server (don't trust cache)
                 await this.checkUsage();
@@ -1891,11 +1917,21 @@
                     this.conversations = {};
                     this.currentConversationId = null;
                     
+                    // Reset usage info to default 5/5 for non-logged-in users
+                    this.usageInfo = {
+                        is_authenticated: false,
+                        request_count: 0,
+                        max_requests: 5,
+                        remaining_requests: 5,
+                        minutes_until_reset: 0
+                    };
+                    
                     // Reset UI
                     this.updateUserUI();
                     this.messagesContent.innerHTML = '';
                     this.showEmptyState();
                     this.loadChatHistory();
+                    this.updateUsageIndicator();
                     
                     // Check usage after logout
                     await this.checkUsage();
@@ -1919,8 +1955,19 @@
                     this.API_KEY = null;
                     this.currentUser = null;
                     this.conversations = {};
+                    
+                    // Reset usage info to default 5/5 for non-logged-in users
+                    this.usageInfo = {
+                        is_authenticated: false,
+                        request_count: 0,
+                        max_requests: 5,
+                        remaining_requests: 5,
+                        minutes_until_reset: 0
+                    };
+                    
                     this.updateUserUI();
                     this.loadChatHistory();
+                    this.updateUsageIndicator();
                     
                     // Redirect
                     setTimeout(() => {
@@ -2602,10 +2649,14 @@
                             messageDiv.appendChild(actionsDiv);
                         }
                         
-                        // Re-enable send button
+                        // Re-enable send button and input field
+                        this.isGenerating = false;
                         this.sendBtn.disabled = false;
                         this.sendBtn.style.opacity = '1';
                         this.sendBtn.style.cursor = 'pointer';
+                        this.inputField.disabled = false;
+                        this.inputField.style.opacity = '1';
+                        this.inputField.placeholder = 'Ask me to generate CI/CD code...';
                     }
                 };
                 
@@ -2895,12 +2946,18 @@
 
             async makeAPICall(endpoint, data, method = 'POST') {
                 try {
+                    const headers = {
+                        'Content-Type': 'application/json'
+                    };
+                    
+                    // Only include X-API-Key header if we have a valid API key
+                    if (this.API_KEY && this.API_KEY.trim() !== '') {
+                        headers['X-API-Key'] = this.API_KEY;
+                    }
+                    
                     const options = {
                         method: method,
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-API-Key': this.API_KEY || ''
-                        }
+                        headers: headers
                     };
 
                     if (method === 'POST' && data) {
@@ -3145,25 +3202,25 @@
             }
 
             async copyAnswer(content) {
+                // Create a temporary div to parse HTML and get text
+                const temp = document.createElement('div');
+                temp.innerHTML = content;
+                
+                // Remove code block copy buttons from the content
+                const copyButtons = temp.querySelectorAll('.copy-code-btn');
+                copyButtons.forEach(btn => btn.remove());
+                
+                let plainText = temp.textContent || temp.innerText || '';
+                
+                // Clean up extra whitespace
+                plainText = plainText.replace(/\n\s*\n/g, '\n\n').trim();
+                
+                if (!plainText) {
+                    this.showNotification('No content to copy', 'warning');
+                    return;
+                }
+                
                 try {
-                    // Create a temporary div to parse HTML and get text
-                    const temp = document.createElement('div');
-                    temp.innerHTML = content;
-                    
-                    // Remove code block copy buttons from the content
-                    const copyButtons = temp.querySelectorAll('.copy-code-btn');
-                    copyButtons.forEach(btn => btn.remove());
-                    
-                    let plainText = temp.textContent || temp.innerText || '';
-                    
-                    // Clean up extra whitespace
-                    plainText = plainText.replace(/\n\s*\n/g, '\n\n').trim();
-                    
-                    if (!plainText) {
-                        this.showNotification('No content to copy', 'warning');
-                        return;
-                    }
-                    
                     await navigator.clipboard.writeText(plainText);
                     this.showNotification('Answer copied to clipboard!', 'success');
                 } catch (err) {
@@ -3172,6 +3229,8 @@
                     // Fallback method
                     const textArea = document.createElement('textarea');
                     textArea.value = plainText;
+                    textArea.style.position = 'fixed';
+                    textArea.style.opacity = '0';
                     document.body.appendChild(textArea);
                     textArea.select();
                     try {

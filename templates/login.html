@@ -252,9 +252,39 @@
                 padding: 2rem 1.5rem;
             }
         }
+
+        .back-button {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(-5px);
+        }
+
+        .back-button i {
+            font-size: 0.8rem;
+        }
     </style>
 </head>
 <body>
+    <a href="/" class="back-button">
+        <i class="fas fa-arrow-left"></i> Back to Home
+    </a>
     <div class="login-container">
         <div class="login-header">
             <div class="logo">
@@ -422,7 +452,7 @@
                         
                         // Redirect to main page
                         setTimeout(() => {
-                            window.location.href = '/';
+                            window.location.href = '/index';
                         }, 1500);
                     } else {
                         // Handle specific error cases

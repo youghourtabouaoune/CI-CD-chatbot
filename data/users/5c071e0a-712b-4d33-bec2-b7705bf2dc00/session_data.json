@@ -1,0 +1,10 @@
+{
+  "current_conversation_id": null,
+  "conversations": {},
+  "user_preferences": {
+    "theme": "light",
+    "selected_model": "claude-opus-4-1",
+    "sidebar_collapsed": false
+  },
+  "last_active": "2025-10-28T03:37:18.410399"
+}
