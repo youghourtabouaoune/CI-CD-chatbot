@@ -1,4 +1,4 @@
-name: Deploy Container to Azure WebApp via Publish Profile
+name: Deploy Container to Azure WebApp (Final Attempt)
 
 on:
   push:
@@ -13,19 +13,10 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    # 1. Login to Azure using the Publish Profile
-    # This establishes the credentials needed for the 'azure/webapps-deploy' action later.
-    - name: Azure Login (via Publish Profile)
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        # Setting 'enable-AzPSSession: true' is often necessary for webapps-deploy to function correctly
-        enable-AzPSSession: true 
-        
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
-    # 2. Log in to Azure Container Registry (ACR)
+    # 1. Log in to Azure Container Registry (ACR)
     # This step uses the ACR Admin User/Pass for Docker build/push authentication.
     - name: Log in to Azure Container Registry (ACR)
       uses: azure/docker-login@v1
@@ -34,7 +25,7 @@ jobs:
         username: ${{ secrets.ACR_USERNAME }}
         password: ${{ secrets.ACR_PASSWORD }}
 
-    # 3. Build and Push Docker image
+    # 2. Build and Push Docker image
     - name: Build and Push Docker image
       uses: docker/build-push-action@v5
       with:
@@ -43,12 +34,14 @@ jobs:
         tags: ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/${{ secrets.AZURE_WEBAPP_NAME }}:latest
         file: ./Dockerfile
 
-    # 4. Deploy to Azure WebApp
-    # This action uses the credentials established in step 1 (Azure Login)
-    # to configure the App Service to pull the new image from ACR.
+    # 3. Deploy to Azure WebApp
+    # Authentication is done directly through the 'publish-profile' input,
+    # bypassing the need for a failed 'azure/login' step.
     - name: Deploy to Azure WebApp
       uses: azure/webapps-deploy@v2
       with:
         app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
         resource-group: ${{ secrets.AZURE_RG }}
+        # *** The fix is using the 'publish-profile' here directly. ***
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         images: ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/${{ secrets.AZURE_WEBAPP_NAME }}:latest
