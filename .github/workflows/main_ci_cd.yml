@@ -1,4 +1,4 @@
-name: Deploy Container to Azure WebApp via ACR Admin
+name: Deploy Container to Azure WebApp via Publish Profile
 
 on:
   push:
@@ -13,17 +13,28 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
 
+    # 1. Login to Azure using the Publish Profile
+    # This establishes the credentials needed for the 'azure/webapps-deploy' action later.
+    - name: Azure Login (via Publish Profile)
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        # Setting 'enable-AzPSSession: true' is often necessary for webapps-deploy to function correctly
+        enable-AzPSSession: true 
+        
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
-    # Log in directly to ACR using the Admin username and password secrets
+    # 2. Log in to Azure Container Registry (ACR)
+    # This step uses the ACR Admin User/Pass for Docker build/push authentication.
     - name: Log in to Azure Container Registry (ACR)
       uses: azure/docker-login@v1
       with:
         login-server: ${{ secrets.AZURE_ACR_NAME }}.azurecr.io
-        username: ${{ secrets.ACR_USERNAME }} # ACR Admin Username
-        password: ${{ secrets.ACR_PASSWORD }} # ACR Admin Password
+        username: ${{ secrets.ACR_USERNAME }}
+        password: ${{ secrets.ACR_PASSWORD }}
 
+    # 3. Build and Push Docker image
     - name: Build and Push Docker image
       uses: docker/build-push-action@v5
       with:
@@ -32,21 +43,12 @@ jobs:
         tags: ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/${{ secrets.AZURE_WEBAPP_NAME }}:latest
         file: ./Dockerfile
 
-    # Configure the Azure WebApp to pull the newly pushed image
-    # Note: This step requires Azure credentials to access the web app configuration.
-    # Since we can't create an SP, you'll need a way to authenticate the deployment.
-    # The 'azure/webapps-deploy' action has a simpler way to authenticate for App Service settings: Publish Profile.
-    - name: Download WebApp Publish Profile
-      # We need a different approach here because 'azure/webapps-deploy' defaults to requiring SP credentials.
-      # Since you can't create an SP, the next best thing is using the Publish Profile.
-      run: echo "::set-output name=publish-profile::$(az webapp deployment list-publishing-profiles --resource-group ${{ secrets.AZURE_RG }} --name ${{ secrets.AZURE_WEBAPP_NAME }} --xml --query '[0]')"
-      id: get-publish-profile
-      shell: bash
-      
-    - name: Deploy to Azure WebApp with Publish Profile
+    # 4. Deploy to Azure WebApp
+    # This action uses the credentials established in step 1 (Azure Login)
+    # to configure the App Service to pull the new image from ACR.
+    - name: Deploy to Azure WebApp
       uses: azure/webapps-deploy@v2
       with:
         app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
         resource-group: ${{ secrets.AZURE_RG }}
-        publish-profile: ${{ steps.get-publish-profile.outputs.publish-profile }}
         images: ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/${{ secrets.AZURE_WEBAPP_NAME }}:latest
