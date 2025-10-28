@@ -1,0 +1,52 @@
+name: Deploy Container to Azure WebApp via ACR Admin
+
+on:
+  push:
+    branches:
+      - "main" # Update this if your main branch is different
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    # Log in directly to ACR using the Admin username and password secrets
+    - name: Log in to Azure Container Registry (ACR)
+      uses: azure/docker-login@v1
+      with:
+        login-server: ${{ secrets.AZURE_ACR_NAME }}.azurecr.io
+        username: ${{ secrets.ACR_USERNAME }} # ACR Admin Username
+        password: ${{ secrets.ACR_PASSWORD }} # ACR Admin Password
+
+    - name: Build and Push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/${{ secrets.AZURE_WEBAPP_NAME }}:latest
+        file: ./Dockerfile
+
+    # Configure the Azure WebApp to pull the newly pushed image
+    # Note: This step requires Azure credentials to access the web app configuration.
+    # Since we can't create an SP, you'll need a way to authenticate the deployment.
+    # The 'azure/webapps-deploy' action has a simpler way to authenticate for App Service settings: Publish Profile.
+    - name: Download WebApp Publish Profile
+      # We need a different approach here because 'azure/webapps-deploy' defaults to requiring SP credentials.
+      # Since you can't create an SP, the next best thing is using the Publish Profile.
+      run: echo "::set-output name=publish-profile::$(az webapp deployment list-publishing-profiles --resource-group ${{ secrets.AZURE_RG }} --name ${{ secrets.AZURE_WEBAPP_NAME }} --xml --query '[0]')"
+      id: get-publish-profile
+      shell: bash
+      
+    - name: Deploy to Azure WebApp with Publish Profile
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
+        resource-group: ${{ secrets.AZURE_RG }}
+        publish-profile: ${{ steps.get-publish-profile.outputs.publish-profile }}
+        images: ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/${{ secrets.AZURE_WEBAPP_NAME }}:latest
