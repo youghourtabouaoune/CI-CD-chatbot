@@ -1,4 +1,4 @@
-name: Build and deploy Dockerized Python app to Azure Web App - AI-chatbot-V1
+name: Build and Deploy Dockerized Python app to Azure Web App - AI-chatbot-V1
 
 on:
   push:
@@ -11,21 +11,24 @@ on:
 permissions:
   contents: read
   packages: write
+  # Add ID token permission for OIDC/Azure login (best practice)
+  id-token: write
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    
+    environment: Production # Define an environment for security/tracking
+
     steps:
       - name: ⬇️ Checkout repository
         uses: actions/checkout@v4
 
       - name: 🏷️ Set Docker image tag
-        # Use the commit SHA for a unique, immutable tag
+        # Create the full image name: ghcr.io/<owner>/ai-chatbot-v1:<sha>
         id: set_tag
-        run: echo "IMAGE_TAG=${GITHUB_REPOSITORY_OWNER}/ai-chatbot-v1:${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+        run: echo "IMAGE_TAG=ghcr.io/${GITHUB_REPOSITORY_OWNER}/ai-chatbot-v1:${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
       
-      - name: 🔑 Log in to GitHub Container Registry
+      - name: 🔑 Log in to GitHub Container Registry (For Runner Build/Push)
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -38,29 +41,48 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ steps.set_tag.outputs.IMAGE_TAG }}
-          # Use your provided Dockerfile
+          tags: ${{ steps.set_tag.outputs.IMAGE_TAG }}
           file: ./Dockerfile
-          # Skip the cache to ensure the latest code is built
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      # --- START: New Steps for Azure Authentication and Registry Configuration ---
+      - name: 🔐 Azure Login (Using Service Principal or OIDC)
+        # We use azure/login instead of publish-profile for better CLI integration
+        uses: azure/login@v1
+        with:
+          # You MUST set up an AZURE_CREDENTIALS secret (Service Principal)
+          creds: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_9292702A645045A5A500A36C2E3C7954 }}
+          enable-AzPSSession: true
+
+      - name: ⚙️ Configure Azure Web App Container Credentials
+        # This step sets the DOCKER_REGISTRY_SERVER_* settings on the Web App
+        # so Azure can pull the private GHCR image.
+        run: |
+          echo "Configuring private GHCR credentials on Azure App Service..."
+          az webapp config container set \
+            --name 'AI-chatbot-V1' \
+            --resource-group 'your-resource-group-name' \
+            --docker-custom-image-name ${{ steps.set_tag.outputs.IMAGE_TAG }} \
+            --docker-registry-server-url 'https://ghcr.io' \
+            --docker-registry-server-user ${{ github.actor }} \
+            --docker-registry-server-password ${{ secrets.GITHUB_TOKEN }}
+        # NOTE: You MUST replace 'your-resource-group-name' with your actual resource group!
+      # --- END: New Steps ---
+
       - name: 🚀 'Deploy to Azure Web App'
+        # The app-name and images are set. The credentials are now set via the CLI step above.
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'AI-chatbot-V1'
           slot-name: 'Production'
-          # Your existing Publish Profile secret
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_9292702A645045A5A500A36C2E3C7954 }}
-          # **Crucial step for container deployment:**
-          # Specify the Docker image from GHCR to deploy
-          images: 'ghcr.io/${{ steps.set_tag.outputs.IMAGE_TAG }}'
+          # We no longer need the publish-profile for deployment since the image is set
+          # and auth is handled by the container config above.
+          # We just deploy the tag, no publish-profile needed here after the CLI config.
+          # If you want to keep the publish-profile for this step, ensure the secret name is correct.
+          # Since we are using an explicit AZ login, we can omit the publish profile here.
+          images: ${{ steps.set_tag.outputs.IMAGE_TAG }}
+          # Removed publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFI36C2E3C7954 }}
 
-      - name: 🌐 Configure Registry Settings (Optional but Recommended)
-        # This step is crucial if your GHCR image is private.
-        # It updates the Web App settings to pull from the private registry.
-        # However, for GHCR, using a public image or this action might not be needed 
-        # if your App Service is configured for GHCR access via a different method (like using a System-Assigned Managed Identity).
-        # For simplicity with a Publish Profile, we assume GHCR can be accessed or is public.
-        # If your image is private, you might need an Azure Login step and az webapp config container command.
-        run: echo "Deployment complete, image: ghcr.io/${{ steps.set_tag.outputs.IMAGE_TAG }}"
+      - name: 🌐 Final Deployment Status
+        run: echo "Deployment of image ${{ steps.set_tag.outputs.IMAGE_TAG }} to AI-chatbot-V1 complete."
