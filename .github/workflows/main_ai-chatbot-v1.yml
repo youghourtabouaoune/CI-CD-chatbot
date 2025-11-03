@@ -36,6 +36,11 @@ jobs:
           # Use the GITHUB_TOKEN secret which is automatically available
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: 🏗️ Set up Docker Buildx
+        # This step configures the Docker build environment to use a builder
+        # that supports the GH Actions cache backend (type=gha).
+        uses: docker/setup-buildx-action@v3
+
       - name: 🛠️ Build and Push Docker image to GHCR
         uses: docker/build-push-action@v5
         with:
